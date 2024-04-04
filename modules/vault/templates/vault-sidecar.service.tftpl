@@ -1,0 +1,15 @@
+[Unit]
+Description=Unseal and Initialize Vault on demand
+After=network-online.target vault.service
+Requires==network-online.target vault.service
+
+[Service]
+Type=oneshot
+Environment="WEBHOOK_URL=${webhook_url}"
+Environment="VAULT_OWNER=${owner}"
+Environment="VAULT_SKIP_VERIFY=true"
+Restart=on-failure
+ExecStart=/opt/bin/vault-sidecar.sh
+
+[Install]
+WantedBy=multi-user.target

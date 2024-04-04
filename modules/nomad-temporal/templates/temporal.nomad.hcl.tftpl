@@ -1,0 +1,175 @@
+job "${job_name}" {
+  datacenters = ["${datacenter_name}"]
+
+  type = "service"
+
+  group "database" {
+    network {
+      mode = "bridge"
+      port "postgres" {
+        to = 5432
+      }
+    }
+    service {
+      provider = "nomad"
+      name     = "temporal-postgres"
+      port     = "postgres"
+    }
+    task "postgres" {
+      driver = "docker"
+      config {
+        image = "postgres:${postgres_version}"
+        ports = ["postgres"]
+      }
+      env {
+        POSTGRES_PASSWORD = "${db_password}"
+        POSTGRES_USER     = "temporal"
+      }
+    }
+  }
+
+  group "elasticsearch" {
+    network {
+      mode = "bridge"
+      port "elasticsearch" {
+        to = 9200
+      }
+    }
+    service {
+      provider = "nomad"
+      name     = "temporal-elasticsearch"
+      port     = "elasticsearch"
+    }
+    task "elasticsearch" {
+      driver = "docker"
+      config {
+        image = "elasticsearch:${elasticsearch_version}"
+        ports = ["elasticsearch"]
+      }
+      env = {
+        "cluster.routing.allocation.disk.threshold_enabled"     = true
+        "cluster.routing.allocation.disk.watermark.low"         = "512mb"
+        "cluster.routing.allocation.disk.watermark.high"        = "256mb"
+        "cluster.routing.allocation.disk.watermark.flood_stage" = "128mb"
+        "discovery.type"                                        = "single-node"
+        "ES_JAVA_OPTS"                                          = "-Xms256m -Xmx256m"
+        "xpack.security.enabled"                                = "false"
+      }
+      resources {
+        memory = 1024
+      }
+    }
+  }
+
+  group "temporal" {
+    network {
+      mode = "bridge"
+      port "temporal" {
+        to = 7233
+      }
+    }
+    service {
+      provider = "nomad"
+      name     = "temporal"
+      port     = "temporal"
+    }
+    task "temporal" {
+      driver = "docker"
+      config {
+        image = "temporalio/auto-setup:${temporal_version}"
+        labels = {
+          "kompose.volume.type" = "configMap"
+        }
+        ports = ["temporal"]
+      }
+      env = {
+        "DB"                       = "postgresql"
+        "POSTGRES_USER"            = "temporal"
+        "POSTGRES_PWD"             = "${db_password}"
+        "DYNAMIC_CONFIG_FILE_PATH" = "$${NOMAD_TASK_DIR}/dynamicconfig.yaml"
+        "ENABLE_ES"                = true
+        "ES_VERSION"               = "v7"
+      }
+      template {
+        data        = <<-EOT
+        {{ range nomadService "temporal-postgres" -}}
+        POSTGRES_SEEDS={{ .Address }}
+        DB_PORT={{ .Port }}
+        {{- end }}
+        {{ range nomadService "temporal-elasticsearch" -}}
+        ES_SEEDS={{ .Address }}
+        ES_PORT={{ .Port }}
+        {{- end }}
+        EOT
+        destination = "secrets/.env"
+        env         = true
+      }
+      template {
+        data = <<-EOT
+        limit.maxIDLength:
+          - value: 255
+            constraints: {}
+        system.forceSearchAttributesCacheRefreshOnRead:
+          - value: true
+            constraints: {}
+        EOT
+        destination = "local/dynamicconfig.yaml"
+      }
+    }
+  }
+  
+  group "temporal-ui" {
+    network {
+      mode = "bridge"
+      port "temporal-ui" {
+        to = 8080
+      }
+    }
+    service {
+      provider = "nomad"
+      name     = "temporal-ui"
+      port     = "temporal-ui"
+    }
+    task "temporal-ui" {
+      driver = "docker"
+      config {
+        image = "temporalio/ui:${temporal_ui_version}"
+        ports = ["temporal-ui"]
+      }
+      env {
+        TEMPORAL_CORS_ORIGINS = "http://localhost:3000"
+      }
+      template {
+        data        = <<-EOT
+        {{ range nomadService "temporal" -}}
+        TEMPORAL_ADDRESS={{ .Address }}:{{ .Port }}
+        {{- end }}
+        EOT
+        destination = "secrets/.env"
+        env         = true
+      }
+    }
+  }
+  
+  group "temporal-admin-tools" {
+    network {
+      mode = "bridge"
+    }
+    task "admin-tools" {
+      driver = "docker"
+      config {
+        image = "temporalio/admin-tools:${temporal_version}"
+      }
+      template {
+        data        = <<-EOT
+        {{ range nomadService "temporal" -}}
+        TEMPORAL_ADDRESS={{ .Address }}:{{ .Port }}
+        TEMPORAL_CLI_ADDRESS={{ .Address }}:{{ .Port }}
+        {{- end }}
+        EOT
+        destination = "secrets/.env"
+        env         = true
+      }
+    }
+  }
+}

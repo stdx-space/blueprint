@@ -1,0 +1,15 @@
+plugin "docker" {
+  config {
+    volumes {
+      enabled      = true
+      selinuxlabel = "z"
+    }
+    allow_privileged = true
+  }
+}
+
+plugin "raw_exec" {
+  config {
+    enabled = true
+  }
+}

@@ -1,0 +1,11 @@
+tls {
+  http = true
+  rpc  = true
+
+  %{ for key, value in tls_credentials ~}
+  ${key} = "${value}"
+  %{ endfor ~}
+
+  verify_https_client    = true
+  verify_server_hostname = true
+}

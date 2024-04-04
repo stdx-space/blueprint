@@ -1,0 +1,20 @@
+[Unit]
+Description=Obtain and renew Letsencrypt TLS certificate via ACME
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+Environment="CF_DNS_API_TOKEN=${api_dns_token}"
+Environment="CF_ZONE_API_TOKEN=${api_zone_token}"
+WorkingDirectory=${install_dir}
+ExecStartPre=/usr/bin/install -D -d -m755 -o vault -g vault /etc/vault.d/tls
+ExecStart=/usr/bin/lego --path /opt/lego --dns cloudflare --email ${acme_email} --domains ${domain} --accept-tos run
+ExecStartPost=/usr/bin/install -Dm755 -o vault -g vault ${install_dir}/tls.hcl /etc/vault.d/listener.hcl
+ExecStartPost=/usr/bin/install -Dm600 -o vault -g vault /opt/lego/certificates/${domain}.crt /etc/vault.d/tls/
+ExecStartPost=/usr/bin/install -Dm600 -o vault -g vault /opt/lego/certificates/${domain}.key /etc/vault.d/tls/
+
+[Install]
+WantedBy=multi-user.target

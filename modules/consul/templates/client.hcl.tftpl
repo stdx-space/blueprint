@@ -1,0 +1,7 @@
+datacenter     = "${datacenter_name}"
+data_dir       = "${data_dir}"
+client_addr    = "0.0.0.0"
+bind_addr      = "{{ GetPrivateIP }}"
+advertise_addr = "{{ GetPrivateIP }}"
+retry_join     = ${retry_join}
+log_level      = "${log_level}"

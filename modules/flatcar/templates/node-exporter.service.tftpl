@@ -1,0 +1,24 @@
+[Unit]
+Description=Prometheus Node Exporter
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/bin/docker stop %n
+ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=/usr/bin/docker pull quay.io/prometheus/node-exporter
+ExecStart=/usr/bin/docker run --rm --name %n \
+  -p 9100:9100 \
+  -v /proc:/host/proc:ro \
+  -v /sys:/host/sys:ro \
+  -v /:/rootfs:ro \
+  quay.io/prometheus/node-exporter \
+  --path.procfs=/host/proc \
+  --path.rootfs=/rootfs \
+  --path.sysfs=/host/sys \
+  --collector.filesystem.mount-points-exclude="^/(sys|proc|dev|host|etc)($$|/)"
+
+[Install]
+WantedBy=multi-user.target

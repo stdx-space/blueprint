@@ -1,0 +1,10 @@
+[Unit]
+Description=Set system time zone
+
+[Service]
+ExecStart=/usr/bin/timedatectl set-timezone ${timezone}
+RemainAfterExit=yes
+Type=oneshot
+
+[Install]
+WantedBy=multi-user.target

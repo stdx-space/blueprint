@@ -1,0 +1,13 @@
+bind_addr  = "0.0.0.0"
+datacenter = "${datacenter_name}"
+data_dir   = "${data_dir}"
+log_level  = "${log_level}"
+advertise = {
+  http = "{{ GetPrivateIP }}"
+  rpc  = "{{ GetPrivateIP }}"
+  serf = "{{ GetPrivateIP }}"
+}
+client = {
+  enabled  = true
+  cni_path = "/usr/lib/cni"
+}

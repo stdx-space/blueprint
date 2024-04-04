@@ -1,0 +1,9 @@
+[Match]
+Name=eth0
+
+[Network]
+Address=${ip_address}
+Gateway=${gateway_ip}
+%{ for nameserver in nameservers ~}
+DNS=${nameserver}
+%{ endfor ~}

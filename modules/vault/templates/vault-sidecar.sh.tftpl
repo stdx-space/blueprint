@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -o nounset
+# Check if vault is initialized
+vault status -format=json | grep -q '"initialized": true'
+if [[ $? -eq 0 ]]; then
+  echo "$(date +'%Y-%m-%dT%H:%M:%S%z') [INFO] Vault is initialized, proceed to check its seal status..."
+  # Check if vault is unsealed
+  vault status -format=json | grep -q '"sealed": false'
+  if [[ $? -eq 0 ]]; then
+    echo "$(date +'%Y-%m-%dT%H:%M:%S%z') [INFO] Vault is unsealed, no actions required"
+  else
+    echo "$(date +'%Y-%m-%dT%H:%M:%S%z') [INFO] Vault is sealed, sending http request to remote unseal handler" 
+    curl -L \
+    -X PUT \
+    -H "VAULT-OWNER: $VAULT_OWNER" \
+    "$WEBHOOK_URL/vault/unseal"
+    echo "$(date +'%Y-%m-%dT%H:%M:%S%z') [INFO] Vault unseal request sent, the process should be completed momentarily..."
+  fi
+else
+  echo "$(date +'%Y-%m-%dT%H:%M:%S%z') [INFO] Vault is not initialized, sending http request to remote init handler"
+  curl -L \
+  -X POST \
+  -H "VAULT-OWNER: $VAULT_OWNER" \
+  "$WEBHOOK_URL/vault/init"
+  echo "$(date +'%Y-%m-%dT%H:%M:%S%z') [INFO] Vault initialization request sent, the process should be completed momentarily..."
+fi

@@ -1,0 +1,245 @@
+job "${job_name}" {
+  datacenters = ["${datacenter_name}"]
+  type        = "service"
+
+  group "db" {
+
+    network {
+      port "postgres" {
+        to     = 5432
+      }
+    }
+
+    service {
+      name     = "postgres"
+      provider = "nomad"
+      port     = "postgres"
+    }
+
+    task "postgres" {
+      driver = "docker"
+
+      template {
+        data = <<-EOF
+          POSTGRES_PASSWORD="${db_password}"
+        EOF
+        destination = "local/.env"
+        env = true
+      }
+
+      template {
+        data = <<-EOF
+        #!/bin/bash
+        set -e
+
+        psql -v ON_ERROR_STOP=1 --username "postgres" --dbname "postgres" <<-EOSQL
+          CREATE USER hydra WITH PASSWORD '${hydra_db_password}';
+          CREATE USER kratos WITH PASSWORD '${kratos_db_password}';
+          CREATE DATABASE hydra;
+          CREATE DATABASE kratos;
+          GRANT ALL PRIVILEGES ON DATABASE hydra TO hydra;
+          GRANT ALL PRIVILEGES ON DATABASE kratos TO kratos;
+        EOSQL
+        EOF
+        destination = "local/init-user-db.sh"
+      }
+
+      config {
+        image = "postgres:${postgres_version}"
+        ports = ["postgres"]
+
+        mount {
+          type   = "bind"
+          source = "local/init-user-db.sh"
+          target = "/docker-entrypoint-initdb.d/init-user-db.sh"
+        }
+      }
+    }
+  }
+  group "hydra" {
+    network {
+      port "hydra-public" {
+        to = 4444
+      }
+      port "hydra-admin" {
+        to = 4445
+      }
+    }
+    task "hydra-migrate" {
+      lifecycle {
+        hook = "prestart"
+        sidecar = false
+      }
+
+      driver = "docker"
+
+      template {
+        change_mode = "restart"
+        data = <<-EOF
+        ${hydra_config}
+        EOF
+        destination = "local/hydra.yml"
+      }
+
+      template {
+        change_mode = "restart"
+        data = <<-EOF
+        DSN=postgres://hydra:${urlencode(hydra_db_password)}@{{ range nomadService "postgres" }}{{ .Address }}:{{ .Port }}{{ end }}/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+        EOF
+        destination = "secrets/kratos.env"
+        env = true
+      }
+
+      config {
+        image = "oryd/hydra:${hydra_version}"
+        command = "migrate"
+        args = [
+          "-c",
+          "/etc/config/hydra/hydra.yml",
+          "sql",
+          "-e",
+          "--yes"
+        ]
+
+        mount {
+          type   = "bind"
+          source = "local/hydra.yml"
+          target = "/etc/config/hydra/hydra.yml"
+        }
+      }
+    }
+    task "hydra" {
+      driver = "docker"
+
+      template {
+        change_mode = "restart"
+        data = <<EOF
+${hydra_config}
+        EOF
+        destination = "local/hydra.yml"
+      }
+
+      template {
+        change_mode = "restart"
+        data = <<-EOF
+        DSN=postgres://hydra:${urlencode(hydra_db_password)}@{{ range nomadService "postgres" }}{{ .Address }}:{{ .Port }}{{ end }}/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+        EOF
+        destination = "secrets/kratos.env"
+        env = true
+      }
+
+      config {
+        image = "oryd/hydra:${hydra_version}"
+
+        args = [
+          "serve",
+          "-c",
+          "/etc/config/hydra/hydra.yml",
+          "all"
+        ]
+
+        mount {
+          type   = "bind"
+          source = "local/hydra.yml"
+          target = "/etc/config/hydra/hydra.yml"
+        }
+        
+        ports = ["hydra-public", "hydra-admin"]
+      }
+    }
+  }
+
+  group "kratos" {
+    network {
+      port "kratos-public" {
+        to = 4433
+      }
+      port "kratos-admin" {
+        to = 4434
+      }
+    }
+    
+    task "kratos-migrate" {
+      lifecycle {
+        hook = "prestart"
+        sidecar = false
+      }
+
+      template {
+        change_mode = "restart"
+        data = <<EOF
+${kratos_config}
+        EOF
+        destination = "local/kratos.yml"
+      }
+
+      template {
+        change_mode = "restart"
+        data = <<-EOF
+        DSN=postgres://kratos:${urlencode(kratos_db_password)}@{{ range nomadService "postgres" }}{{ .Address }}:{{ .Port }}{{ end }}/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+        EOF
+        destination = "secrets/kratos.env"
+        env = true
+      }
+
+      driver = "docker"
+
+      config {
+        image = "oryd/kratos:${kratos_version}"
+        // command = "migrate"
+        args = [
+         "-c",
+         "/etc/config/kratos/kratos.yml",
+         "migrate",
+         "sql",
+         "-e",
+         "--yes",
+        ]
+
+        mount {
+          type   = "bind"
+          source = "local/kratos.yml"
+          target = "/etc/config/kratos/kratos.yml"
+        }
+      }
+    }
+    task "kratos" {
+      driver = "docker"
+
+      template {
+        change_mode = "restart"
+        data = <<EOF
+${kratos_config}
+        EOF
+        destination = "local/kratos.yml"
+      }
+
+      template {
+        change_mode = "restart"
+        data = <<-EOF
+        DSN=postgres://kratos:${urlencode(kratos_db_password)}@{{ range nomadService "postgres" }}{{ .Address }}:{{ .Port }}{{ end }}/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+        EOF
+        destination = "secrets/kratos.env"
+        env = true
+      }
+
+      config {
+        image = "oryd/kratos:${kratos_version}"
+
+        args = [
+          "serve",
+          "-c",
+          "/etc/config/kratos/kratos.yml"
+        ]
+
+        mount {
+          type   = "bind"
+          source = "local/kratos.yml"
+          target = "/etc/config/kratos/kratos.yml"
+        }
+        
+        ports = ["kratos-public", "kratos-admin"]
+      }
+    }
+  }
+}

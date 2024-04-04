@@ -1,0 +1,27 @@
+job "${job_name}" {
+  datacenters = ["${datacenter_name}"]
+  type        = "system"
+
+  group "ingress-gateway" {
+    network {
+      mode = "bridge"
+    }
+
+    task "cloudflare-tunnel" {
+      driver = "docker"
+
+      config {
+        image = "cloudflare/cloudflared:${version}"
+
+        args = [
+          "tunnel",
+          "--loglevel",
+          "debug",
+          "run",
+          "--token",
+          "${tunnel_token}",
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+name: Image Digest Generation
+
+on:
+  workflow_run:
+    workflows: ["Sysext Image Manufacturing", "AMI Manufacturing"]
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  generate:
+    env:
+      RCLONE_CONFIG_R2_TYPE: s3
+      RCLONE_CONFIG_R2_PROVIDER: Cloudflare
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate to Security Token Service
+        uses: narwhl/imprint@v1
+        with:
+          scope: cloudflare
+      - name: Install dependencies
+        run: |
+          echo "RCLONE_CONFIG_R2_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> $GITHUB_ENV
+          echo "RCLONE_CONFIG_R2_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> $GITHUB_ENV
+          echo "RCLONE_CONFIG_R2_ENDPOINT=$AWS_ENDPOINT_URL_S3" >> $GITHUB_ENV
+          sudo apt-get install -y rclone
+      - name: Generate digest file for systemd-sysext images
+        if: github.event.workflow_run.name == 'Sysext Image Manufacturing' || github.event_name == 'workflow_dispatch'
+        run: |
+          rclone copy r2:artifact/sysext . --include "*.raw"
+          sha256sum *.raw | tee SHA256SUMS
+          rclone copy SHA256SUMS r2:artifact/sysext/
+      - name: Generate digest file for AMI
+        if: github.event.workflow_run.name == 'AMI Manufacturing' || github.event_name == 'workflow_dispatch'
+        run: |
+          rclone copy r2:artifact/ami . --include "*.{qcow2,ova}"
+          sha256sum *.raw | tee SHA256SUMS
+          rclone copy SHA256SUMS r2:artifact/ami/

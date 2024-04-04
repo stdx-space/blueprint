@@ -1,0 +1,43 @@
+# Terraform module for configuring Flatcar Linux with Ignition
+
+## Usage
+
+```hcl
+module "flatcar" {
+  source = "github.com/narwhl/blueprint//modules/flatcar"
+  name   = "hostname"
+
+}
+```
+
+### Variables
+
+`name`: Hostname for the Flatcar instance
+
+`username`: Username for logging into the Flatcar instance, defaults to `core`
+
+`timezone`: Timezone the VM resides in (e.g `Europe/Stockholm`), defaults to `Asia/Hong_Kong`
+
+`disks`: List of disks to mount onto the Flatcar instance
+
+- `label`: Label for the disk storage device
+- `mount_path`: Filesystem path to mount the disk storage device to
+- `device_path`: Path to the disk storage device, e.g /dev/sda1
+
+`expose_docker_socket`: Whether to enable docker socket to be accessible via a TCP listener, defaults to `false`
+
+`network`: CIDR notation for the network to be used for the Flatcar instance, e.g `10.0.0.0/16`
+
+`ip_address`: Static IP address to assign to the Flatcar instance, e.g `10.0.0.10`
+
+`gateway_ip`: Gateway IP address to assign to the Flatcar instance, e.g `10.0.0.1`
+
+`nameservers`: List of nameservers to assign to the Flatcar instance, e.g `["8.8.8.8", "1.1.1.1"]`
+
+`ca_certs`: List of CA certificates to be trusted by the Flatcar instance
+
+`substrates`: List of configurations to be layer on top of Flatcar
+
+`base64_encode`: Whether to encode the resulting ignition config file in base64, defaults to `false`
+
+`ssh_authorized_keys`: A list of SSH public keys to be added to the Flatcar instance login user, support fetching over git hosting provider, e.g `https://github.com/{user}.keys`
