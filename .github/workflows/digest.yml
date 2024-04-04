@@ -16,6 +16,7 @@ jobs:
     env:
       RCLONE_CONFIG_R2_TYPE: s3
       RCLONE_CONFIG_R2_PROVIDER: Cloudflare
+      RCLONE_S3_NO_CHECK_BUCKET: true
     if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
