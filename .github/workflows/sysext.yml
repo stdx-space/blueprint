@@ -37,7 +37,7 @@ jobs:
           scope: cloudflare
       - name: Install dependencies
         run: |
-          sudo apt-get install -y squashfs-tools rclone
+          sudo apt-get install -yqq squashfs-tools rclone
       - name: Packer build
         run: |
           packer build -only=null.${{ matrix.package }} .
