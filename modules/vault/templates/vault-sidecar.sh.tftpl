@@ -11,16 +11,14 @@ if [[ $? -eq 0 ]]; then
   else
     echo "$(date +'%Y-%m-%dT%H:%M:%S%z') [INFO] Vault is sealed, sending http request to remote unseal handler" 
     curl -L \
-    -X PUT \
-    -H "VAULT-OWNER: $VAULT_OWNER" \
-    "$WEBHOOK_URL/vault/unseal"
+    -X POST \
+    "$WEBHOOK_URL/vault/$VAULT_OWNER/unseal"
     echo "$(date +'%Y-%m-%dT%H:%M:%S%z') [INFO] Vault unseal request sent, the process should be completed momentarily..."
   fi
 else
   echo "$(date +'%Y-%m-%dT%H:%M:%S%z') [INFO] Vault is not initialized, sending http request to remote init handler"
   curl -L \
   -X POST \
-  -H "VAULT-OWNER: $VAULT_OWNER" \
-  "$WEBHOOK_URL/vault/init"
+  "$WEBHOOK_URL/vault/$VAULT_OWNER/init"
   echo "$(date +'%Y-%m-%dT%H:%M:%S%z') [INFO] Vault initialization request sent, the process should be completed momentarily..."
 fi
