@@ -12,7 +12,7 @@ packer {
 }
 
 build {
-  sources = ["source.qemu.nixos"]
+  sources = ["source.qemu.nixos", "source.vsphere-iso.debian", "source.vsphere-iso.alma", "source.vsphere-iso.nixos"]
   post-processor "shell-local" {
     inline = ["rclone copy build/${source.name}.qcow2 r2:artifact/ami/"]
     only   = ["source.qemu.nixos"]
@@ -31,20 +31,20 @@ build {
       for os in ["debian", "nixos", "alma"] : "source.vsphere-iso.${os}"
     ]
   }
-  post-processor "shell-local" {
-    inline = ["rclone copyto build/${source.name}.ova r2:artifact/ami/${source.name}.ova"]
-    only = [
-      for os in ["debian", "nixos", "alma"] : "source.vsphere-iso.${os}"
-    ]
-    environment_vars = [
-      "RCLONE_CONFIG_R2_TYPE=s3",
-      "RCLONE_CONFIG_R2_PROVIDER=Cloudflare",
-      "RCLONE_CONFIG_R2_ENDPOINT=${var.cf_r2_endpoint}",
-      "RCLONE_CONFIG_R2_ACCESS_KEY_ID=${var.cf_r2_access_key_id}",
-      "RCLONE_CONFIG_R2_SECRET_ACCESS_KEY=${var.cf_r2_secret_access_key}",
-      "RCLONE_S3_NO_CHECK_BUCKET=true"
-    ]
-  }
+  // post-processor "shell-local" {
+  //   inline = ["rclone copyto build/${source.name}.ova r2:artifact/ami/${source.name}.ova"]
+  //   only = [
+  //     for os in ["debian", "nixos", "alma"] : "source.vsphere-iso.${os}"
+  //   ]
+  //   environment_vars = [
+  //     "RCLONE_CONFIG_R2_TYPE=s3",
+  //     "RCLONE_CONFIG_R2_PROVIDER=Cloudflare",
+  //     "RCLONE_CONFIG_R2_ENDPOINT=${var.cf_r2_endpoint}",
+  //     "RCLONE_CONFIG_R2_ACCESS_KEY_ID=${var.cf_r2_access_key_id}",
+  //     "RCLONE_CONFIG_R2_SECRET_ACCESS_KEY=${var.cf_r2_secret_access_key}",
+  //     "RCLONE_S3_NO_CHECK_BUCKET=true"
+  //   ]
+  // }
 }
 
 data "http" "supplychain" {

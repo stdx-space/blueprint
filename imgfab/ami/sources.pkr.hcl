@@ -28,7 +28,7 @@ source "vsphere-iso" "debian" {
   remove_cdrom = true
 
   cd_content = {
-    preseed_file = templatefile("${path.root}/templates/preseed.cfg.pkrtpl", {
+    "preseed.cfg" = templatefile("${path.root}/templates/preseed.cfg.pkrtpl", {
       "timezone" = var.timezone,
       "packages" = join(" ", [
         "apt-transport-https",
