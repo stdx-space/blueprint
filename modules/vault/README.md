@@ -13,7 +13,6 @@ module "vault" {
   bucket          = "vault"
   acme_email      = "letsencrypt@domain.tld"
   acme_domain     = "vault.internal.domain.tld"
-  owner           = ""
   webhook_url     = ""
 }
 ```
@@ -33,7 +32,5 @@ module "vault" {
 `acme_email`: email for registering with letsencrypt with lego
 
 `acme_domain`: the FQDN that needs obtaining TLS certificate for
-
-`owner`: label for STS to identify ownership of vault instance
 
 `webhook_url`: webhook endpoint for sending unseal/init request to
