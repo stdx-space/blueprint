@@ -152,7 +152,6 @@ locals {
           "${path.module}/templates/vault-sidecar.service.tftpl",
           {
             webhook_url = var.webhook_url
-            owner       = var.owner
           }
         )
       },

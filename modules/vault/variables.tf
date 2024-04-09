@@ -103,8 +103,3 @@ variable "webhook_url" {
   type        = string
   description = "webhook endpoint for unseal/init"
 }
-
-variable "owner" {
-  type        = string
-  description = "owner of the vault"
-}
