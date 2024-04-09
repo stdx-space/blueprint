@@ -9,8 +9,6 @@ Type=oneshot
 Environment="CF_DNS_API_TOKEN=${api_dns_token}"
 Environment="CF_ZONE_API_TOKEN=${api_zone_token}"
 ExecStart=/usr/bin/lego --path /opt/lego --dns cloudflare --email ${acme_email} --domains ${domain} --accept-tos renew
-ExecStartPost=/usr/bin/install -Dm755 -o vault -g vault /opt/lego/certificates/${domain}.crt /etc/vault.d/tls/
-ExecStartPost=/usr/bin/install -Dm755 -o vault -g vault /opt/lego/certificates/${domain}.key /etc/vault.d/tls/
 
 [Install]
 WantedBy=multi-user.target

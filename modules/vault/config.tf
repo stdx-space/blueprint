@@ -49,11 +49,6 @@ locals {
       mode    = "755"
     },
     {
-      path    = "/opt/bin/vault-sidecar.sh"
-      content = file("${path.module}/templates/vault-sidecar.sh.tftpl")
-      mode    = "755"
-    },
-    {
       path  = "${var.install_dir}/tls.hcl"
       owner = "vault"
       group = "vault"
@@ -166,7 +161,7 @@ locals {
       {
         name = "vault-watcher.service"
         content = templatefile(
-          "${path.module}/templates/watcher.service.tftpl", {
+          "${path.module}/templates/restarter.service.tftpl", {
             package = "vault"
             service = "vault"
           }
@@ -187,10 +182,16 @@ locals {
         content = templatefile(
           "${path.module}/templates/watcher.path.tftpl",
           {
-            path    = "/etc/vault.d/tls/${var.acme_domain}.crt"
-            service = "vault-watcher.service"
+            path    = "/opt/lego/certificates/${var.acme_domain}.crt"
+            service = "vault-cert-watcher.service"
           }
         )
+      },
+      {
+        name = "vault-cert-watcher.service"
+        content = templatefile("${path.module}/templates/update-certificate.service.tftpl", {
+          domain = var.acme_domain
+        })
       }
     ]
   )
