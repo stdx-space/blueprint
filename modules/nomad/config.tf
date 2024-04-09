@@ -81,6 +81,12 @@ locals {
           }
         }
       )
+    },
+    {
+      path    = "/etc/profile.d/nomad.sh"
+      enabled = true
+      content = file("${path.module}/templates/nomad.sh.tftpl")
+      mode    = "755"
     }
   ]
 
