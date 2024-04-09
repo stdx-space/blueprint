@@ -90,15 +90,15 @@ variable "tls" {
   })
   default = {
     ca_cert = {
-      path    = "/etc/consul.d/tls/ca.pem"
+      path    = "/opt/consul/tls/ca.pem"
       content = ""
     }
     server_cert = {
-      path    = "/etc/consul.d/tls/server.pem"
+      path    = "/opt/consul/tls/server.pem"
       content = ""
     }
     server_key = {
-      path    = "/etc/consul.d/tls/server.key"
+      path    = "/opt/consul/tls/server.key"
       content = ""
     }
   }

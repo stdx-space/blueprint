@@ -84,6 +84,11 @@ locals {
       group   = "consul"
     },
     {
+      path    = "/etc/profile.d/consul.sh"
+      content = file("${path.module}/templates/consul.sh.tftpl")
+      enabled = true
+    },
+    {
       path    = "/etc/systemd/resolved.conf.d/consul.conf"
       content = file("${path.module}/templates/consul.conf.tftpl")
       enabled = var.resolve_consul_domains
@@ -98,6 +103,16 @@ locals {
     },
     {
       path  = var.data_dir
+      owner = "consul"
+      group = "consul"
+    },
+    {
+      path  = "${var.data_dir}/data"
+      owner = "consul"
+      group = "consul"
+    },
+    {
+      path  = "${var.data_dir}/tls"
       owner = "consul"
       group = "consul"
     }

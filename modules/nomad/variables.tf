@@ -81,15 +81,15 @@ variable "tls" {
   })
   default = {
     ca_cert = {
-      path    = "/etc/nomad.d/tls/ca.pem"
+      path    = "/opt/nomad/tls/ca.pem"
       content = ""
     }
     cert_file = {
-      path    = "/etc/nomad.d/tls/agent.pem"
+      path    = "/opt/nomad/tls/agent.pem"
       content = ""
     }
     key_file = {
-      path    = "/etc/nomad.d/tls/agent.key"
+      path    = "/opt/nomad/tls/agent.key"
       content = ""
     }
   }

@@ -95,11 +95,6 @@ locals {
       group = "vault"
     },
     {
-      path  = "/etc/vault.d/tls"
-      owner = "vault"
-      group = "vault"
-    },
-    {
       path  = "/opt/vault"
       owner = "vault"
       group = "vault"
@@ -108,7 +103,12 @@ locals {
       path  = "/opt/vault/data"
       owner = "vault"
       group = "vault"
-    }
+    },
+    {
+      path  = "/opt/vault/tls"
+      owner = "vault"
+      group = "vault"
+    },
   ]
 
   systemd_units = concat(

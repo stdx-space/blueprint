@@ -100,6 +100,16 @@ locals {
       path  = var.data_dir
       owner = "nomad"
       group = "nomad"
+    },
+    {
+      path  = "${var.data_dir}/data"
+      owner = "nomad"
+      group = "nomad"
+    },
+    {
+      path  = "${var.data_dir}/tls"
+      owner = "nomad"
+      group = "nomad"
     }
   ]
 

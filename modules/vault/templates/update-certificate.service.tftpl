@@ -6,8 +6,8 @@ StartLimitBurst=5
 
 [Service]
 Type=oneshot
-ExecStartPre=/usr/bin/install -Dm755 -o vault -g vault /opt/lego/certificates/${domain}.crt /etc/vault.d/tls/
-ExecStartPre=/usr/bin/install -Dm755 -o vault -g vault /opt/lego/certificates/${domain}.key /etc/vault.d/tls/
+ExecStartPre=/usr/bin/install -Dm755 -o vault -g vault /opt/lego/certificates/${domain}.crt /opt/vault/tls/
+ExecStartPre=/usr/bin/install -Dm755 -o vault -g vault /opt/lego/certificates/${domain}.key /opt/vault/tls/
 ExecStart=/usr/bin/systemctl restart vault.service
 
 [Install]

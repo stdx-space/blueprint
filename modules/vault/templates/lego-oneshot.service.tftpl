@@ -10,7 +10,7 @@ RemainAfterExit=true
 Environment="CF_DNS_API_TOKEN=${api_dns_token}"
 Environment="CF_ZONE_API_TOKEN=${api_zone_token}"
 WorkingDirectory=${install_dir}
-ExecStartPre=/usr/bin/install -D -d -m755 -o vault -g vault /etc/vault.d/tls
+ExecStartPre=/usr/bin/install -D -d -m755 -o vault -g vault /opt/vault/tls
 ExecStart=/usr/bin/lego --path /opt/lego --dns cloudflare --email ${acme_email} --domains ${domain} --accept-tos run
 ExecStartPost=/usr/bin/install -Dm755 -o vault -g vault ${install_dir}/tls.hcl /etc/vault.d/listener.hcl
 
