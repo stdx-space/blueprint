@@ -1,6 +1,6 @@
 [Unit]
 Description=Unseal and Initialize Vault on demand
-After=network-online.target vault.service
+After=network-online.target vault.service lego-oneshot.service
 Requires==network-online.target vault.service
 
 [Service]
