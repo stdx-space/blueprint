@@ -42,7 +42,6 @@ locals {
         "step-ca",
         "tailscale",
         "vault",
-        "waypoint"
         ] : package => concat(
         [
           for subdirectory in local.default_sysext_dir : "mkdir -p ${package}-${local.syspkgs[package].version}-amd64/${subdirectory}"
