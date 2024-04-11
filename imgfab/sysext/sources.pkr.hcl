@@ -1,3 +1,7 @@
+source "null" "cloudflared" {
+  communicator = "none"
+}
+
 source "null" "cniplugins" {
   communicator = "none"
 }

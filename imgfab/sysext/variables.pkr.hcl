@@ -33,6 +33,7 @@ locals {
   templates = merge(
     {
       for package in [
+        "cloudflared",
         "consul-template",
         "consul",
         "coredns",

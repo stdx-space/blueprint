@@ -1,5 +1,6 @@
 build {
   sources = [
+    "source.null.cloudflared",
     "source.null.cniplugins",
     "source.null.coredns",
     "source.null.consultemplate",
@@ -10,6 +11,21 @@ build {
     "source.null.tailscale",
     "source.null.vault",
   ]
+
+  provisioner "shell-local" {
+    only = ["null.cloudflared"]
+    inline = concat(
+      local.templates["cloudflared"],
+      [
+        "curl -LO ${local.syspkgs.cloudflared.pkg_url}",
+        "mv ${local.syspkgs.cloudflared.filename} cloudflared-${local.syspkgs.cloudflared.version}-amd64/usr/bin/cloudflared",
+      ],
+      [
+        "mksquashfs cloudflared-${local.syspkgs.cloudflared.version}-amd64 cloudflared-${local.syspkgs.cloudflared.version}-x86-64.raw",
+        "rm -rf cloudflared-${local.syspkgs.cloudflared.version}-amd64",
+      ]
+    )
+  }
 
   provisioner "shell-local" {
     only = ["null.cniplugins"]
