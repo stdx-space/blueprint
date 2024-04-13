@@ -19,6 +19,7 @@ build {
       [
         "curl -LO ${local.syspkgs.cloudflared.pkg_url}",
         "mv ${local.syspkgs.cloudflared.filename} cloudflared-${local.syspkgs.cloudflared.version}-amd64/usr/bin/cloudflared",
+        "chmod +x cloudflared-${local.syspkgs.cloudflared.version}-amd64/usr/bin/cloudflared",
       ],
       [
         "mksquashfs cloudflared-${local.syspkgs.cloudflared.version}-amd64 cloudflared-${local.syspkgs.cloudflared.version}-x86-64.raw",
