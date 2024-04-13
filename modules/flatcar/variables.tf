@@ -134,6 +134,9 @@ locals {
       uid      = 499 - index
     }
   }
+  remote_ssh_keys = [
+    for item in var.ssh_authorized_keys : item if startswith(item, "http")
+  ]
   disks = {
     for disk in var.disks : disk.device_path => disk.label
   }

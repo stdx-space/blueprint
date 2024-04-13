@@ -146,3 +146,9 @@ variable "base64_encode" {
   default     = false
   description = "Whether to base64 encode the configuration"
 }
+
+locals {
+  remote_ssh_keys = [
+    for item in var.var.ssh_authorized_keys : item if startswith(item, "http")
+  ]
+}

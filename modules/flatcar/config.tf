@@ -1,6 +1,6 @@
 data "http" "ssh_keys_import" {
   for_each = {
-    for item in var.ssh_authorized_keys : "${trimprefix(trimsuffix(item, ".keys"), "https://")}" => item if startswith(item, "https://")
+    for item in local.remote_ssh_keys : "${trimprefix(trimsuffix(item, ".keys"), "https://")}" => item
   }
   url = each.value
 }
