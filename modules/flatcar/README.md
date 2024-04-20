@@ -16,6 +16,10 @@ module "flatcar" {
 
 `username`: Username for logging into the Flatcar instance, defaults to `core`
 
+`autologin`: Whether to enable autologin for the Flatcar instance, defaults to `true`
+
+`disable_ssh`: Option to disable SSH access to the Flatcar instance, defaults to `false`
+
 `timezone`: Timezone the VM resides in (e.g `Europe/Stockholm`), defaults to `Asia/Hong_Kong`
 
 `disks`: List of disks to mount onto the Flatcar instance

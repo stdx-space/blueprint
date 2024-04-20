@@ -90,6 +90,16 @@ data "ignition_systemd_unit" "services" {
   }
 }
 
+data "ignition_systemd_unit" "disable_ssh" {
+  name    = "sshd.service"
+  enabled = false
+}
+
+data "ignition_systemd_unit" "disable_ssh_socket" {
+  name = "sshd.socket"
+  mask = true
+}
+
 data "ignition_config" "config" {
   dynamic "tls_ca" {
     for_each = {
@@ -109,8 +119,11 @@ data "ignition_config" "config" {
   files = [
     for path, file in data.ignition_file.files : file.rendered
   ]
-  systemd = [
+  systemd = concat([
     for name, unit in data.ignition_systemd_unit.services : unit.rendered
-  ]
+    ], var.disable_ssh ? [
+    data.ignition_systemd_unit.disable_ssh.rendered,
+    data.ignition_systemd_unit.disable_ssh_socket.rendered,
+  ] : [])
   users = concat([for key, value in data.ignition_user.external : value.rendered], [data.ignition_user.operator.rendered], )
 }

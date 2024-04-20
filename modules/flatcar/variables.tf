@@ -23,6 +23,12 @@ variable "autologin" {
   default     = true
 }
 
+variable "disable_ssh" {
+  type        = bool
+  description = "Whether to disable SSH access to the VM"
+  default     = false
+}
+
 variable "timezone" {
   type        = string
   default     = "Asia/Hong_Kong"
