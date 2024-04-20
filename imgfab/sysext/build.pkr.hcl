@@ -7,6 +7,7 @@ build {
     "source.null.consul",
     "source.null.lego",
     "source.null.nomad",
+    "source.null.promtail",
     "source.null.stepca",
     "source.null.tailscale",
     "source.null.vault",
@@ -123,6 +124,21 @@ build {
       [
         "mksquashfs nomad-${local.syspkgs.nomad.version}-amd64 nomad-${local.syspkgs.nomad.version}-x86-64.raw",
         "rm -rf nomad-${local.syspkgs.nomad.version}-amd64 ${local.syspkgs.nomad.filename}",
+      ]
+    )
+  }
+
+  provisioner "shell-local" {
+    only = ["null.promtail"]
+    inline = concat(
+      local.templates.promtail,
+      [
+        "curl -LO ${local.syspkgs.promtail.pkg_url}",
+        "unzip ${local.syspkgs.promtail.filename} -d promtail-${local.syspkgs.promtail.version}-amd64/usr/bin",
+      ],
+      [
+        "mksquashfs promtail-${local.syspkgs.promtail.version}-amd64 promtail-${local.syspkgs.promtail.version}-x86-64.raw",
+        "rm -rf promtail-${local.syspkgs.promtail.version}-amd64 ${local.syspkgs.promtail.filename}",
       ]
     )
   }

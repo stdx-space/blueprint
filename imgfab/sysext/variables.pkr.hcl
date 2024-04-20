@@ -39,6 +39,7 @@ locals {
         "coredns",
         "lego",
         "nomad",
+        "promtail",
         "step-ca",
         "tailscale",
         "vault",
