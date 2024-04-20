@@ -11,6 +11,10 @@ data "ignition_user" "external" {
   uid      = each.value.uid
 }
 
+data "ignition_kernel_arguments" "disable_autologin" {
+  shouldnotexist = ["flatcar.autologin"]
+}
+
 data "ignition_directory" "substrates" {
   for_each = {
     for directory in flatten(var.substrates.*.directories) : directory.path => {
@@ -95,6 +99,7 @@ data "ignition_config" "config" {
       source = tls_ca.value.source
     }
   }
+  kernel_arguments = var.autologin ? [] : [data.ignition_kernel_arguments.disable_autologin.rendered]
   disks = [
     for disk, spec in data.ignition_disk.disks : spec.rendered
   ]

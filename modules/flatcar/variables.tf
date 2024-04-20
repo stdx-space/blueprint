@@ -17,6 +17,12 @@ variable "username" {
   }
 }
 
+variable "autologin" {
+  type        = bool
+  description = "Whether Flatcar will autologin in console"
+  default     = true
+}
+
 variable "timezone" {
   type        = string
   default     = "Asia/Hong_Kong"
