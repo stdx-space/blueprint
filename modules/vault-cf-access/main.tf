@@ -89,7 +89,7 @@ resource "cloudflare_access_policy" "bastion" {
   application_id = cloudflare_access_application.vault.id
   name           = "Bastion access to Vault"
   decision       = "bypass"
-  precedence     = 1
+  precedence     = 2
   include {
     ip = [
       for record in jsondecode(data.http.dns_query.response_body)["Answer"] : "${record.data}/32"
@@ -102,7 +102,7 @@ resource "cloudflare_access_policy" "service_token" {
   application_id = cloudflare_access_application.vault.id
   name           = "Service token access to Vault"
   decision       = "allow"
-  precedence     = 2
+  precedence     = 3
   include {
     service_token = [
       var.cloudflare_access_service_token_id
@@ -115,7 +115,7 @@ resource "cloudflare_access_policy" "remote" {
   application_id = cloudflare_access_application.vault.id
   name           = "Remote access to Vault"
   decision       = "allow"
-  precedence     = 3
+  precedence     = 1
   include {
     login_method = [data.cloudflare_access_identity_provider.github.name]
   }
