@@ -23,7 +23,7 @@ job "${job_name}" {
       }
       env {
         POSTGRES_PASSWORD = "${db_password}"
-        POSTGRES_USER     = "temporal"
+        POSTGRES_USER     = "${db_username}"
       }
     }
   }

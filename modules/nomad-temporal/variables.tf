@@ -31,6 +31,16 @@ variable "postgres_version" {
   }
 }
 
+variable "postgres_username" {
+  type        = string
+  description = "Username for authenticating to Postgres"
+  default     = "temporal"
+  validation {
+    condition     = length(var.postgres_username) > 0
+    error_message = "Postgres username cannot be empty"
+  }
+}
+
 variable "temporal_version" {
   type        = string
   description = "Temporal server version"

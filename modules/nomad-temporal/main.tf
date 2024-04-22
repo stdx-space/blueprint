@@ -15,6 +15,7 @@ resource "nomad_job" "temporal" {
       temporal_version      = var.temporal_version
       temporal_ui_version   = var.temporal_ui_version
       db_password           = random_password.db_password.result
+      db_username           = var.postgres_username
     }
   )
   purge_on_destroy = true
