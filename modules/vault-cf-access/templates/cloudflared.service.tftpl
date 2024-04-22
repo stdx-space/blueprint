@@ -1,0 +1,15 @@
+[Unit]
+Description=Cloudflare Tunnel
+After=syslog.target network-online.target
+
+[Service]
+Type=simple
+User=root
+EnvironmentFile=/etc/default/cloudflared
+ExecStart=/usr/bin/cloudflared $CLOUDFLARED_OPTS
+Restart=on-failure
+RestartSec=10
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
