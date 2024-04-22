@@ -20,11 +20,13 @@ variable "postgres_version" {
 }
 
 variable "root_domain" {
-  type = string
+  type        = string
+  description = "The top level domain name"
 }
 
 variable "application_name" {
-  type = string
+  type        = string
+  description = "Name to identify the application with when using WebAuthn"
 }
 
 variable "hydra_subdomain" {
