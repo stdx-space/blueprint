@@ -109,7 +109,7 @@ data "ignition_config" "config" {
       source = tls_ca.value.source
     }
   }
-  kernel_arguments = var.autologin ? [] : [data.ignition_kernel_arguments.disable_autologin.rendered]
+  kernel_arguments = var.autologin ? "" : data.ignition_kernel_arguments.disable_autologin.rendered
   disks = [
     for disk, spec in data.ignition_disk.disks : spec.rendered
   ]
