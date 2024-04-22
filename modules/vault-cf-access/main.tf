@@ -91,7 +91,7 @@ resource "cloudflare_access_policy" "bastion" {
   decision       = "bypass"
   precedence     = 1
   include {
-    ip_list = [
+    ip = [
       for record in jsondecode(data.http.dns_query.response_body)["Answer"] : "${record.data}/32"
     ]
   }
