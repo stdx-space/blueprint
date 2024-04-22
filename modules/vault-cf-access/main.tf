@@ -38,8 +38,8 @@ resource "cloudflare_origin_ca_certificate" "vault" {
   csr                  = tls_cert_request.vault.cert_request_pem
   hostnames            = ["vault.${var.zone}"]
   request_type         = "origin-ecc"
-  min_days_for_renewal = 7
-  requested_validity   = 90
+  min_days_for_renewal = var.min_days_for_renewal
+  requested_validity   = var.cf_origin_ca_cert_ttl
 }
 
 resource "random_password" "tunnel_secret" {

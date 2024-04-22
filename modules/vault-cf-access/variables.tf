@@ -83,3 +83,15 @@ variable "webhook_url" {
   type        = string
   description = "webhook endpoint for unseal/init"
 }
+
+variable "min_days_for_renewal" {
+  type        = number
+  default     = 7
+  description = "Minimum number of days before expiration to renew the certificate"
+}
+
+variable "cf_origin_ca_cert_ttl" {
+  type        = number
+  default     = 365
+  description = "Days to expiry for the Cloudflare Origin CA certificate"
+}
