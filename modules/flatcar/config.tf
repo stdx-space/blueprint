@@ -49,6 +49,7 @@ locals {
           set -o pipefail
           if [ -e /opt/current.digest ]
           then
+            sha256sum /etc/extensions/*-x86-64.raw > /opt/latest.digest
             if ! diff -q /opt/current.digest /opt/latest.digest &>/dev/null; then
               >&2 systemctl restart systemd-sysext
             cp /opt/latest.digest /opt/current.digest
@@ -85,7 +86,6 @@ locals {
           {
             "sysext.conf" = <<-EOF
               [Service]
-              ExecStartPost=sha256sum /etc/extensions/*-x86-64.raw > /opt/latest.digest
               ExecStartPost=/opt/bin/update-restarter.sh
             EOF
           },
