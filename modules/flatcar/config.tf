@@ -75,33 +75,6 @@ locals {
     flatten(var.substrates.*.install.systemd_units),
     [
       {
-        name    = "digest-watcher.path"
-        content = <<-EOF
-          [Path]
-          PathModified=/opt/latest.digest
-          Unit=digest-watcher.service
-
-          [Install]
-          WantedBy=multi-user.target
-        EOF
-      },
-      {
-        name    = "digest-watcher.service"
-        content = <<-EOF
-          [Unit]
-          Description=Determine whether to restart systemd-sysext
-          StartLimitIntervalSec=10
-          StartLimitBurst=5
-
-          [Service]
-          Type=oneshot
-          ExecStart=/opt/bin/update-restarter.sh
-
-          [Install]
-          WantedBy=multi-user.target
-        EOF
-      },
-      {
         name    = "systemd-sysupdate.timer"
         content = null
       },
@@ -113,6 +86,7 @@ locals {
             "sysext.conf" = <<-EOF
               [Service]
               ExecStartPost=sha256sum /etc/extensions/*-x86-64.raw > /opt/latest.digest
+              ExecStartPost=/opt/bin/update-restarter.sh
             EOF
           },
           {
