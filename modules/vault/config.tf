@@ -111,133 +111,83 @@ locals {
     },
   ]
 
-  systemd_units = concat(
-    [
-      for pkg in keys(local.pkgs) : {
-        name    = "${pkg}-sysext-img-watcher.path"
-        enabled = false
-        content = templatefile(
-          "${path.module}/templates/watcher.path.tftpl",
-          {
-            path = format(
-              "/etc/extensions/${pkg}-%s-x86-64.raw",
-              local.pkgs[pkg].version
-            )
-            service = "sysext-img-reload.service"
-          }
-        )
-      }
-    ],
-    [
-      for pkg in keys(local.pkgs) : {
-        name    = "kickstart-${pkg}-update-watcher.timer"
-        content = <<-EOF
-          [Unit]
-          Description=Timer to kickstart update watcher for ${pkg}
-
-          [Timer]
-          OnActiveSec=1h
-
-          [Install]
-          WantedBy=timers.target
-        EOF
-      }
-    ],
-    [
-      for pkg in keys(local.pkgs) : {
-        name    = "kickstart-${pkg}-update-watcher.service"
-        content = <<-EOF
-          [Unit]
-          Description=Enable sysext image path watcher for ${pkg}
-          StartLimitIntervalSec=0
-
-          [Service]
-          Type=oneshot
-          ExecStart=systemctl enable ${pkg}-sysext-img-watcher.path --now
-
-          [Install]
-          WantedBy=multi-user.target
-        EOF
-      }
-    ],
-    [
-      {
-        name = "lego-oneshot.service"
-        content = templatefile(
-          "${path.module}/templates/lego-oneshot.service.tftpl",
-          {
-            api_dns_token  = var.cf_dns_token
-            api_zone_token = var.cf_zone_token
-            domain         = var.acme_domain
-            acme_email     = var.acme_email
-            install_dir    = var.install_dir
-          }
-        )
-      },
-      {
-        name = "lego-renewal.service"
-        content = templatefile(
-          "${path.module}/templates/lego-renewal.service.tftpl",
-          {
-            api_dns_token  = var.cf_dns_token
-            api_zone_token = var.cf_zone_token
-            domain         = var.acme_domain
-            acme_email     = var.acme_email
-          }
-        )
-      },
-      {
-        name    = "lego-renewal.timer"
-        content = file("${path.module}/templates/lego-renewal.timer.tftpl")
-      },
-      {
-        name    = "vault-sidecar.timer"
-        content = file("${path.module}/templates/vault-sidecar.timer.tftpl")
-      },
-      {
-        name = "vault-sidecar.service"
-        content = templatefile(
-          "${path.module}/templates/vault-sidecar.service.tftpl",
-          {
-            webhook_url = var.webhook_url
-          }
-        )
-      },
-      {
-        name = "vault-watcher.service"
-        content = templatefile(
-          "${path.module}/templates/restarter.service.tftpl", {
-            package = "vault"
-            service = "vault"
-          }
-        )
-      },
-      {
-        name = "vault-watcher.path"
-        content = templatefile(
-          "${path.module}/templates/watcher.path.tftpl",
-          {
-            path    = "/usr/bin/vault"
-            service = "vault-watcher.service"
-          }
-        )
-      },
-      {
-        name = "vault-cert-watcher.path"
-        content = templatefile(
-          "${path.module}/templates/watcher.path.tftpl",
-          {
-            path    = "/opt/lego/certificates/${var.acme_domain}.crt"
-            service = "vault-cert-watcher.service"
-          }
-        )
-      },
-      {
-        name = "vault-cert-watcher.service"
-        content = templatefile("${path.module}/templates/update-certificate.service.tftpl", {
-          domain = var.acme_domain
-        })
-      }
-    ]
-  )
+  systemd_units = [
+    {
+      name = "lego-oneshot.service"
+      content = templatefile(
+        "${path.module}/templates/lego-oneshot.service.tftpl",
+        {
+          api_dns_token  = var.cf_dns_token
+          api_zone_token = var.cf_zone_token
+          domain         = var.acme_domain
+          acme_email     = var.acme_email
+          install_dir    = var.install_dir
+        }
+      )
+    },
+    {
+      name = "lego-renewal.service"
+      content = templatefile(
+        "${path.module}/templates/lego-renewal.service.tftpl",
+        {
+          api_dns_token  = var.cf_dns_token
+          api_zone_token = var.cf_zone_token
+          domain         = var.acme_domain
+          acme_email     = var.acme_email
+        }
+      )
+    },
+    {
+      name    = "lego-renewal.timer"
+      content = file("${path.module}/templates/lego-renewal.timer.tftpl")
+    },
+    {
+      name    = "vault-sidecar.timer"
+      content = file("${path.module}/templates/vault-sidecar.timer.tftpl")
+    },
+    {
+      name = "vault-sidecar.service"
+      content = templatefile(
+        "${path.module}/templates/vault-sidecar.service.tftpl",
+        {
+          webhook_url = var.webhook_url
+        }
+      )
+    },
+    {
+      name = "vault-watcher.service"
+      content = templatefile(
+        "${path.module}/templates/restarter.service.tftpl", {
+          package = "vault"
+          service = "vault"
+        }
+      )
+    },
+    {
+      name = "vault-watcher.path"
+      content = templatefile(
+        "${path.module}/templates/watcher.path.tftpl",
+        {
+          path    = "/usr/bin/vault"
+          service = "vault-watcher.service"
+        }
+      )
+    },
+    {
+      name = "vault-cert-watcher.path"
+      content = templatefile(
+        "${path.module}/templates/watcher.path.tftpl",
+        {
+          path    = "/opt/lego/certificates/${var.acme_domain}.crt"
+          service = "vault-cert-watcher.service"
+        }
+      )
+    },
+    {
+      name = "vault-cert-watcher.service"
+      content = templatefile("${path.module}/templates/update-certificate.service.tftpl", {
+        domain = var.acme_domain
+      })
+    }
+  ]
 }

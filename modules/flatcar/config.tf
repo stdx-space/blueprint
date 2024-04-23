@@ -36,6 +36,21 @@ locals {
         mode    = "644"
         owner   = "root"
         group   = "root"
+      },
+      {
+        path    = "/opt/bin/update-restarter.sh"
+        mode    = "755"
+        owner   = "root"
+        group   = "root"
+        content = <<-EOF
+          #!/bin/bash
+          set -e
+          set -o pipefail
+          if ! diff -q /opt/current.digest /opt/latest.digest &>/dev/null; then
+            >&2 systemctl restart systemd-sysext
+            cp /opt/latest.digest /opt/current.digest
+          fi
+        EOF
       }
     ],
     flatten(var.substrates.*.files),
@@ -54,6 +69,50 @@ locals {
     flatten(var.substrates.*.install.systemd_units),
     [
       {
+        name    = "initial-digest-snapshot.service"
+        content = <<-EOF
+          [Unit]
+          Description=Initial digest of systemd-sysext images
+          StartLimitIntervalSec=0
+
+          [Service]
+          Type=oneshot
+          RemainAfterExit=true
+          ExecStartPre=/bin/sleep 300
+          ExecStart=sha256sum /etc/extensions/*-x86-64.raw > /opt/current.digest
+
+          [Install]
+          WantedBy=multi-user.target
+        EOF
+      },
+      {
+        name    = "digest-watcher.path"
+        content = <<-EOF
+          [Path]
+          PathModified=/opt/latest.digest
+          Unit=digest-watcher.service
+
+          [Install]
+          WantedBy=multi-user.target
+        EOF
+      },
+      {
+        name    = "digest-watcher.service"
+        content = <<-EOF
+          [Unit]
+          Description=Determine whether to restart systemd-sysext
+          StartLimitIntervalSec=10
+          StartLimitBurst=5
+
+          [Service]
+          Type=oneshot
+          ExecStart=/opt/bin/update-restarter.sh
+
+          [Install]
+          WantedBy=multi-user.target
+        EOF
+      },
+      {
         name    = "systemd-sysupdate.timer"
         content = null
       },
@@ -62,29 +121,18 @@ locals {
         content = null
         dropins = merge(
           {
+            "sysext.conf" = <<-EOF
+              [Service]
+              ExecStartPost=sha256sum /etc/extensions/*-x86-64.raw > /opt/latest.digest
+            EOF
+          },
+          {
             for package in flatten(var.substrates.*.packages) : "${package}.conf" => <<-EOF
               [Service]
               ExecStartPre=/usr/lib/systemd/systemd-sysupdate -C ${package} update
             EOF
           }
         )
-      },
-      {
-        name    = "sysext-img-reload.service"
-        enabled = false
-        content = <<-EOF
-          [Unit]
-          Description=Refresh and reload sysext images
-          StartLimitIntervalSec=10
-          StartLimitBurst=5
-
-          [Service]
-          Type=oneshot
-          ExecStart=echo "Should Reload sysext images"
-
-          [Install]
-          WantedBy=multi-user.target
-        EOF
       },
       {
         name    = "multi-user.target"
@@ -102,12 +150,6 @@ locals {
                 Wants=${package}-watcher.service
               EOF
           },
-          # {
-          #   "40-sysext-service-watcher.conf" = <<-EOF
-          #     [Unit]
-          #     Upholds=sysext-img-reload.service
-          #   EOF
-          # }
         )
       },
     ]
