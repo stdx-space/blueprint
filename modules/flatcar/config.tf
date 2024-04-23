@@ -62,18 +62,29 @@ locals {
         content = null
         dropins = merge(
           {
-            "sysext.conf" = <<-EOF
-              [Service]
-              ExecStartPost=systemctl restart systemd-sysext
-            EOF
-          },
-          {
             for package in flatten(var.substrates.*.packages) : "${package}.conf" => <<-EOF
               [Service]
               ExecStartPre=/usr/lib/systemd/systemd-sysupdate -C ${package} update
             EOF
           }
         )
+      },
+      {
+        name    = "sysext-img-refresh.service"
+        content = <<-EOF
+          [Unit]
+          Description=Refresh and reload sysext images
+          After=network.target
+          StartLimitIntervalSec=10
+          StartLimitBurst=5
+
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/bin/systemctl restart systemd-sysext.service
+
+          [Install]
+          WantedBy=multi-user.target
+        EOF
       },
       {
         name    = "multi-user.target"
@@ -90,6 +101,18 @@ locals {
                 [Unit]
                 Wants=${package}-watcher.service
               EOF
+          },
+          {
+            for package in flatten(var.substrates.*.packages) : "30-${package}-sysext-path-watcher.conf" => <<-EOF
+                [Unit]
+                Upholds=${package}-sysext-img-watcher.path
+              EOF 
+          },
+          {
+            "40-sysext-service-watcher.conf" = <<-EOF
+              [Unit]
+              Upholds=sysext-img-refresh.service
+            EOF
           }
         )
       },

@@ -113,25 +113,42 @@ locals {
     }
   ]
 
-  systemd_units = [
-    {
-      name = "nomad-watcher.service"
-      content = templatefile(
-        "${path.module}/templates/watcher.service.tftpl", {
-          package = "nomad"
-          service = "nomad"
-        }
-      )
-    },
-    {
-      name = "nomad-watcher.path"
-      content = templatefile(
-        "${path.module}/templates/watcher.path.tftpl",
-        {
-          path    = "/usr/bin/nomad"
-          service = "nomad-watcher.service"
-        }
-      )
-    },
-  ]
+  systemd_units = concat(
+    [
+      for pkg in local.pkgs : {
+        name = "${pkg}-sysext-img-watcher.path"
+        content = templatefile(
+          "${path.module}/templates/watcher.path.tftpl",
+          {
+            path = format(
+              "/etc/extensions/${pkg}-%s-x86-64.raw",
+              local.pkgs[pkg].version
+            )
+            service = "sysext-img-refresh.service"
+          }
+        )
+      }
+    ],
+    [
+      {
+        name = "nomad-watcher.service"
+        content = templatefile(
+          "${path.module}/templates/watcher.service.tftpl", {
+            package = "nomad"
+            service = "nomad"
+          }
+        )
+      },
+      {
+        name = "nomad-watcher.path"
+        content = templatefile(
+          "${path.module}/templates/watcher.path.tftpl",
+          {
+            path    = "/usr/bin/nomad"
+            service = "nomad-watcher.service"
+          }
+        )
+      },
+    ]
+  )
 }

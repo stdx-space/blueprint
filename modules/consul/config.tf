@@ -118,25 +118,42 @@ locals {
     }
   ]
 
-  systemd_units = [
-    {
-      name = "consul-watcher.service"
-      content = templatefile(
-        "${path.module}/templates/watcher.service.tftpl", {
-          package = "consul"
-          service = "consul"
-        }
-      )
-    },
-    {
-      name = "consul-watcher.path"
-      content = templatefile(
-        "${path.module}/templates/watcher.path.tftpl",
-        {
-          path    = "/usr/bin/consul"
-          service = "consul-watcher.service"
-        }
-      )
-    },
-  ]
+  systemd_units = concat(
+    [
+      for pkg in local.pkgs : {
+        name = "${pkg}-sysext-img-watcher.path"
+        content = templatefile(
+          "${path.module}/templates/watcher.path.tftpl",
+          {
+            path = format(
+              "/etc/extensions/${pkg}-%s-x86-64.raw",
+              local.pkgs[pkg].version
+            )
+            service = "sysext-img-refresh.service"
+          }
+        )
+      }
+    ],
+    [
+      {
+        name = "consul-watcher.service"
+        content = templatefile(
+          "${path.module}/templates/watcher.service.tftpl", {
+            package = "consul"
+            service = "consul"
+          }
+        )
+      },
+      {
+        name = "consul-watcher.path"
+        content = templatefile(
+          "${path.module}/templates/watcher.path.tftpl",
+          {
+            path    = "/usr/bin/consul"
+            service = "consul-watcher.service"
+          }
+        )
+      },
+    ]
+  )
 }

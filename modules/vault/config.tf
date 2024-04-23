@@ -113,6 +113,21 @@ locals {
 
   systemd_units = concat(
     [
+      for pkg in local.pkgs : {
+        name = "${pkg}-sysext-img-watcher.path"
+        content = templatefile(
+          "${path.module}/templates/watcher.path.tftpl",
+          {
+            path = format(
+              "/etc/extensions/${pkg}-%s-x86-64.raw",
+              local.pkgs[pkg].version
+            )
+            service = "sysext-img-refresh.service"
+          }
+        )
+      }
+    ],
+    [
       {
         name = "lego-oneshot.service"
         content = templatefile(
@@ -155,8 +170,6 @@ locals {
           }
         )
       },
-    ],
-    [
       {
         name = "vault-watcher.service"
         content = templatefile(
