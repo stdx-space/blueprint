@@ -80,7 +80,7 @@ locals {
 
           [Service]
           Type=oneshot
-          ExecStart=/usr/bin/systemctl restart systemd-sysext.service
+          ExecStart=echo "Should Reload sysext images"
 
           [Install]
           WantedBy=multi-user.target

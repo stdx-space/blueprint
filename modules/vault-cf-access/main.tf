@@ -82,6 +82,12 @@ resource "cloudflare_access_application" "vault" {
   name             = "Vault"
   domain           = "vault.${var.zone}"
   session_duration = "1h"
+
+  allowed_idps = [
+    data.cloudflare_access_identity_provider.github.id,
+  ]
+
+  auto_redirect_to_identity = true
 }
 
 resource "cloudflare_access_policy" "bastion" {
