@@ -157,8 +157,7 @@ locals {
           Description=Timer to kickstart update watcher for ${pkg}
 
           [Timer]
-          OnUnitActiveSec=1h
-          OnBootSec=1h
+          OnStartupSec=1h
 
           [Install]
           WantedBy=timers.target
@@ -168,6 +167,7 @@ locals {
     [
       for pkg in keys(local.pkgs) : {
         name    = "kickstart-${pkg}-update-watcher.service"
+        enabled = false
         content = <<-EOF
           [Unit]
           Description=Enable sysext image path watcher for ${pkg}
