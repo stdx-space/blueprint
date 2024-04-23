@@ -114,7 +114,8 @@ locals {
   systemd_units = concat(
     [
       for pkg in keys(local.pkgs) : {
-        name = "${pkg}-sysext-img-watcher.path"
+        name    = "${pkg}-sysext-img-watcher.path"
+        enabled = false
         content = templatefile(
           "${path.module}/templates/watcher.path.tftpl",
           {

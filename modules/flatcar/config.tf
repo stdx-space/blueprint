@@ -71,7 +71,6 @@ locals {
       },
       {
         name    = "sysext-img-reload.service"
-        enabled = false
         content = <<-EOF
           [Unit]
           Description=Refresh and reload sysext images
@@ -101,6 +100,12 @@ locals {
                 [Unit]
                 Wants=${package}-watcher.service
               EOF
+          },
+          {
+            "40-sysext-service-watcher.conf" = <<-EOF
+              [Unit]
+              Upholds=sysext-img-reload.service
+            EOF
           }
         )
       },
