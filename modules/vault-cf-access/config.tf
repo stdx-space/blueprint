@@ -157,8 +157,8 @@ locals {
           Description=Timer to kickstart update watcher for ${pkg}
 
           [Timer]
-          OnActiveSec=1h
           OnUnitActiveSec=1h
+          OnBootSec=1h
 
           [Install]
           WantedBy=timers.target
