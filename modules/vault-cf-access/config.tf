@@ -151,23 +151,7 @@ locals {
     # ],
     [
       for pkg in keys(local.pkgs) : {
-        name    = "kickstart-${pkg}-update-watcher.timer"
-        content = <<-EOF
-          [Unit]
-          Description=Timer to kickstart update watcher for ${pkg}
-
-          [Timer]
-          OnStartupSec=1h
-
-          [Install]
-          WantedBy=timers.target
-        EOF
-      }
-    ],
-    [
-      for pkg in keys(local.pkgs) : {
         name    = "kickstart-${pkg}-update-watcher.service"
-        enabled = false
         content = <<-EOF
           [Unit]
           Description=Enable sysext image path watcher for ${pkg}
@@ -175,6 +159,7 @@ locals {
 
           [Service]
           Type=oneshot
+          ExecStartPre=/bin/sleep 1800
           ExecStart=systemctl enable ${pkg}-sysext-img-watcher.path --now
 
           [Install]
