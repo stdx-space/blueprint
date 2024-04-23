@@ -70,11 +70,10 @@ locals {
         )
       },
       {
-        name    = "sysext-img-refresh.service"
+        name    = "sysext-img-reload.service"
         content = <<-EOF
           [Unit]
           Description=Refresh and reload sysext images
-          After=network.target
           StartLimitIntervalSec=10
           StartLimitBurst=5
 
@@ -103,15 +102,9 @@ locals {
               EOF
           },
           {
-            for package in flatten(var.substrates.*.packages) : "30-${package}-sysext-path-watcher.conf" => <<-EOF
-                [Unit]
-                Upholds=${package}-sysext-img-watcher.path
-              EOF 
-          },
-          {
             "40-sysext-service-watcher.conf" = <<-EOF
               [Unit]
-              Upholds=sysext-img-refresh.service
+              Upholds=sysext-img-reload.service
             EOF
           }
         )
