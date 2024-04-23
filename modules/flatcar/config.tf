@@ -38,18 +38,23 @@ locals {
         group   = "root"
       },
       {
-        path    = "/opt/bin/update-restarter.sh"
-        mode    = "755"
-        owner   = "root"
-        group   = "root"
-        enabled = true
+        path  = "/opt/bin/update-restarter.sh"
+        mode  = "755"
+        owner = "root"
+        group = "root"
+
         content = <<-EOF
           #!/bin/bash
           set -e
           set -o pipefail
-          if ! diff -q /opt/current.digest /opt/latest.digest &>/dev/null; then
-            >&2 systemctl restart systemd-sysext
+          if [ -e /opt/current.digest ]
+          then
+            if ! diff -q /opt/current.digest /opt/latest.digest &>/dev/null; then
+              >&2 systemctl restart systemd-sysext
             cp /opt/latest.digest /opt/current.digest
+            fi
+          else
+            sha256sum /etc/extensions/*-x86-64.raw > /opt/current.digest
           fi
         EOF
       }
@@ -69,23 +74,6 @@ locals {
     local.mount_units,
     flatten(var.substrates.*.install.systemd_units),
     [
-      {
-        name    = "initial-digest-snapshot.service"
-        content = <<-EOF
-          [Unit]
-          Description=Initial digest of systemd-sysext images
-          StartLimitIntervalSec=0
-
-          [Service]
-          Type=oneshot
-          RemainAfterExit=true
-          ExecStartPre=/bin/sleep 300
-          ExecStart=sha256sum /etc/extensions/*-x86-64.raw > /opt/current.digest
-
-          [Install]
-          WantedBy=multi-user.target
-        EOF
-      },
       {
         name    = "digest-watcher.path"
         content = <<-EOF
