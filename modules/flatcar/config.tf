@@ -69,22 +69,23 @@ locals {
           }
         )
       },
-      # {
-      #   name    = "sysext-img-reload.service"
-      #   content = <<-EOF
-      #     [Unit]
-      #     Description=Refresh and reload sysext images
-      #     StartLimitIntervalSec=10
-      #     StartLimitBurst=5
+      {
+        name    = "sysext-img-reload.service"
+        enabled = false
+        content = <<-EOF
+          [Unit]
+          Description=Refresh and reload sysext images
+          StartLimitIntervalSec=10
+          StartLimitBurst=5
 
-      #     [Service]
-      #     Type=oneshot
-      #     ExecStart=/usr/bin/systemctl restart systemd-sysext.service
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/bin/systemctl restart systemd-sysext.service
 
-      #     [Install]
-      #     WantedBy=multi-user.target
-      #   EOF
-      # },
+          [Install]
+          WantedBy=multi-user.target
+        EOF
+      },
       {
         name    = "multi-user.target"
         content = null
