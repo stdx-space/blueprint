@@ -158,6 +158,7 @@ locals {
 
           [Timer]
           OnActiveSec=1h
+          OnUnitActiveSec=1h
 
           [Install]
           WantedBy=timers.target
