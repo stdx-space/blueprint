@@ -38,11 +38,11 @@ locals {
         group   = "root"
       },
       {
-        path  = "/opt/bin/update-restarter.sh"
-        mode  = "755"
-        owner = "root"
-        group = "root"
-
+        path    = "/opt/bin/update-restarter.sh"
+        mode    = "755"
+        owner   = "root"
+        group   = "root"
+        enabled = true
         content = <<-EOF
           #!/bin/bash
           set -e
