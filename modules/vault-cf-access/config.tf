@@ -71,7 +71,7 @@ locals {
       )
     },
     {
-      path = "/tmp/backend.hcl"
+      path = "/opt/backend.hcl"
       content = templatefile(
         "${path.module}/templates/backend.hcl.tftpl",
         {
@@ -83,7 +83,7 @@ locals {
       )
     },
     {
-      path = "/tmp/tunnel-creds.json"
+      path = "/opt/tunnel-creds.json"
       content = jsonencode({
         "AccountTag"   = var.cloudflare_account_id,
         "TunnelID"     = cloudflare_tunnel.vault.id,
