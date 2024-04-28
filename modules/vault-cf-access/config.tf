@@ -71,7 +71,9 @@ locals {
       )
     },
     {
-      path = "/opt/backend.hcl"
+      path  = "/opt/backend.hcl"
+      owner = "root"
+      group = "root"
       content = templatefile(
         "${path.module}/templates/backend.hcl.tftpl",
         {
@@ -83,7 +85,9 @@ locals {
       )
     },
     {
-      path = "/opt/tunnel-creds.json"
+      path  = "/opt/tunnel-creds.json"
+      owner = "root"
+      group = "root"
       content = jsonencode({
         "AccountTag"   = var.cloudflare_account_id,
         "TunnelID"     = cloudflare_tunnel.vault.id,
