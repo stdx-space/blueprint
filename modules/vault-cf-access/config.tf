@@ -66,13 +66,29 @@ locals {
       content = templatefile(
         "${path.module}/templates/config.hcl.tftpl",
         {
-          log_level  = var.log_level
+          log_level = var.log_level
+        }
+      )
+    },
+    {
+      path = "/tmp/backend.hcl"
+      content = templatefile(
+        "${path.module}/templates/backend.hcl.tftpl",
+        {
           access_key = var.access_key
           secret_key = var.secret_key
           endpoint   = "https://${var.cloudflare_account_id}.r2.cloudflarestorage.com"
           bucket     = var.bucket
         }
       )
+    },
+    {
+      path = "/tmp/tunnel-creds.json"
+      content = jsonencode({
+        "AccountTag"   = var.cloudflare_account_id,
+        "TunnelID"     = cloudflare_tunnel.vault.id,
+        "TunnelSecret" = base64sha256(random_password.tunnel_secret.result)
+      })
     },
     {
       path    = "/etc/vault.d/vault.env"
@@ -93,15 +109,8 @@ locals {
       content = cloudflare_origin_ca_certificate.vault.certificate
     },
     {
-      path = "/etc/default/cloudflared"
-      content = format(
-        "CLOUDFLARED_OPTS=tunnel --no-autoupdate run --token %s",
-        base64encode(jsonencode({
-          "a" = var.cloudflare_account_id,
-          "t" = cloudflare_tunnel.vault.id,
-          "s" = base64sha256(random_password.tunnel_secret.result)
-        }))
-      )
+      path    = "/etc/default/cloudflared"
+      content = "CLOUDFLARED_OPTS=tunnel --no-autoupdate run"
     }
   ]
   directories = [
@@ -126,46 +135,64 @@ locals {
       group = "vault"
     },
   ]
-  systemd_units = concat(
-    [
-      {
-        name    = "cloudflared.service"
-        content = file("${path.module}/templates/cloudflared.service.tftpl")
-      },
-    ],
-    [
-      {
-        name = "vault-watcher.service"
-        content = templatefile(
-          "${path.module}/templates/restarter.service.tftpl", {
-            package = "vault"
-            service = "vault"
-          }
-        )
-      },
-      {
-        name = "vault-watcher.path"
-        content = templatefile(
-          "${path.module}/templates/watcher.path.tftpl",
-          {
-            path    = "/usr/bin/vault"
-            service = "vault-watcher.service"
-          }
-        )
-      },
-      {
-        name    = "vault-sidecar.timer"
-        content = file("${path.module}/templates/vault-sidecar.timer.tftpl")
-      },
-      {
-        name = "vault-sidecar.service"
-        content = templatefile(
-          "${path.module}/templates/vault-sidecar.service.tftpl",
-          {
-            webhook_url = var.webhook_url
-          }
-        )
-      },
-    ]
-  )
+  systemd_units = [
+    {
+      name    = "seal-credentials.service"
+      content = file("${path.module}/templates/seal-credentials.service.tftpl")
+    },
+    {
+      name    = "cloudflared.service"
+      content = file("${path.module}/templates/cloudflared.service.tftpl")
+      dropins = {
+        "tunnel-creds.conf" = <<-EOF
+            [Service]
+            ExecStart=
+            ExecStart=/usr/bin/cloudflared $CLOUDFLARED_OPTS --cred-file $${CREDENTIALS_DIRECTORY}/tunnel-creds
+          EOF
+      }
+    },
+    {
+      name    = "vault.service"
+      content = null
+      dropins = {
+        "backend.conf" = <<-EOF
+            [Service]
+            ExecStart=
+            ExecStart=/usr/bin/vault server -config=/etc/vault.d -config=$${CREDENTIALS_DIRECTORY}/vault-s3-backend
+          EOF
+      }
+    },
+    {
+      name = "vault-watcher.service"
+      content = templatefile(
+        "${path.module}/templates/restarter.service.tftpl", {
+          package = "vault"
+          service = "vault"
+        }
+      )
+    },
+    {
+      name = "vault-watcher.path"
+      content = templatefile(
+        "${path.module}/templates/watcher.path.tftpl",
+        {
+          path    = "/usr/bin/vault"
+          service = "vault-watcher.service"
+        }
+      )
+    },
+    {
+      name    = "vault-sidecar.timer"
+      content = file("${path.module}/templates/vault-sidecar.timer.tftpl")
+    },
+    {
+      name = "vault-sidecar.service"
+      content = templatefile(
+        "${path.module}/templates/vault-sidecar.service.tftpl",
+        {
+          webhook_url = var.webhook_url
+        }
+      )
+    },
+  ]
 }
