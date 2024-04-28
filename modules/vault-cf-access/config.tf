@@ -89,8 +89,8 @@ locals {
       owner = "root"
       group = "root"
       content = jsonencode({
-        "AccountTag"   = var.cloudflare_account_id,
-        "TunnelID"     = cloudflare_tunnel.vault.id,
+        "AccountTag"   = var.cloudflare_account_id
+        "TunnelID"     = cloudflare_tunnel.vault.id
         "TunnelSecret" = base64sha256(random_password.tunnel_secret.result)
       })
     },
