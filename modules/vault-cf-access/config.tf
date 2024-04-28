@@ -85,14 +85,14 @@ locals {
       )
     },
     {
-      path  = "/opt/tunnel-creds.json"
+      path  = "/opt/tunnel-token"
       owner = "root"
       group = "root"
-      content = jsonencode({
-        "AccountTag"   = var.cloudflare_account_id
-        "TunnelID"     = cloudflare_tunnel.vault.id
-        "TunnelSecret" = base64sha256(random_password.tunnel_secret.result)
-      })
+      content = base64encode(jsonencode({
+        "a" = var.cloudflare_account_id,
+        "t" = cloudflare_tunnel.vault.id,
+        "s" = base64sha256(random_password.tunnel_secret.result)
+      }))
     },
     {
       path    = "/etc/vault.d/vault.env"
@@ -148,10 +148,10 @@ locals {
       name    = "cloudflared.service"
       content = file("${path.module}/templates/cloudflared.service.tftpl")
       dropins = {
-        "tunnel-creds.conf" = <<-EOF
+        "tunnel-token.conf" = <<-EOF
             [Service]
             ExecStart=
-            ExecStart=/usr/bin/cloudflared $CLOUDFLARED_OPTS --cred-file $${CREDENTIALS_DIRECTORY}/tunnel-creds
+            ExecStart=/bin/bash -c '/usr/bin/cloudflared $CLOUDFLARED_OPTS --token $(cat $${CREDENTIALS_DIRECTORY}/tunnel-token)' 
           EOF
       }
     },
@@ -160,10 +160,10 @@ locals {
       content = null
       dropins = {
         "backend.conf" = <<-EOF
-            [Service]
-            ExecStart=
-            ExecStart=/usr/bin/vault server -config=/etc/vault.d -config=$${CREDENTIALS_DIRECTORY}/vault-s3-backend
-          EOF
+          [Service]
+          ExecStart=
+          ExecStart=/usr/bin/vault server -config=/etc/vault.d -config=$${CREDENTIALS_DIRECTORY}/vault-s3-backend
+        EOF
       }
     },
     {
