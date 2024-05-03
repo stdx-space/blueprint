@@ -12,6 +12,36 @@ resource "proxmox_virtual_environment_file" "provisioning_config" {
   }
 }
 
+resource "proxmox_virtual_environment_file" "network_data" {
+  count        = length(var.network_data_config) > 0? 1:0
+  content_type = "snippets"
+  datastore_id = "local"
+  node_name    = var.node
+  source_raw {
+    data = var.network_data_config
+    file_name = format(
+      "%s.%s",
+      sha256(var.network_data_config),
+      "yml"
+    )
+  }
+}
+
+resource "proxmox_virtual_environment_file" "meta_data" {
+  count        = length(var.meta_data_config) > 0? 1:0
+  content_type = "snippets"
+  datastore_id = "local"
+  node_name    = var.node
+  source_raw {
+    data = var.meta_data_config
+    file_name = format(
+      "%s.%s",
+      sha256(var.meta_data_config),
+      "yml"
+    )
+  }
+}
+
 resource "proxmox_virtual_environment_vm" "this" {
   name      = var.name
   node_name = var.node
@@ -89,12 +119,9 @@ resource "proxmox_virtual_environment_vm" "this" {
     for_each = local.initialization
     content {
       interface = local.cloudinit_drive_interface[var.firmware]
-      ip_config {
-        ipv4 {
-          address = "dhcp"
-        }
-      }
-      user_data_file_id = proxmox_virtual_environment_file.provisioning_config.id
+      user_data_file_id    = proxmox_virtual_environment_file.provisioning_config.id
+      network_data_file_id = length(var.network_data_config)>0?proxmox_virtual_environment_file.network_data.id:""
+      meta_data_file_id    = length(var.meta_data_config)>0?proxmox_virtual_environment_file.meta_data.id:""
     }
   }
 

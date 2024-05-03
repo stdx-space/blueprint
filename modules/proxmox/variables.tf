@@ -23,6 +23,16 @@ variable "provisioning_config" {
   description = "Either be cloud-init user-data or ignition config"
 }
 
+variable "network_data_config" {
+  type    = string
+  default = ""
+}
+
+variable "meta_data_config" {
+  type    = string
+  default = ""
+}
+
 # Resource specifications
 
 variable "vcpus" {
@@ -161,6 +171,7 @@ locals {
       thin_provisioned = "on"
     }
   ]
+
   kvm_arguments = {
     "ignition" = format(
       "-fw_cfg name=opt/org.flatcar-linux/config,file=%s/%s.ign",
@@ -169,26 +180,33 @@ locals {
     )
     "cloud-init" = ""
   }[var.provisioning_config.type]
+
   provisioning_config_file_format = {
     "ignition"   = "ign"
     "cloud-init" = "yaml"
+    "talos"      = "yml"
   }[var.provisioning_config.type]
+
   efi_disk = {
     "bios" = {}
     "uefi" = { "firmware" = "uefi" }
   }[var.firmware]
+
   initialization = {
     "ignition"   = {}
     "cloud-init" = { "${var.provisioning_config.type}" = "" }
   }[var.provisioning_config.type]
+
   cloudinit_drive_interface = {
     "bios" = "ide2"
     "uefi" = "scsi1"
   }
+
   machine = {
     "bios" = "pc"
     "uefi" = "q35"
   }[var.firmware]
+
   boot_mode = {
     "bios" = "seabios"
     "uefi" = "ovmf"

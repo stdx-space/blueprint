@@ -69,10 +69,7 @@ resource "vsphere_virtual_machine" "this" {
   dynamic "vapp" {
     for_each = local.vapp
     content {
-      properties = {
-        "guestinfo.ignition.config.data"          = base64encode(var.provisioning_config.payload)
-        "guestinfo.ignition.config.data.encoding" = "base64"
-      }
+      properties = local.extra_config
     }
   }
 

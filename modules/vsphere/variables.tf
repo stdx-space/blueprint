@@ -144,6 +144,12 @@ locals {
       "guestinfo.userdata"          = base64encode(var.provisioning_config.payload)
       "guestinfo.userdata.encoding" = "gzip+base64"
     }
-    "ignition" = {}
+    "ignition" = {
+      "guestinfo.ignition.config.data"          = base64encode(var.provisioning_config.payload)
+      "guestinfo.ignition.config.data.encoding" = "base64"
+    }
+    "talos" = {
+      "guestinfo.talos.config" = base64encode(var.provisioning_config.payload)
+    }
   }[var.provisioning_config.type]
 }
