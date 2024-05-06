@@ -70,7 +70,7 @@ resource "proxmox_virtual_environment_vm" "this" {
   dynamic "cdrom" {
     for_each = local.cdrom
     content {
-      enabled = length(var.mounting_iso) > 0
+      enabled = var.use_iso
       file_id = cdrom.file_id
     }
   }
@@ -93,7 +93,7 @@ resource "proxmox_virtual_environment_vm" "this" {
       datastore_id = disk.value.storage_id
       size         = disk.value.size
       interface    = disk.key
-      file_id      = endswith(disk.key, "0") ? var.os_template_id : ""
+      file_id      = endswith(disk.key, "0") ? (var.use_iso ? "" : var.os_template_id) : ""
       discard      = disk.value.thin_provisioned
     }
   }
