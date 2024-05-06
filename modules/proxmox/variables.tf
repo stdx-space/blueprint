@@ -23,16 +23,6 @@ variable "provisioning_config" {
   description = "Either be cloud-init user-data or ignition config"
 }
 
-variable "network_data_config" {
-  type    = string
-  default = ""
-}
-
-variable "meta_data_config" {
-  type    = string
-  default = ""
-}
-
 # Resource specifications
 
 variable "vcpus" {
