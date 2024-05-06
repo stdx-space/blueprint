@@ -13,7 +13,7 @@ resource "proxmox_virtual_environment_file" "provisioning_config" {
 }
 
 resource "proxmox_virtual_environment_file" "network_data" {
-  count        = length(var.network_data_config) > 0? 1:0
+  count        = length(var.network_data_config) > 0 ? 1 : 0
   content_type = "snippets"
   datastore_id = "local"
   node_name    = var.node
@@ -28,7 +28,7 @@ resource "proxmox_virtual_environment_file" "network_data" {
 }
 
 resource "proxmox_virtual_environment_file" "meta_data" {
-  count        = length(var.meta_data_config) > 0? 1:0
+  count        = length(var.meta_data_config) > 0 ? 1 : 0
   content_type = "snippets"
   datastore_id = "local"
   node_name    = var.node
@@ -66,6 +66,14 @@ resource "proxmox_virtual_environment_vm" "this" {
   }
 
   scsi_hardware = "virtio-scsi-single"
+
+  dynamic "cdrom" {
+    for_each = local.cdrom
+    content {
+      enabled = length(var.mounting_iso) > 0
+      file_id = cdrom.file_id
+    }
+  }
 
   dynamic "efi_disk" {
     for_each = local.efi_disk
@@ -118,10 +126,10 @@ resource "proxmox_virtual_environment_vm" "this" {
   dynamic "initialization" {
     for_each = local.initialization
     content {
-      interface = local.cloudinit_drive_interface[var.firmware]
+      interface            = local.cloudinit_drive_interface[var.firmware]
       user_data_file_id    = proxmox_virtual_environment_file.provisioning_config.id
-      network_data_file_id = length(var.network_data_config)>0?proxmox_virtual_environment_file.network_data.id:""
-      meta_data_file_id    = length(var.meta_data_config)>0?proxmox_virtual_environment_file.meta_data.id:""
+      network_data_file_id = length(var.network_data_config) > 0 ? proxmox_virtual_environment_file.network_data.id : ""
+      meta_data_file_id    = length(var.meta_data_config) > 0 ? proxmox_virtual_environment_file.meta_data.id : ""
     }
   }
 

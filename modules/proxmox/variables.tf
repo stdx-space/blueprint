@@ -95,6 +95,11 @@ variable "networks" {
   }
 }
 
+variable "mounting_iso" {
+  type    = string
+  default = ""
+}
+
 variable "firmware" {
   type        = string
   default     = "bios"
@@ -186,6 +191,10 @@ locals {
     "cloud-init" = "yaml"
     "talos"      = "yml"
   }[var.provisioning_config.type]
+
+  cdrom = length(var.mounting_iso) > 0 ? {
+    file_id = var.mounting_iso
+  } : {}
 
   efi_disk = {
     "bios" = {}
