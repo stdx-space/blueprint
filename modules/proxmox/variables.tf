@@ -184,6 +184,7 @@ locals {
       sha256(var.provisioning_config.payload)
     )
     "cloud-init" = ""
+    "talos"      = ""
   }[var.provisioning_config.type]
 
   provisioning_config_file_format = {
