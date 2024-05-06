@@ -205,6 +205,7 @@ locals {
   initialization = {
     "ignition"   = {}
     "cloud-init" = { "${var.provisioning_config.type}" = "" }
+    "talos"      = { "${var.provisioning_config.type}" = "" }
   }[var.provisioning_config.type]
 
   cloudinit_drive_interface = {
