@@ -64,6 +64,7 @@ resource "proxmox_virtual_environment_vm" "this" {
       size         = disk.value.size
       interface    = disk.key
       file_id      = endswith(disk.key, "0") ? (var.use_iso ? "" : var.os_template_id) : ""
+      file_format  = "raw"
       discard      = disk.value.thin_provisioned
     }
   }
