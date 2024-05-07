@@ -41,7 +41,7 @@ resource "proxmox_virtual_environment_vm" "this" {
     for_each = local.cdrom
     content {
       enabled = var.use_iso
-      file_id = cdrom.file_id
+      file_id = var.os_template_id
     }
   }
 
