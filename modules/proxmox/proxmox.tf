@@ -98,8 +98,6 @@ resource "proxmox_virtual_environment_vm" "this" {
     content {
       interface            = local.cloudinit_drive_interface[var.firmware]
       user_data_file_id    = proxmox_virtual_environment_file.provisioning_config.id
-      network_data_file_id = length(var.network_data_config) > 0 ? var.network_data_config : ""
-      meta_data_file_id    = length(var.meta_data_config) > 0 ? var.meta_data_config : ""
     }
   }
 
