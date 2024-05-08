@@ -122,6 +122,16 @@ variable "os_template_id" {
   }
 }
 
+variable "wait_for_guest_ip_timeout" {
+  type    = number
+  default = 0
+}
+
+variable "wait_for_guest_net_routable" {
+  type    = bool
+  default = false
+}
+
 # Local variables
 
 locals {

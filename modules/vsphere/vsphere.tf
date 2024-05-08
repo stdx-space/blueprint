@@ -41,6 +41,9 @@ resource "vsphere_virtual_machine" "this" {
   memory   = var.memory
   tags     = var.tags
 
+  wait_for_guest_ip_timeout   = var.wait_for_guest_ip_timeout
+  wait_for_guest_net_routable = var.wait_for_guest_net_routable
+
   dynamic "network_interface" {
     for_each = {
       for network in var.networks : network.id => network.id

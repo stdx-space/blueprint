@@ -2,7 +2,7 @@ terraform {
   required_providers {
     vsphere = {
       source  = "hashicorp/vsphere"
-      version = "~> 2.7.0"
+      version = "~> 2.8.0"
     }
   }
 }
