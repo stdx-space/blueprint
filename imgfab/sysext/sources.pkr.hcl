@@ -30,6 +30,10 @@ source "null" "nomad" {
   communicator = "none"
 }
 
+source "null" "promtail" {
+  communicator = "none"
+}
+
 source "null" "stepca" {
   communicator = "none"
 }
