@@ -18,6 +18,13 @@ locals {
         group   = "root"
       },
       {
+        path    = "/etc/flatcar/enabled-sysext.conf"
+        content = "podman"
+        enabled = var.enable_podman
+        owner   = "root"
+        group   = "root"
+      }
+      {
         path    = "/etc/systemd/system/docker.service.d/override.conf"
         content = file("${path.module}/templates/docker-service-override.conf.tftpl")
         enabled = var.expose_docker_socket

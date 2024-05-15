@@ -45,6 +45,12 @@ variable "disks" {
   description = "List of disk configurations"
 }
 
+variable "enable_podman" {
+  type        = bool
+  default     = false
+  description = "Whether to add Podman systemd sysext image during provisioning phase"
+}
+
 variable "expose_docker_socket" {
   type        = bool
   default     = false
