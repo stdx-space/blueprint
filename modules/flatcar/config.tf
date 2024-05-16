@@ -23,7 +23,7 @@ locals {
         enabled = var.enable_podman
         owner   = "root"
         group   = "root"
-      }
+      },
       {
         path    = "/etc/systemd/system/docker.service.d/override.conf"
         content = file("${path.module}/templates/docker-service-override.conf.tftpl")
