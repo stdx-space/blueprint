@@ -75,8 +75,8 @@ variable "github_organization" {
 }
 
 variable "request_origin_ip_domain" {
-  type        = string
-  description = "Domain name for which to lookup the public ip of the organization owned network"
+  type        = list(string)
+  description = "List of domain names for which to lookup the public ip of the organization owned network"
 }
 
 variable "webhook_url" {
