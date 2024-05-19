@@ -16,6 +16,11 @@ data "http" "ssh_keys_import" {
   url = each.value
 }
 
+data "http" "repositories" {
+  for_each = local.repositories
+  url      = each.value
+}
+
 data "external" "openssl" {
   count = 0 < length(var.password) ? 1 : 0
   program = [
@@ -29,6 +34,16 @@ data "external" "openssl" {
 }
 locals {
   subnet_bits = 0 < length(var.network) ? split("/", var.network)[1] : "24"
+  repositories = {
+    for repository in distinct(
+      concat(
+        [
+          "docker",
+        ],
+        flatten(var.substrates.*.install.repositories)
+      )
+    ) : "${repository}.repo" => jsondecode(data.http.upstream.response_body).repositories[repository].dnf.source
+  }
 }
 
 locals {
@@ -58,7 +73,7 @@ locals {
   packages = concat(
     var.default_packages,
     var.additional_packages,
-    flatten(var.substrates.*.install.apt.packages)
+    flatten(var.substrates.*.install.packages)
   )
   ca_certs = {
     trusted = [
@@ -99,9 +114,17 @@ locals {
               username = var.username
             }
           )
-          enabled = true
           owner   = "root"
           group   = "root"
+          enabled = true
+          mode    = "0644"
+        },
+        {
+          path    = "/etc/hostname"
+          content = var.name
+          owner   = "root"
+          group   = "root"
+          enabled = true
           mode    = "0644"
         },
         {
@@ -112,7 +135,17 @@ locals {
             gateway_ip  = var.gateway_ip
             nameservers = var.nameservers
           })
+          owner   = "root"
+          group   = "root"
           enabled = length(var.ip_address) > 0 && length(var.gateway_ip) > 0 && length(var.network) > 0
+          mode    = "0644"
+        }
+      ],
+      [
+        for repo in keys(data.http.repositories) : {
+          path    = "/etc/yum.repos.d/${repo}"
+          content = data.http.repositories[repo].response_body
+          enabled = true
           owner   = "root"
           group   = "root"
           mode    = "0644"
@@ -127,28 +160,4 @@ locals {
       permissions = length(file.mode) < 4 ? "0${file.mode}" : file.mode
     } if file.enabled == true && !startswith(file.content, "https://")
   ]
-  repositories = merge(
-    {
-      for repository in distinct(
-        concat(
-          [
-            "docker",
-          ],
-          flatten(var.substrates.*.install.repositories)
-        )
-        ) : "${repository}.list" => {
-        keyserver = "hkp://keyserver.ubuntu.com:80"
-        keyid     = jsondecode(data.http.upstream.response_body).repositories[repository].apt.keyid
-        source = format(
-          "deb [arch=amd64 signed-by=$KEY_FILE] %s",
-          jsondecode(data.http.upstream.response_body).repositories[repository].apt.source
-        )
-      }
-    },
-    contains(flatten(var.substrates.*.install.repositories), "nvidia-container-toolkit") ? {
-      "non-free.list" = {
-        source = "deb http://deb.debian.org/debian/ bookworm main contrib non-free non-free-firmware"
-      }
-    } : {}
-  )
 }

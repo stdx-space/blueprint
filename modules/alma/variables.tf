@@ -5,13 +5,12 @@ variable "supplychain" {
 
 variable "name" {
   type        = string
-  description = "Hostname of the Debian VM"
+  description = "Hostname of the Alma VM"
 }
 
 variable "default_packages" {
   type = list(string)
   default = [
-    "apt-transport-https",
     "containerd.io",
     "docker-ce",
     "docker-ce-cli",
@@ -22,7 +21,6 @@ variable "default_packages" {
     "jq",
     "net-tools",
     "podman",
-    "prometheus-node-exporter",
     "qemu-guest-agent",
     "rsync",
     "vim",
@@ -58,7 +56,7 @@ variable "ssh_authorized_keys" {
 variable "timezone" {
   type        = string
   default     = "Asia/Hong_Kong"
-  description = "Timezone for the Debian VM"
+  description = "Timezone for the Alma VM"
 }
 
 variable "disks" {
@@ -86,24 +84,24 @@ variable "network" {
 variable "ip_address" {
   type        = string
   default     = ""
-  description = "CIDR for the Debian VM"
+  description = "CIDR for the Alma VM"
 }
 
 variable "gateway_ip" {
   type        = string
   default     = ""
-  description = "Gateway IP for the Debian VM"
+  description = "Gateway IP for the Alma VM"
 }
 
 variable "nameservers" {
   type        = list(string)
   default     = ["1.1.1.1"]
-  description = "Nameservers for the Debian VM"
+  description = "Nameservers for the Alma VM"
 }
 
 variable "ca_certs" {
   type        = list(string)
-  description = "CA certificates for the Debian VM"
+  description = "CA certificates for the Alma VM"
   default     = []
 }
 
@@ -147,6 +145,6 @@ variable "base64_encode" {
 
 locals {
   remote_ssh_keys = [
-    for item in var.var.ssh_authorized_keys : item if startswith(item, "http")
+    for item in var.ssh_authorized_keys : item if startswith(item, "http")
   ]
 }
