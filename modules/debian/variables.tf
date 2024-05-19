@@ -147,6 +147,6 @@ variable "base64_encode" {
 
 locals {
   remote_ssh_keys = [
-    for item in var.var.ssh_authorized_keys : item if startswith(item, "http")
+    for item in var.ssh_authorized_keys : item if startswith(item, "http")
   ]
 }

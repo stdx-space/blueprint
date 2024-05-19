@@ -58,7 +58,7 @@ locals {
   packages = concat(
     var.default_packages,
     var.additional_packages,
-    flatten(var.substrates.*.install.apt.packages)
+    flatten(var.substrates.*.install.packages)
   )
   ca_certs = {
     trusted = [
