@@ -114,10 +114,8 @@ variable "substrates" {
         content = optional(string)
         dropins = optional(map(string), {})
       }))
-      apt = object({
-        repositories = list(string)
-        packages     = list(string)
-      })
+      repositories = list(string)
+      packages     = list(string)
     })
     users = optional(
       list(object({

@@ -38,7 +38,8 @@ resource "terraform_data" "manifest" {
     )
     install = {
       systemd_units = local.systemd_units
-      apt           = local.apt
+      repositories  = local.repositories
+      packages      = local.packages
     }
   }
 }

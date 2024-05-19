@@ -15,14 +15,12 @@ locals {
       home_dir = var.data_dir
     }
   ]
-  apt = {
-    repositories = [
-      "hashicorp"
-    ]
-    packages = [
-      "consul"
-    ]
-  }
+  repositories = [
+    "hashicorp"
+  ]
+  packages = [
+    "consul"
+  ]
 }
 
 locals {

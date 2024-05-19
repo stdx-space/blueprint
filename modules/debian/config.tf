@@ -123,7 +123,7 @@ locals {
           [
             "docker",
           ],
-          flatten(var.substrates.*.install.apt.repositories)
+          flatten(var.substrates.*.install.repositories)
         )
         ) : "${repository}.list" => {
         keyserver = "hkp://keyserver.ubuntu.com:80"
@@ -134,7 +134,7 @@ locals {
         )
       }
     },
-    contains(flatten(var.substrates.*.install.apt.repositories), "nvidia-container-toolkit") ? {
+    contains(flatten(var.substrates.*.install.repositories), "nvidia-container-toolkit") ? {
       "non-free.list" = {
         source = "deb http://deb.debian.org/debian/ bookworm main contrib non-free non-free-firmware"
       }

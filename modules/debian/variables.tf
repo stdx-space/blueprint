@@ -122,10 +122,8 @@ variable "substrates" {
         name    = string
         content = string
       }))
-      apt = object({
-        repositories = list(string)
-        packages     = list(string)
-      })
+      repositories = list(string)
+      packages     = list(string)
     })
     users = list(object({
       name     = string
