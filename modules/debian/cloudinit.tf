@@ -25,7 +25,7 @@ data "cloudinit_config" "user_data" {
             }
             users = local.users
             bootcmd = [
-              "apt-get update && apt-get install -y gnupg ${contains(flatten(var.substrates.*.install.apt.repositories), "nvidia-container-toolkit") ? "linux-headers-$(uname -r)" : ""}"
+              "apt-get update && apt-get install -y gnupg ${contains(flatten(var.substrates.*.install.repositories), "nvidia-container-toolkit") ? "linux-headers-$(uname -r)" : ""}"
             ]
             cloud_init_modules = concat(
               [
@@ -71,7 +71,7 @@ data "cloudinit_config" "user_data" {
               "systemctl restart --no-block systemd-resolved systemd-networkd",
             ]
           },
-          contains(flatten(var.substrates.*.install.apt.repositories), "nvidia-container-toolkit") ? {
+          contains(flatten(var.substrates.*.install.repositories), "nvidia-container-toolkit") ? {
             power_state = {
               delay = "now"
               mode  = "reboot"
