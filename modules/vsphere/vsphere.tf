@@ -82,5 +82,6 @@ resource "vsphere_virtual_machine" "this" {
     replace_triggered_by = [
       terraform_data.provisioning_config_checksum
     ]
+    ignore_changes = [hv_mode, ept_rvi_mode]
   }
 }
