@@ -151,6 +151,10 @@ locals {
             enabled=1
             gpgkey=https://pgp.mongodb.com/server-7.0.asc
           EOF
+          owner   = "root"
+          group   = "root"
+          enabled = true
+          mode    = "0644"
         },
       ],
       [
