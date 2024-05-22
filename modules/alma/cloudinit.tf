@@ -54,6 +54,7 @@ data "cloudinit_config" "user_data" {
             runcmd = concat(
               var.startup_script.override_default ? [] : [
                 "dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-${local.alma_major_version}-x86_64/pgdg-redhat-repo-latest.noarch.rpm",
+                "dnf -qy module disable postgresql",
                 "systemctl daemon-reload",
                 "systemctl enable qemu-guest-agent docker --now"
               ],
