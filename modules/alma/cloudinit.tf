@@ -51,10 +51,14 @@ data "cloudinit_config" "user_data" {
                 disk.mount_path,
               ]
             ]
-            runcmd = [
-              "systemctl daemon-reload",
-              "systemctl enable qemu-guest-agent docker --now"
-            ]
+            runcmd = concat(
+              var.startup_script.override_default ? [] : [
+                "dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-${local.alma_major_version}-x86_64/pgdg-redhat-repo-latest.noarch.rpm",
+                "systemctl daemon-reload",
+                "systemctl enable qemu-guest-agent docker --now"
+              ],
+              var.startup_script.inline
+            )
           },
           contains(flatten(var.substrates.*.install.repositories), "nvidia-container-toolkit") ? {
             power_state = {

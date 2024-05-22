@@ -33,7 +33,8 @@ data "external" "openssl" {
   }
 }
 locals {
-  subnet_bits = 0 < length(var.network) ? split("/", var.network)[1] : "24"
+  alma_major_version = split(".", jsondecode(data.http.upstream.response_body).distros.alma.version)[0]
+  subnet_bits        = 0 < length(var.network) ? split("/", var.network)[1] : "24"
   repositories = {
     for repository in distinct(
       concat(
@@ -139,7 +140,18 @@ locals {
           group   = "root"
           enabled = length(var.ip_address) > 0 && length(var.gateway_ip) > 0 && length(var.network) > 0
           mode    = "0644"
-        }
+        },
+        {
+          path    = "/etc/yum.repos.d/mongo.repo"
+          content = <<-EOF
+            [mongodb-org-7.0]
+            name=MongoDB Repository
+            baseurl=https://repo.mongodb.org/yum/redhat/${local.alma_major_version}/mongodb-org/7.0/x86_64/
+            gpgcheck=1
+            enabled=1
+            gpgkey=https://pgp.mongodb.com/server-7.0.asc
+          EOF
+        },
       ],
       [
         for repo in keys(data.http.repositories) : {

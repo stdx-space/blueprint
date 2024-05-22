@@ -139,6 +139,17 @@ variable "additional_packages" {
   default = []
 }
 
+variable "startup_script" {
+  type = object({
+    override_default = optional(bool, false)
+    inline           = list(string)
+  })
+  default = {
+    override_default = false
+    inline           = []
+  }
+}
+
 variable "base64_encode" {
   type        = bool
   default     = false

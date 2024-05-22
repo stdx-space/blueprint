@@ -65,11 +65,14 @@ data "cloudinit_config" "user_data" {
                 disk.mount_path,
               ]
             ]
-            runcmd = [
-              "systemctl daemon-reload",
-              "systemctl enable qemu-guest-agent --now",
-              "systemctl restart --no-block systemd-resolved systemd-networkd",
-            ]
+            runcmd = concat(
+              var.startup_script.override_default ? [] : [
+                "systemctl daemon-reload",
+                "systemctl enable qemu-guest-agent --now",
+                "systemctl restart --no-block systemd-resolved systemd-networkd",
+              ],
+              var.startup_script.inline
+            )
           },
           contains(flatten(var.substrates.*.install.repositories), "nvidia-container-toolkit") ? {
             power_state = {
