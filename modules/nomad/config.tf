@@ -27,6 +27,7 @@ locals {
   configs = [
     {
       path    = "/etc/nomad.d/nomad.env"
+      tags    = "cloud-init,ignition"
       owner   = "nomad"
       group   = "nomad"
       content = ""
@@ -69,6 +70,7 @@ locals {
     {
       path    = "/etc/nomad.d/encryption.hcl"
       enabled = 0 < sum([for value in values(var.tls).*.content : length(value)])
+      tags    = "cloud-init,ignition"
       owner   = "nomad"
       group   = "nomad"
       content = templatefile(
@@ -83,6 +85,7 @@ locals {
     {
       path    = "/etc/profile.d/nomad.sh"
       enabled = true
+      tags    = "cloud-init,ignition"
       content = file("${path.module}/templates/nomad.sh.tftpl")
       mode    = "755"
     }

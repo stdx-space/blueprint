@@ -125,7 +125,7 @@ locals {
       path        = file.path
       owner       = format("%s:%s", file.owner, file.group)
       permissions = length(file.mode) < 4 ? "0${file.mode}" : file.mode
-    } if file.enabled == true && !startswith(file.content, "https://")
+    } if file.enabled == true && !startswith(file.content, "https://") && strcontains(lookup(file, "tags", "cloud-init"))
   ]
   repositories = merge(
     {

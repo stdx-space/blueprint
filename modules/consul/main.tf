@@ -13,6 +13,7 @@ resource "terraform_data" "manifest" {
           )
           content = format("https://artifact.narwhl.dev/sysext/%s-%s-x86-64.raw", pkg, local.pkgs[pkg].version)
           enabled = true
+          tags    = "ignition"
         }
       ],
       [
@@ -26,6 +27,7 @@ resource "terraform_data" "manifest" {
             }
           )
           enabled = true
+          tags    = "ignition"
         }
       ],
       [
