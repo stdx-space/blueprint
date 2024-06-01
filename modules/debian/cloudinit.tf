@@ -21,7 +21,8 @@ data "cloudinit_config" "user_data" {
               ]
             }
             apt = {
-              sources = local.repositories
+              preserve_sources_list = true
+              sources               = local.repositories
             }
             users = local.users
             bootcmd = [
