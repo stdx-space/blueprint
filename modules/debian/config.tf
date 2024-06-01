@@ -87,6 +87,7 @@ locals {
           path    = "/etc/systemd/system/docker.service.d/override.conf"
           content = file("${path.module}/templates/docker-service-override.conf.tftpl")
           enabled = var.expose_docker_socket
+          tags    = "cloud-init"
           owner   = "root"
           group   = "root"
           mode    = "0644"
@@ -100,6 +101,7 @@ locals {
             }
           )
           enabled = true
+          tags    = "cloud-init"
           owner   = "root"
           group   = "root"
           mode    = "0644"
@@ -112,6 +114,7 @@ locals {
             gateway_ip  = var.gateway_ip
             nameservers = var.nameservers
           })
+          tags    = "cloud-init"
           enabled = length(var.ip_address) > 0 && length(var.gateway_ip) > 0 && length(var.network) > 0
           owner   = "root"
           group   = "root"
@@ -125,7 +128,7 @@ locals {
       path        = file.path
       owner       = format("%s:%s", file.owner, file.group)
       permissions = length(file.mode) < 4 ? "0${file.mode}" : file.mode
-    } if file.enabled == true && !startswith(file.content, "https://") && strcontains(lookup(file, "tags", "cloud-init"))
+    } if file.enabled == true && !startswith(file.content, "https://") && strcontains(file.tags, lookup(file, "tags", "cloud-init"))
   ]
   repositories = merge(
     {
