@@ -87,12 +87,12 @@ variable "networks" {
 
 variable "ip_address" {
   type    = string
-  default = ""
+  default = "dhcp"
 }
 
 variable "gateway" {
   type    = string
-  default = ""
+  default = null
 }
 
 variable "use_iso" {
@@ -207,10 +207,6 @@ locals {
     "cloud-init" = { "${var.provisioning_config.type}" = "" }
     "talos"      = { "${var.provisioning_config.type}" = "" }
   }[var.provisioning_config.type]
-
-  network_config = length(var.ip_address) > 0 ? {
-    "static" = true
-  }:{}
 
   cloudinit_drive_interface = {
     "bios" = "ide2"
