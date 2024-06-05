@@ -15,6 +15,7 @@ resource "terraform_data" "manifest" {
             "/etc/extensions/${pkg}-%s-x86-64.raw",
             local.pkgs[pkg].version
           )
+          tags    = "ignition"
           content = format("https://artifact.narwhl.dev/sysext/%s-%s-x86-64.raw", pkg, local.pkgs[pkg].version)
           enabled = true
         }
@@ -29,6 +30,7 @@ resource "terraform_data" "manifest" {
               package = pkg
             }
           )
+          tags    = "ignition"
           enabled = true
         }
       ]
