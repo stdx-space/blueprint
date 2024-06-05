@@ -15,14 +15,6 @@ locals {
       home_dir = var.data_dir
     }
   ]
-  apt = {
-    repositories = [
-      "hashicorp"
-    ]
-    packages = [
-      "vault",
-    ]
-  }
 }
 
 locals {

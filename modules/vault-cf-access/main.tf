@@ -34,7 +34,12 @@ resource "terraform_data" "manifest" {
       ]
     )
     install = {
-      apt           = local.apt
+      repositories = [
+        "hashicorp"
+      ]
+      packages = [
+        "vault",
+      ]
       systemd_units = local.systemd_units
     }
   }
