@@ -31,9 +31,9 @@ data "ignition_directory" "substrates" {
 
 data "ignition_file" "files" {
   for_each = local.files_contain_sensitive_data ? nonsensitive({
-    for file in local.files : file.path => file if file.enabled == true && strcontains(lookup(file, "tags", "ignition"))
+    for file in local.files : file.path => file if file.enabled == true && strcontains(file.tags, lookup(file, "tags", "ignition"))
     }) : {
-    for file in local.files : file.path => file if file.enabled == true && strcontains(lookup(file, "tags", "ignition"))
+    for file in local.files : file.path => file if file.enabled == true && strcontains(file.tags, lookup(file, "tags", "ignition"))
   }
 
   path      = each.key
