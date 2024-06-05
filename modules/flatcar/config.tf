@@ -16,6 +16,7 @@ locals {
         mode    = "644"
         owner   = "root"
         group   = "root"
+        tags    = "ignition"
       },
       {
         path    = "/etc/flatcar/enabled-sysext.conf"
@@ -23,6 +24,7 @@ locals {
         enabled = var.enable_podman
         owner   = "root"
         group   = "root"
+        tags    = "ignition"
       },
       {
         path    = "/etc/systemd/system/docker.service.d/override.conf"
@@ -31,6 +33,7 @@ locals {
         mode    = "644"
         owner   = "root"
         group   = "root"
+        tags    = "ignition"
       },
       {
         path = "/etc/systemd/network/static.network"
@@ -43,6 +46,7 @@ locals {
         mode    = "644"
         owner   = "root"
         group   = "root"
+        tags    = "ignition"
       },
       {
         path    = "/opt/bin/update-restarter.sh"
@@ -50,6 +54,7 @@ locals {
         owner   = "root"
         group   = "root"
         enabled = true
+        tags    = "ignition"
         content = <<-EOF
           #!/bin/bash
           set -e
