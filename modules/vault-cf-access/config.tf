@@ -22,23 +22,28 @@ locals {
     {
       path    = "/etc/sysctl.d/00-sysctl.conf"
       content = file("${path.module}/templates/sysctl.conf.tftpl")
+      tags    = "cloud-init,ignition"
     },
     {
       path    = "/etc/security/limits.conf"
       content = file("${path.module}/templates/limits.conf.tftpl")
+      tags    = "cloud-init,ignition"
     },
     {
       path    = "/etc/systemd/coredump.conf.d/disable.conf"
       content = file("${path.module}/templates/disable-coredump.conf.tftpl")
+      tags    = "cloud-init,ignition"
     },
     {
       path    = "/etc/profile.d/ulimit.sh"
       content = file("${path.module}/templates/ulimits.sh.tftpl")
+      tags    = "cloud-init,ignition"
     },
     {
       path    = "/etc/profile.d/vault.sh"
       content = file("${path.module}/templates/vault.sh.tftpl")
       mode    = "755"
+      tags    = "cloud-init,ignition"
     },
     {
       path  = "/etc/vault.d/listener.hcl"
@@ -50,6 +55,7 @@ locals {
           domain = "vault.${var.zone}"
         }
       )
+      tags = "cloud-init,ignition"
     },
     {
       path  = "/etc/vault.d/config.hcl"
@@ -61,6 +67,7 @@ locals {
           log_level = var.log_level
         }
       )
+      tags = "cloud-init,ignition"
     },
     {
       path  = "/opt/backend.hcl"
@@ -75,6 +82,7 @@ locals {
           bucket     = var.bucket
         }
       )
+      tags = "cloud-init,ignition"
     },
     {
       path  = "/opt/tunnel-token"
@@ -85,28 +93,33 @@ locals {
         "t" = cloudflare_tunnel.vault.id,
         "s" = base64sha256(random_password.tunnel_secret.result)
       }))
+      tags = "cloud-init,ignition"
     },
     {
       path    = "/etc/vault.d/vault.env"
       owner   = "vault"
       group   = "vault"
       content = ""
+      tags    = "cloud-init,ignition"
     },
     {
       path    = "/opt/vault/tls/vault.${var.zone}.key"
       owner   = "vault"
       group   = "vault"
       content = tls_private_key.vault.private_key_pem
+      tags    = "cloud-init,ignition"
     },
     {
       path    = "/opt/vault/tls/vault.${var.zone}.crt"
       owner   = "vault"
       group   = "vault"
       content = cloudflare_origin_ca_certificate.vault.certificate
+      tags    = "cloud-init,ignition"
     },
     {
       path    = "/etc/default/cloudflared"
       content = "CLOUDFLARED_OPTS=tunnel --no-autoupdate run"
+      tags    = "cloud-init,ignition"
     }
   ]
   directories = [
