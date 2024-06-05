@@ -98,6 +98,7 @@ variable "substrates" {
         mode    = optional(string, "644")
         owner   = optional(string, "root")
         group   = optional(string, "root")
+        tags    = string
         })
     ), [])
     directories = optional(
