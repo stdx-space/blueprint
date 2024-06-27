@@ -1,1 +1,6 @@
-export NOMAD_ADDR=http://127.0.0.1:4646
+export NOMAD_ADDR=${protocol}://127.0.0.1:4646
+%{ for tls_config in tls_configs ~}
+export NOMAD_CLIENT_CERT=${tls_config.cert_file_path}
+export NOMAD_CLIENT_KEY=${tls_config.key_file_path}
+export NOMAD_CACERT=${tls_config.ca_file_path}
+%{ endfor ~}

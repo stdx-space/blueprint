@@ -66,37 +66,31 @@ variable "gossip_key" {
 // vice versa client's certificate's CN should be client.global.nomad
 variable "tls" {
   type = object({
-    ca_cert = optional(object({
+    ca_file = optional(object({
       path    = string
       content = string
-      tags    = string
     }))
     cert_file = optional(object({
       path    = string
       content = string
-      tags    = string
     }))
     key_file = optional(object({
       path    = string
       content = string
-      tags    = string
     }))
   })
   default = {
-    ca_cert = {
+    ca_file = {
       path    = "/opt/nomad/tls/ca.pem"
       content = ""
-      tags    = "cloud-init,ignition"
     }
     cert_file = {
       path    = "/opt/nomad/tls/agent.pem"
       content = ""
-      tags    = "cloud-init,ignition"
     }
     key_file = {
       path    = "/opt/nomad/tls/agent.key"
       content = ""
-      tags    = "cloud-init,ignition"
     }
   }
   description = "TLS configuration for Nomad"
