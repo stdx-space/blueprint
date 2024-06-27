@@ -34,7 +34,7 @@ resource "terraform_data" "manifest" {
         for key, item in var.tls : {
           path    = item.path
           content = item.content
-          tags    = item.tags
+          tags    = "cloud-init,ignition"
           enabled = length(item.content) > 0
         }
       ]

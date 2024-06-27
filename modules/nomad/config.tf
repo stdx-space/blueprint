@@ -95,8 +95,15 @@ locals {
       path    = "/etc/profile.d/nomad.sh"
       enabled = true
       tags    = "cloud-init,ignition"
-      content = file("${path.module}/templates/nomad.sh.tftpl")
-      mode    = "755"
+      content = templatefile("${path.module}/templates/nomad.sh.tftpl", {
+        protocol = 0 < sum([for value in values(var.tls).*.content : length(value)]) ? "https" : "http"
+        tls_configs = 0 < sum([for value in values(var.tls).*.content : length(value)]) ? [{
+          ca_file_path   = var.tls.ca_file.path
+          cert_file_path = var.tls.cert_file.path
+          key_file_path  = var.tls.key_file.path
+        }] : []
+      })
+      mode = "755"
     }
   ]
 
