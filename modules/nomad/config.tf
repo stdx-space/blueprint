@@ -6,6 +6,10 @@ locals {
   pkgs = {
     for pkg in ["nomad", "cni-plugins"] : pkg => jsondecode(data.http.upstream.response_body).syspkgs[pkg]
   }
+  # Default to recommendation from Nomad docs, root if client, nomad if server.
+  # https://developer.hashicorp.com/nomad/docs/operations/nomad-agent#permissions
+  nomad_user = var.nomad_user == "" ? (var.role == "server" ? "nomad" : "root") : var.nomad_user
+  nomad_group = var.nomad_group == "" ? (var.role == "server" ? "nomad" : "root") : var.nomad_group
 }
 
 locals {
@@ -28,31 +32,31 @@ locals {
     {
       path    = "/etc/nomad.d/nomad.env"
       tags    = "cloud-init,ignition"
-      owner   = "nomad"
-      group   = "nomad"
+      owner   = local.nomad_user
+      group   = local.nomad_group
       content = ""
     },
     {
       # override the default nomad.hcl config from package
       path    = "/etc/nomad.d/nomad.hcl"
       tags    = "cloud-init"
-      owner   = "nomad"
-      group   = "nomad"
+      owner   = local.nomad_user
+      group   = local.nomad_group
       content = ""
     },
     {
       path    = "/etc/nomad.d/plugins.hcl"
       tags    = "cloud-init,ignition"
-      owner   = "nomad"
-      group   = "nomad"
+      owner   = local.nomad_user
+      group   = local.nomad_group
       content = file("${path.module}/templates/plugins.hcl.tftpl")
     },
     {
       path    = "/etc/nomad.d/server.hcl"
       tags    = "cloud-init,ignition"
       enabled = strcontains(var.role, "server")
-      owner   = "nomad"
-      group   = "nomad"
+      owner   = local.nomad_user
+      group   = local.nomad_group
       content = templatefile(
         "${path.module}/templates/server.hcl.tftpl",
         {
@@ -64,8 +68,8 @@ locals {
     {
       path  = "/etc/nomad.d/client.hcl"
       tags  = "cloud-init,ignition"
-      owner = "nomad"
-      group = "nomad"
+      owner = local.nomad_user
+      group = local.nomad_group
       content = templatefile(
         "${path.module}/templates/client.hcl.tftpl",
         {
@@ -80,8 +84,8 @@ locals {
       path    = "/etc/nomad.d/encryption.hcl"
       enabled = 0 < sum([for value in values(var.tls).*.content : length(value)])
       tags    = "cloud-init,ignition"
-      owner   = "nomad"
-      group   = "nomad"
+      owner   = local.nomad_user
+      group   = local.nomad_group
       content = templatefile(
         "${path.module}/templates/encryption.hcl.tftpl",
         {
@@ -110,23 +114,23 @@ locals {
   directories = [
     {
       path  = "/etc/nomad.d"
-      owner = "nomad"
-      group = "nomad"
+      owner = local.nomad_user
+      group = local.nomad_group
     },
     {
       path  = var.data_dir
-      owner = "nomad"
-      group = "nomad"
+      owner = local.nomad_user
+      group = local.nomad_group
     },
     {
       path  = "${var.data_dir}/data"
-      owner = "nomad"
-      group = "nomad"
+      owner = local.nomad_user
+      group = local.nomad_group
     },
     {
       path  = "${var.data_dir}/tls"
-      owner = "nomad"
-      group = "nomad"
+      owner = local.nomad_user
+      group = local.nomad_group
     }
   ]
 
