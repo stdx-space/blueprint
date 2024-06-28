@@ -3,6 +3,11 @@ variable "postgres_job_name" {
   default = "postgres"
 }
 
+variable "postgres_init_job_name" {
+  type    = string
+  default = "postgres-init"
+}
+
 variable "backup_schedule" {
   type        = string
   default     = "@weekly"
@@ -22,6 +27,23 @@ variable "pgbackrest_init_job_name" {
 variable "pgbackrest_restore_job_name" {
   type    = string
   default = "pgbackrest-restore"
+}
+
+variable "postgres_init" {
+  type = list(object({
+    database = string
+    user     = optional(string, "")
+    password = optional(string, "")
+  }))
+  default     = []
+  description = "The PostgreSQL databases and users to be created. The user will have the same name as the database if not specified. Leave password empty if it should be generated. Can be in Go (Nomad) template syntax for accessing Consul K/V, Vault secrets or Nomad variables, etc."
+  sensitive   = true
+}
+
+variable "postgres_init_script" {
+  type        = string
+  default     = ""
+  description = "The PostgreSQL database initialization script"
 }
 
 variable "datacenter_name" {
