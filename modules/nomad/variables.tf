@@ -38,6 +38,18 @@ variable "role" {
   }
 }
 
+variable "nomad_user" {
+  type        = string
+  default     = ""
+  description = "User running Nomad. Needs to be root if running exec plugin. Defaults to nomad if role is server, or root if role is client"
+}
+
+variable "nomad_group" {
+  type        = string
+  default     = ""
+  description = "Group of user running Nomad. For setting file permissions in config. Defaults to nomad if role is server, or root if role is client"
+}
+
 variable "bootstrap_expect" {
   type        = number
   default     = 1

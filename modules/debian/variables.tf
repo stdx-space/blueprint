@@ -116,6 +116,7 @@ variable "substrates" {
       mode    = optional(string, "0644")
       owner   = optional(string, "root")
       group   = optional(string, "root")
+      defer   = optional(bool, false)
       tags    = string
     }))
     install = object({

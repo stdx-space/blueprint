@@ -41,7 +41,7 @@ job "${job_name}" {
 
       config {
         command = "/usr/bin/pg_ctlcluster"
-        args    = [
+        args = [
           "15", "main", "start", "--foreground"
         ]
       }
@@ -56,7 +56,7 @@ EOH
       }
 
       template {
-        data        = <<EOH
+        data = <<EOH
 archive_mode = on
 archive_command = 'pgbackrest --stanza=${pgbackrest_stanza} --config /local/pgbackrest.conf archive-push %p'
 EOH

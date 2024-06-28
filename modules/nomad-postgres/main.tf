@@ -10,6 +10,41 @@ locals {
       pgbackrest_stanza = var.pgbackrest_stanza
     }
   )
+  postgres_init = {
+    for db in var.postgres_init : db.database => {
+      user     = db.user == "" ? db.database : db.user
+      password = db.password
+      database = db.database
+    }
+  }
+  postgres_init_result = {
+    for database, db in local.postgres_init : database => {
+      user     = db.user
+      password = db.password == "" ? random_password.postgres_password[db.user].result : db.password
+      database = db.database
+    }
+  }
+  postgres_init_script = join("\n", concat([
+    for database, db in local.postgres_init_result : join("\n", [
+      "CREATE USER ${db.user} WITH PASSWORD '${db.password}';",
+      "CREATE DATABASE ${db.database} WITH OWNER ${db.user};",
+      "GRANT ALL PRIVILEGES ON DATABASE ${db.database} TO ${db.user};",
+    ])
+    ], [
+    "ALTER USER postgres WITH PASSWORD '${random_password.postgres_superuser_password.result}';",
+    var.postgres_init_script
+  ]))
+}
+
+resource "random_password" "postgres_password" {
+  for_each = toset(nonsensitive([for db in local.postgres_init : db.user if db.password == ""]))
+  length   = 20
+  special  = false
+}
+
+resource "random_password" "postgres_superuser_password" {
+  length  = 20
+  special = false
 }
 
 resource "nomad_job" "postgres" {
@@ -23,6 +58,19 @@ resource "nomad_job" "postgres" {
       postgres_socket_host_volume_name = var.postgres_host_volumes_name.socket
       postgres_data_host_volume_name   = var.postgres_host_volumes_name.data
       postgres_log_host_volume_name    = var.postgres_host_volumes_name.log
+    }
+  )
+}
+
+resource "nomad_job" "postgres_init" {
+  count = var.restore_backup ? 0 : 1
+  jobspec = templatefile(
+    "${path.module}/templates/postgres-init.nomad.hcl.tftpl",
+    {
+      job_name                         = var.postgres_init_job_name
+      datacenter_name                  = var.datacenter_name
+      postgres_socket_host_volume_name = var.postgres_host_volumes_name.socket
+      init_script                      = local.postgres_init_script
     }
   )
 }

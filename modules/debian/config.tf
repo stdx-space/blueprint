@@ -91,6 +91,7 @@ locals {
           owner   = "root"
           group   = "root"
           mode    = "0644"
+          defer   = false
         },
         {
           path = "/etc/systemd/system/getty@tty1.service.d/override.conf"
@@ -105,6 +106,7 @@ locals {
           owner   = "root"
           group   = "root"
           mode    = "0644"
+          defer   = false
         },
         {
           # Adding 00 prefix to override the precedence of the default file
@@ -119,6 +121,7 @@ locals {
           owner   = "root"
           group   = "root"
           mode    = "0644"
+          defer   = false
         }
       ],
       flatten(var.substrates.*.files)
@@ -128,7 +131,7 @@ locals {
       path        = file.path
       owner       = format("%s:%s", file.owner, file.group)
       permissions = length(file.mode) < 4 ? "0${file.mode}" : file.mode
-      defer       = true # ensure users, packages are created before writing extra files 
+      defer       = file.defer # ensure users, packages are created before writing extra files 
     } if file.enabled == true && !startswith(file.content, "https://") && strcontains(file.tags, lookup(file, "tags", "cloud-init"))
   ]
   repositories = merge(

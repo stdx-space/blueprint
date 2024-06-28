@@ -1,0 +1,36 @@
+job "${job_name}" {
+  datacenters = ["${datacenter_name}"]
+  type        = "batch"
+
+  group "${job_name}" {
+    volume "postgres-socket" {
+      type   = "host"
+      source = "${postgres_socket_host_volume_name}"
+    }
+    task "${job_name}" {
+      driver = "exec"
+      lifecycle {
+        hook    = "poststart"
+        sidecar = false
+      }
+      volume_mount {
+        volume      = "postgres-socket"
+        destination = "/var/run/postgresql"
+      }
+      template {
+        data        = <<EOH
+${init_script}
+EOH
+        destination = "$${NOMAD_TASK_DIR}/init.sql"
+      }
+      config {
+        command = "/usr/bin/psql"
+        args = [
+          "-f",
+          "$${NOMAD_TASK_DIR}/init.sql"
+        ]
+      }
+      user = "postgres"
+    }
+  }
+}
