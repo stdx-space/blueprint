@@ -54,6 +54,14 @@ variable "root_ca_org_unit" {
   description = "Organizational Unit for the Root CA certifcate"
 }
 
+variable "extra_client_certificates" {
+  type = list(object({
+    common_name = string
+  }))
+  description = "List of common names to generate client certificates for"
+  default     = []
+}
+
 variable "extra_server_certificates" {
   type = list(object({
     san_dns_names    = list(string)
@@ -67,6 +75,7 @@ locals {
   dns_ip_map = {
     for key in var.extra_server_certificates : key.san_dns_names[0] => key.san_ip_addresses
   }
+  clients = { for client in var.extra_client_certificates : client.common_name => client }
   servers = {
     for signing_request in var.extra_server_certificates : signing_request.san_dns_names[0] => {
       dns_names    = signing_request.san_dns_names

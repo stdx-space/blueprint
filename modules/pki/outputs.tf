@@ -19,6 +19,13 @@ output "keychain" {
     server_certificates = {
       for key in var.extra_server_certificates : key.san_dns_names[0] => tls_locally_signed_cert.servers[key.san_dns_names[0]].cert_pem
     }
+
+    client_keys = {
+      for key in var.extra_client_certificates : key.common_name => tls_private_key.clients[key.common_name].private_key_pem
+    }
+    client_certificates = {
+      for key in var.extra_client_certificates : key.common_name => tls_locally_signed_cert.clients[key.common_name].cert_pem
+    }
   }
   sensitive = true
 }
