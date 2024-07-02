@@ -44,6 +44,16 @@ resource "tls_locally_signed_cert" "intermediate_ca" {
   ]
 }
 
+resource "tls_cert_request" "clients" {
+  for_each = local.clients
+
+  private_key_pem = tls_private_key.clients[each.key].private_key_pem
+
+  subject {
+    common_name = each.key
+  }
+}
+
 resource "tls_cert_request" "servers" {
   for_each = local.servers
 
@@ -54,6 +64,23 @@ resource "tls_cert_request" "servers" {
   subject {
     common_name = each.key
   }
+}
+
+resource "tls_locally_signed_cert" "clients" {
+  for_each = local.clients
+
+  cert_request_pem   = tls_cert_request.clients[each.key].cert_request_pem
+  ca_private_key_pem = tls_private_key.intermediate_ca.private_key_pem
+  ca_cert_pem        = tls_locally_signed_cert.intermediate_ca.cert_pem
+
+  validity_period_hours = var.ttl
+  is_ca_certificate     = false
+
+  allowed_uses = [
+    "client_auth",
+    "key_encipherment",
+    "digital_signature"
+  ]
 }
 
 resource "tls_locally_signed_cert" "servers" {
