@@ -67,6 +67,19 @@ variable "role" {
   }
 }
 
+
+variable "consul_user" {
+  type        = string
+  default     = "consul"
+  description = "User running Consul. For setting file permissions in config."
+}
+
+variable "consul_group" {
+  type        = string
+  default     = "consul"
+  description = "Group of user running Consul. For setting file permissions in config."
+}
+
 variable "resolve_consul_domains" {
   type        = bool
   default     = false
