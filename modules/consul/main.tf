@@ -35,6 +35,7 @@ resource "terraform_data" "manifest" {
           path    = item.path
           content = item.content
           enabled = length(item.content) > 0
+          tags    = "cloud-init,ignition"
         }
       ]
     )

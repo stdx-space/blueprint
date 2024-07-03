@@ -27,18 +27,21 @@ locals {
   configs = [
     {
       path    = "/etc/consul.d/consul.env"
-      owner   = "consul"
-      group   = "consul"
+      tags    = "cloud-init,ignition"
+      owner   = var.consul_user
+      group   = var.consul_group
       content = ""
     },
     {
       path    = "/etc/consul.d/consul.hcl"
+      tags    = "cloud-init,ignition"
       content = file("${path.module}/templates/consul.hcl.tftpl")
-      owner   = "consul"
-      group   = "consul"
+      owner   = var.consul_user
+      group   = var.consul_group
     },
     {
       path = "/etc/consul.d/client.hcl"
+      tags = "cloud-init,ignition"
       content = templatefile(
         "${path.module}/templates/client.hcl.tftpl",
         {
@@ -48,11 +51,12 @@ locals {
           log_level       = var.log_level
         }
       )
-      owner = "consul"
-      group = "consul"
+      owner = var.consul_user
+      group = var.consul_group
     },
     {
       path = "/etc/consul.d/server.hcl"
+      tags = "cloud-init,ignition"
       content = templatefile(
         "${path.module}/templates/server.hcl.tftpl",
         {
@@ -61,11 +65,12 @@ locals {
         }
       )
       enabled = strcontains(var.role, "server")
-      owner   = "consul"
-      group   = "consul"
+      owner   = var.consul_user
+      group   = var.consul_group
     },
     {
       path = "/etc/consul.d/encryption.hcl"
+      tags = "cloud-init,ignition"
       content = templatefile(
         "${path.module}/templates/encryption.hcl.tftpl",
         {
@@ -78,16 +83,18 @@ locals {
         }
       ),
       enabled = 0 < sum([for value in values(var.tls).*.content : length(value)])
-      owner   = "consul"
-      group   = "consul"
+      owner   = var.consul_user
+      group   = var.consul_group
     },
     {
       path    = "/etc/profile.d/consul.sh"
+      tags    = "cloud-init,ignition"
       content = file("${path.module}/templates/consul.sh.tftpl")
       enabled = true
     },
     {
       path    = "/etc/systemd/resolved.conf.d/consul.conf"
+      tags    = "cloud-init,ignition"
       content = file("${path.module}/templates/consul.conf.tftpl")
       enabled = var.resolve_consul_domains
     }
@@ -96,23 +103,23 @@ locals {
   directories = [
     {
       path  = "/etc/consul.d",
-      owner = "consul"
-      group = "consul"
+      owner = var.consul_user
+      group = var.consul_group
     },
     {
       path  = var.data_dir
-      owner = "consul"
-      group = "consul"
+      owner = var.consul_user
+      group = var.consul_group
     },
     {
       path  = "${var.data_dir}/data"
-      owner = "consul"
-      group = "consul"
+      owner = var.consul_user
+      group = var.consul_group
     },
     {
       path  = "${var.data_dir}/tls"
-      owner = "consul"
-      group = "consul"
+      owner = var.consul_user
+      group = var.consul_group
     }
   ]
 
