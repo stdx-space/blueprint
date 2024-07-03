@@ -49,6 +49,7 @@ locals {
           data_dir        = var.data_dir
           retry_join      = jsonencode(var.retry_join)
           log_level       = var.log_level
+          gossip_key      = var.gossip_key
         }
       )
       owner = var.consul_user
@@ -61,7 +62,6 @@ locals {
         "${path.module}/templates/server.hcl.tftpl",
         {
           bootstrap_expect = var.bootstrap_expect
-          gossip_key       = local.gossip_key
         }
       )
       enabled = strcontains(var.role, "server")
