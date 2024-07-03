@@ -124,11 +124,8 @@ resource "random_id" "gossip_key" {
 
 locals {
   gossip_key = 0 < length(var.gossip_key) ? var.gossip_key : random_id.gossip_key.b64_std
-  server_tls_keypair = {
-    client = {}
-    server = {
-      cert_file = var.tls.server_cert.path
-      key_file  = var.tls.server_key.path
-    }
-  }[var.role]
+  server_tls_keypair = var.role == "server" ? {
+    cert_file = var.tls.server_cert.path
+    key_file  = var.tls.server_key.path
+  } : {}
 }
