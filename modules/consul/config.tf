@@ -80,9 +80,10 @@ locals {
             },
             local.server_tls_keypair
           )
+          tls_config_key = strcontains(var.role, "server") ? "allow_tls" : "tls"
         }
       ),
-      enabled = 0 < sum([for value in values(var.tls).*.content : length(value)])
+      enabled = 0 < sum([for value in values(var.tls) : length(value.content) if value != null])
       owner   = var.consul_user
       group   = var.consul_group
     },
