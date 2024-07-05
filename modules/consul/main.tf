@@ -36,7 +36,7 @@ resource "terraform_data" "manifest" {
           content = item.content
           enabled = length(item.content) > 0
           tags    = "cloud-init,ignition"
-        }
+        } if item != null
       ]
     )
     install = {
