@@ -35,7 +35,7 @@ jobs:
       - name: Authenticate to Security Token Service
         uses: narwhl/imprint@v1
         with:
-          scope: cloudflare
+          scope: cloudflare:r2
       - name: Install dependencies
         run: |
           sudo apt-get install -yqq squashfs-tools rclone

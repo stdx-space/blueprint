@@ -23,7 +23,7 @@ jobs:
       - name: Authenticate to Security Token Service
         uses: narwhl/imprint@v1
         with:
-          scope: cloudflare
+          scope: cloudflare:r2
       - name: Install dependencies
         run: |
           echo "RCLONE_CONFIG_R2_ACCESS_KEY_ID=$CF_R2_ACCESS_KEY_ID" >> $GITHUB_ENV
