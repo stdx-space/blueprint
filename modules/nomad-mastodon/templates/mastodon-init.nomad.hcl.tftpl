@@ -1,0 +1,54 @@
+job "${job_name}" {
+  datacenters = ["${datacenter_name}"]
+  type        = "batch"
+  group "mastodon-init" {
+    network {
+      mode = "bridge"
+    }
+
+    service {
+      name = "mastodon-init"
+
+      connect {
+        sidecar_service {
+          proxy {
+            upstreams {
+              destination_name = "redis"
+              local_bind_port  = 6379
+            }
+            upstreams {
+              destination_name = "postgres"
+              local_bind_port  = 5432
+            }
+            upstreams {
+              destination_name = "minio"
+              local_bind_port  = 9000
+            }
+          }
+        }
+      }
+    }
+
+    task "migrate" {
+      driver = "docker"
+
+      config {
+        image = "ghcr.io/mastodon/mastodon:${mastodon_version}"
+        args  = ["/opt/ruby/bin/rake", "db:migrate"]
+      }
+
+      resources {
+        cpu    = 500
+        memory = 256
+      }
+
+      template {
+        data        = <<EOF
+${mastodon_env_file}
+        EOF
+        destination = "secrets/.env"
+        env         = true
+      }
+    }
+  }
+}
