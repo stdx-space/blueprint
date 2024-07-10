@@ -1,4 +1,6 @@
-data "cloudflare_api_token_permission_groups" "all" {}
+data "cloudflare_api_token_permission_groups" "all" {
+  count = var.acme_email == "" ? 0 : 1
+}
 
 data "cloudflare_zone" "this" {
   name = var.dns_zone_name
@@ -15,11 +17,12 @@ resource "cloudflare_tunnel" "ingress" {
 }
 
 resource "cloudflare_api_token" "dns_challenge_token" {
-  name = "Ephemeral Token for ACME TLS Challenge"
+  count = var.acme_email == "" ? 0 : 1
+  name  = "Ephemeral Token for ACME TLS Challenge"
 
   policy {
     permission_groups = [
-      data.cloudflare_api_token_permission_groups.all.zone["DNS Write"],
+      data.cloudflare_api_token_permission_groups.all[0].zone["DNS Write"],
     ]
     resources = {
       "com.cloudflare.api.account.zone.${data.cloudflare_zone.this.id}" = "*"
@@ -28,7 +31,7 @@ resource "cloudflare_api_token" "dns_challenge_token" {
 }
 
 data "consul_service" "ingress" {
-  name       = "${var.controller_job_name}-ingress-controller"
+  name       = var.consul_provider_config != null ? (var.consul_provider_config.service_name == "" ? var.controller_job_name : var.consul_provider_config.service_name) : "${var.controller_job_name}-ingress-controller"
   datacenter = var.datacenter_name
 
   depends_on = [
@@ -37,7 +40,14 @@ data "consul_service" "ingress" {
   ]
 }
 
+data "consul_service" "consul" {
+  count      = var.consul_provider_config != null ? (var.consul_provider_config.address == "" ? 1 : 0) : 0
+  name       = "consul"
+  datacenter = var.datacenter_name
+}
+
 data "consul_service" "nomad" {
+  count      = var.nomad_provider_config != null ? (var.nomad_provider_config.address == "" ? 1 : 0) : 0
   name       = "nomad"
   datacenter = var.datacenter_name
 }
@@ -62,10 +72,20 @@ resource "nomad_job" "ingress-controller" {
       job_name        = var.controller_job_name
       datacenter_name = var.datacenter_name
       version         = var.traefik_version
-      acme_email      = var.acme_email
-      cf_api_token    = cloudflare_api_token.dns_challenge_token.value
-      nomad_address   = data.consul_service.nomad.service[0].address
-      static_routes   = var.static_routes
+      acme_config = var.acme_email == "" ? [] : [{
+        acme_email   = var.acme_email
+        cf_api_token = cloudflare_api_token.dns_challenge_token[0].value
+      }]
+      nomad_config = var.nomad_provider_config == null ? [] : [{
+        address = var.nomad_provider_config.address == "" ? "http://${data.consul_service.nomad[0].service[0].address}:${data.consul_service.nomad[0].service[0].port}" : var.nomad_provider_config.address
+      }]
+      consul_config = var.consul_provider_config == null ? [] : [{
+        address       = var.consul_provider_config.address == "" ? "http://${data.consul_service.consul[0].service[0].address}:8500" : var.consul_provider_config.address
+        connect_aware = var.consul_provider_config.connect_aware
+        service_name  = var.consul_provider_config.service_name == "" ? var.controller_job_name : var.consul_provider_config.service_name
+        sidecars      = var.consul_provider_config.connect_aware ? [] : [{}]
+      }]
+      static_routes = var.static_routes
     }
   )
 }

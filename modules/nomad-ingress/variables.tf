@@ -65,3 +65,21 @@ variable "static_routes" {
   description = "Traefik dynamic configuration for configuring static routes"
   default     = ""
 }
+
+variable "nomad_provider_config" {
+  type = object({
+    address = string
+  })
+  default     = null
+  description = "Configuration for Nomad Traefik integration. The address from Cousul `nomad` service will be used if address is left empty. TLS is not supported at the moment."
+}
+
+variable "consul_provider_config" {
+  type = object({
+    address       = string
+    connect_aware = bool
+    service_name  = string
+  })
+  default     = null
+  description = "Configuration for Consul Traefik integration. The address from Consul `consul` service will be used if address is left empty. TLS is not supported at the moment."
+}

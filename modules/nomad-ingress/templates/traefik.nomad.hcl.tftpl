@@ -14,9 +14,26 @@ job "${job_name}" {
         to     = 443
       }
     }
+
+    ephemeral_disk {
+      migrate = true
+      size    = 256
+      sticky  = true
+    }
+
     service {
       port = "http"
+%{ for c in consul_config ~}
+      name = "${c.service_name}"
+      connect {
+        native = ${c.connect_aware}
+%{ for s in c.sidecars ~}
+        sidecar_service {}
+%{ endfor ~}
+      }
+%{ endfor ~}
     }
+
     task "traefik" {
       driver = "docker"
 
@@ -29,8 +46,11 @@ EOF
       }
 
       template {
-        data = <<-EOF
-          CF_DNS_API_TOKEN=${cf_api_token}
+        data = <<EOF
+%{ for c in acme_config ~} 
+          CF_DNS_API_TOKEN=${c.cf_api_token}
+%{ endfor ~}
+
         EOF
         destination = "local/.env"
         env = true
@@ -47,13 +67,25 @@ EOF
           "--serversTransport.insecureSkipVerify=true",
           "--entrypoints.http.address=:$${NOMAD_PORT_http}",
           "--entrypoints.https.address=:$${NOMAD_PORT_https}",
+%{ for c in acme_config ~} 
           "--certificatesresolvers.letsencrypt.acme.dnschallenge=true",
           "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare",
-          "--certificatesresolvers.letsencrypt.acme.email=${acme_email}",
-          "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json",
+          "--certificatesresolvers.letsencrypt.acme.email=${c.acme_email}",
+          "--certificatesresolvers.letsencrypt.acme.storage=$${NOMAD_ALLOC_DIR}/acme.json",
+%{ endfor ~}
           "--providers.file.filename=/etc/traefik/dynamic.yml",
+%{ for c in nomad_config ~} 
           "--providers.nomad=true",
-          "--providers.nomad.endpoint.address=${nomad_address}",
+          "--providers.nomad.endpoint.address=${c.address}",
+          "--providers.nomad.exposedByDefault=false",
+%{ endfor ~} 
+%{ for c in consul_config ~} 
+          "--providers.consulcatalog=true",
+          "--providers.consulcatalog.endpoint.address=${c.address}",
+          "--providers.consulcatalog.connectAware=${c.connect_aware}",
+          "--providers.consulcatalog.serviceName=${c.service_name}",
+          "--providers.consulcatalog.exposedByDefault=false",
+%{ endfor ~} 
         ]
 
         mount {
