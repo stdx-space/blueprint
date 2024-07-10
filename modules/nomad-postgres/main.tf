@@ -1,5 +1,5 @@
 locals {
-  pgbackrest_conf = templatefile(
+  pgbackrest_conf = var.pgbackrest_s3_config == null ? "" : templatefile(
     "${path.module}/templates/pgbackrest.conf.tftpl",
     {
       s3_endpoint       = var.pgbackrest_s3_config.endpoint
@@ -51,10 +51,19 @@ resource "nomad_job" "postgres" {
   jobspec = templatefile(
     "${path.module}/templates/postgres.nomad.hcl.tftpl",
     {
-      job_name                         = var.postgres_job_name
-      datacenter_name                  = var.datacenter_name
-      pgbackrest_conf                  = local.pgbackrest_conf
-      pgbackrest_stanza                = var.pgbackrest_stanza
+      job_name        = var.postgres_job_name
+      datacenter_name = var.datacenter_name
+      consul_connect_config = var.consul_job_name == "" ? [] : [
+        {
+          consul_job_name = var.consul_job_name
+        }
+      ]
+      pgbackrest_config = local.pgbackrest_conf == "" ? [] : [
+        {
+          pgbackrest_conf                  = local.pgbackrest_conf
+          pgbackrest_stanza                = var.pgbackrest_stanza
+        }
+      ]
       postgres_socket_host_volume_name = var.postgres_host_volumes_name.socket
       postgres_data_host_volume_name   = var.postgres_host_volumes_name.data
       postgres_log_host_volume_name    = var.postgres_host_volumes_name.log
@@ -76,6 +85,7 @@ resource "nomad_job" "postgres_init" {
 }
 
 resource "nomad_job" "pgbackrest" {
+  count = var.pgbackrest_s3_config == null ? 0 : 1
   jobspec = templatefile(
     "${path.module}/templates/pgbackrest.nomad.hcl.tftpl",
     {
@@ -92,7 +102,7 @@ resource "nomad_job" "pgbackrest" {
 }
 
 resource "nomad_job" "pgbackrest_init" {
-  count = var.restore_backup ? 0 : 1
+  count = var.restore_backup || var.pgbackrest_s3_config == null ? 0 : 1
   jobspec = templatefile(
     "${path.module}/templates/pgbackrest-init.nomad.hcl.tftpl",
     {

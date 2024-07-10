@@ -1,0 +1,61 @@
+job "${job_name}" {
+  datacenters = ["${datacenter_name}"]
+  type        = "service"
+
+  group "minio" {
+
+    network {
+      mode = "bridge"
+      port "web" {
+        to = 9000
+      }
+
+      port "api" {
+        to = 9001
+      }
+    }
+
+    service {
+      name = "minio"
+      tags = [
+        "traefik.enable=true",
+        "traefik.http.routers.minio.rule=Host(`${minio_hostname}`)",
+        "traefik.http.routers.minio.entrypoints=http",
+        "traefik.consulcatalog.connect=true"
+      ]
+      port = 9000
+
+      connect {
+        sidecar_service {}
+      }
+
+      check {
+        name     = "service: minio healthcheck"
+        type     = "http"
+        path     = "/minio/health/live"
+        interval = "10s"
+        timeout  = "2s"
+        expose   = true
+      }
+    }
+
+    task "minio" {
+      driver = "docker"
+
+      config {
+        image = "minio/minio:latest"
+        args  = ["server", "/data", "--console-address", ":9001"]
+      }
+
+      env {
+        MINIO_ROOT_USER     = "${minio_user}"
+        MINIO_ROOT_PASSWORD = "${minio_password}"
+      }
+
+      resources {
+        cpu    = 1024
+        memory = 2048
+      }
+    }
+  }
+}

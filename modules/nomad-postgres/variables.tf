@@ -8,6 +8,12 @@ variable "postgres_init_job_name" {
   default = "postgres-init"
 }
 
+variable "consul_job_name" {
+  type        = string
+  default     = ""
+  description = "Job name of PostgreSQL instance in Consul. If empty, Consul integration will be disabled."
+}
+
 variable "backup_schedule" {
   type        = string
   default     = "@weekly"
@@ -64,6 +70,7 @@ variable "pgbackrest_s3_config" {
     region     = string
   })
   sensitive   = true
+  default     = null
   description = "The pgBackRest repo S3 configuration"
 }
 

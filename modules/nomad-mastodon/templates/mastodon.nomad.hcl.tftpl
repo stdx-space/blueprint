@@ -1,0 +1,270 @@
+job "${job_name}" {
+  datacenters = ["${datacenter_name}"]
+  type        = "service"
+
+  group "redis" {
+    restart {
+      attempts = 10
+      interval = "5m"
+      delay    = "25s"
+      mode     = "delay"
+    }
+
+    network {
+      mode = "bridge"
+      port "redis" {
+        to = 6379
+      }
+    }
+
+    service {
+      name = "redis"
+      port = 6379
+      // check {
+      //   type     = "tcp"
+      //   interval = "10s"
+      //   timeout  = "2s"
+      // }
+      connect {
+        sidecar_service {}
+      }
+    }
+
+    task "redis" {
+      driver = "docker"
+
+      config {
+        image = "redis:7-alpine"
+        ports = ["redis"]
+      }
+
+      resources {
+        cpu    = 1024
+        memory = 2048
+      }
+    }
+  }
+
+  group "web" {
+    restart {
+      attempts = 10
+      interval = "5m"
+      delay    = "25s"
+      mode     = "delay"
+    }
+
+    network {
+      mode = "bridge"
+      port "web" {
+        to = 3000
+      }
+    }
+
+    service {
+      name = "web"
+      port = 3000
+      check {
+        name     = "service: mastodon healthcheck"
+        type     = "http"
+        path     = "/health"
+        interval = "10s"
+        timeout  = "2s"
+        expose   = true
+      }
+      connect {
+        sidecar_service {
+          proxy {
+            upstreams {
+              destination_name = "redis"
+              local_bind_port  = 6379
+            }
+            upstreams {
+              destination_name = "postgres"
+              local_bind_port  = 5432
+            }
+            upstreams {
+              destination_name = "minio"
+              local_bind_port  = 9000
+            }
+          }
+        }
+      }
+      tags = [
+        "traefik.enable=true",
+        "traefik.http.routers.mastodon.rule=Host(`${mastodon_hostname}`)",
+        "traefik.http.routers.mastodon.entrypoints=http",
+        "traefik.consulcatalog.connect=true",
+        # Let mastodon knows HTTPS traffic is forwarded, TODO: forward properly for both real IP and protocol
+        "traefik.http.middlewares.mastodon-headers.headers.customrequestheaders.X-Forwarded-Proto=https",
+        "traefik.http.routers.mastodon.middlewares=mastodon-headers@consulcatalog"
+      ]
+    }
+
+    task "web" {
+      driver = "docker"
+
+      config {
+        image = "ghcr.io/mastodon/mastodon:${mastodon_version}"
+        ports = ["web"]
+        args  = ["/opt/ruby/bin/bundle", "exec", "puma", "-C", "config/puma.rb"]
+      }
+
+      resources {
+        cpu    = 1024
+        memory = 2048
+      }
+
+
+      template {
+        data        = <<EOF
+${mastodon_env_file}
+        EOF
+        destination = "secrets/.env"
+        env         = true
+      }
+    }
+  }
+
+  group "streaming" {
+    restart {
+      attempts = 10
+      interval = "5m"
+      delay    = "25s"
+      mode     = "delay"
+    }
+
+    network {
+      mode = "bridge"
+      port "streaming" {
+        to = 4000
+      }
+    }
+
+    service {
+      name = "streaming"
+      port = 4000
+      connect {
+        sidecar_service {
+          proxy {
+            upstreams {
+              destination_name = "redis"
+              local_bind_port  = 6379
+            }
+            upstreams {
+              destination_name = "postgres"
+              local_bind_port  = 5432
+            }
+            upstreams {
+              destination_name = "minio"
+              local_bind_port  = 9000
+            }
+          }
+        }
+      }
+      check {
+        name     = "service: streaming healthcheck"
+        type     = "http"
+        path     = "/api/v1/streaming/health"
+        interval = "10s"
+        timeout  = "2s"
+        expose   = true
+      }
+      tags = [
+        "traefik.enable=true",
+        "traefik.http.routers.streaming.rule=Host(`${mastodon_hostname}`) && PathPrefix(`/api/v1/streaming`)",
+        "traefik.http.routers.streaming.entrypoints=http",
+        "traefik.consulcatalog.connect=true",
+        # Let mastodon knows HTTPS traffic is forwarded, TODO: forward properly for both real IP and protocol
+        "traefik.http.middlewares.streaming-headers.headers.customrequestheaders.X-Forwarded-Proto=https",
+        "traefik.http.routers.streaming.middlewares=streaming-headers@consulcatalog"
+      ]
+    }
+
+    task "streaming" {
+      driver = "docker"
+
+      config {
+        image = "ghcr.io/mastodon/mastodon:${mastodon_version}"
+        ports = ["streaming"]
+        args  = ["/usr/local/bin/node", "./streaming"]
+      }
+
+      resources {
+        cpu    = 1024
+        memory = 2048
+      }
+
+      template {
+        data        = <<EOF
+${mastodon_env_file}
+        EOF
+        destination = "secrets/.env"
+        env         = true
+      }
+    }
+  }
+
+  group "sidekiq" {
+    restart {
+      attempts = 10
+      interval = "5m"
+      delay    = "25s"
+      mode     = "delay"
+    }
+
+    network {
+      mode = "bridge"
+    }
+
+    service {
+      name = "sidekiq"
+      connect {
+        sidecar_service {
+          proxy {
+            upstreams {
+              destination_name = "redis"
+              local_bind_port  = 6379
+            }
+            upstreams {
+              destination_name = "postgres"
+              local_bind_port  = 5432
+            }
+            upstreams {
+              destination_name = "minio"
+              local_bind_port  = 9000
+            }
+          }
+        }
+      }
+      // check {
+      //   type     = "script"
+      //   command  = "ps aux | grep '[s]idekiq\\ 6' || false"
+      //   interval = "10s"
+      //   timeout  = "2s"
+      // }
+    }
+
+    task "sidekiq" {
+      driver = "docker"
+
+      config {
+        image = "ghcr.io/mastodon/mastodon:${mastodon_version}"
+        args  = ["/opt/ruby/bin/bundle", "exec", "sidekiq"]
+      }
+
+      resources {
+        cpu    = 1024
+        memory = 2048
+      }
+
+
+      template {
+        data        = <<EOF
+${mastodon_env_file}
+        EOF
+        destination = "secrets/.env"
+        env         = true
+      }
+    }
+  }
+}
