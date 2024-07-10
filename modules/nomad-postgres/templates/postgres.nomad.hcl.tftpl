@@ -9,6 +9,17 @@ job "${job_name}" {
         static = 5432
       }
     }
+
+%{ for c in consul_connect_config ~} 
+    service {
+      name = "${c.consul_job_name}"
+      port = 5432
+      connect {
+        sidecar_service {}
+      }
+    }
+%{ endfor ~}
+
     volume "postgres-socket" {
       type   = "host"
       source = "${postgres_socket_host_volume_name}"
@@ -48,9 +59,11 @@ job "${job_name}" {
 
       user = "postgres"
 
+  %{ for c in pgbackrest_config ~} 
+
       template {
         data        = <<EOH
-${pgbackrest_conf}
+${c.pgbackrest_conf}
 EOH
         destination = "$${NOMAD_TASK_DIR}/pgbackrest.conf"
       }
@@ -58,11 +71,14 @@ EOH
       template {
         data = <<EOH
 archive_mode = on
-archive_command = 'pgbackrest --stanza=${pgbackrest_stanza} --config /local/pgbackrest.conf archive-push %p'
+archive_command = 'pgbackrest --stanza=${c.pgbackrest_stanza} --config /local/pgbackrest.conf archive-push %p'
 EOH
         # exec driver can render templates outside of the NOMAD_TASK_DIR
         destination = "/etc/postgresql/15/main/conf.d/50-pgbackrest.conf"
       }
+
+  %{ endfor ~}
+
       template {
         data        = "listen_addresses = '*'"
         destination = "/etc/postgresql/15/main/conf.d/50-listen-addresses.conf"
