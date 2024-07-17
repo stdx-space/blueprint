@@ -20,11 +20,7 @@ variable "dns_zone_name" {
 variable "cloudflare_account_id" {
   type        = string
   sensitive   = true
-  description = "Cloudflare account ID"
-  validation {
-    condition     = length(var.cloudflare_account_id) > 0
-    error_message = "Cloudflare account ID cannot be empty"
-  }
+  description = "Cloudflare account ID. Leave empty to disable ingress from cloudflare tunnel"
 }
 
 variable "acme_email" {

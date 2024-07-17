@@ -66,8 +66,18 @@ variable "database_user" {
   default = "ory"
 }
 
-variable "smtp_connection_uri" {
+variable "hydra_database_password" {
   type = string
+  sensitive = true
+}
+
+variable "kratos_database_password" {
+  type = string
+  sensitive = true
+}
+
+variable "smtp_connection_uri" {
+  type      = string
   sensitive = true
 }
 
