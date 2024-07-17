@@ -13,7 +13,28 @@ locals {
       public = {
         base_url = "https://${local.kratos_public_fqdn}" # TODO: make https and subpath configurable
         cors = {
-          enabled = false
+          # https://www.ory.sh/docs/kratos/guides/setting-up-cors
+          enabled = true
+          allowed_origins = [
+            "https://${var.root_domain}",
+            "https://*.${var.root_domain}"
+          ]
+          allowed_methods = [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE"
+          ]
+          allowed_headers = [
+            "Authorization",
+            "Content-Type",
+            "Cookie"
+          ]
+          exposed_headers = [
+            "Set-Cookie",
+            "Content-Type",
+          ]
         }
       }
       admin = {
@@ -23,7 +44,7 @@ locals {
     selfservice = {
       default_browser_return_url = local.kratos_ui_url
       allowed_return_urls = [
-        "http://127.0.0.1:4455"
+        local.kratos_ui_url
       ]
       methods = {
         password = {
@@ -105,9 +126,14 @@ locals {
 
     session = {
       cookie = {
-        domain    = ""
+        domain    = var.root_domain
         same_site = "Lax"
       }
+    }
+
+    cookies = {
+      domain    = var.root_domain
+      same_site = "Lax"
     }
 
     hashers = {
@@ -129,11 +155,15 @@ locals {
         random_bytes.kratos_cookie_secret.hex
       ]
     }
-    
+
     courier = {
       smtp = {
         connection_uri = var.smtp_connection_uri
       }
+    }
+
+    oauth2_provider = {
+      url = "http://{{ range nomadService `hydra-admin` }}{{ .Address }}:{{ .Port }}{{ end }}"
     }
   })
   hydra_config = yamlencode({
@@ -157,7 +187,7 @@ locals {
         //   "Authorization" = "Bearer ..."
         // }
 
-        url = "https://${local.kratos_admin_fqdn}" # TODO: make https configurable
+        url = "http://{{ range nomadService `kratos-admin` }}{{ .Address }}:{{ .Port }}{{ end }}" # TODO: make https configurable
       }
     }
 

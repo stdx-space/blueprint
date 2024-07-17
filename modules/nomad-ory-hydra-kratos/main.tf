@@ -18,22 +18,18 @@ resource "random_bytes" "hydra_oidc_pairwise_salt" {
   length = 8
 }
 
-resource "random_password" "db_admin" {
-  length           = 32
-  special          = true
-  override_special = "!#$%&*()-_=+[]{}<>:?"
-}
-
 resource "random_password" "kratos_db_password" {
-  length           = 32
-  special          = true
-  override_special = "!#$%&*()-_=+[]{}<>:?"
+  count = var.kratos_database_password == "" ? 1 : 0
+  # count = 0
+  length  = 32
+  special = false
 }
 
 resource "random_password" "hydra_db_password" {
-  length           = 32
-  special          = true
-  override_special = "!#$%&*()-_=+[]{}<>:?"
+  count = var.hydra_database_password == "" ? 1 : 0
+  # count = 0
+  length  = 32
+  special = false
 }
 
 resource "nomad_job" "hydra-kratos" {
@@ -42,14 +38,15 @@ resource "nomad_job" "hydra-kratos" {
     {
       job_name           = var.job_name
       datacenter_name    = var.datacenter_name
-      db_password        = random_password.db_admin.result
-      hydra_db_password  = random_password.hydra_db_password.result
-      kratos_db_password = random_password.kratos_db_password.result
+      hydra_db_password  = var.hydra_database_password == "" ? random_password.hydra_db_password[0].result : var.hydra_database_password
+      kratos_db_password = var.kratos_database_password == "" ? random_password.kratos_db_password[0].result : var.kratos_database_password
       hydra_version      = var.hydra_version
       kratos_version     = var.kratos_version
       postgres_version   = var.postgres_version
       hydra_config       = local.hydra_config
+      hydra_public_fqdn  = local.hydra_fqdn
       kratos_config      = local.kratos_config
+      kratos_public_fqdn = local.kratos_public_fqdn
     }
   )
 }

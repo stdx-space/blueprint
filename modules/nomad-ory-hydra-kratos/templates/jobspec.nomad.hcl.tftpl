@@ -2,60 +2,6 @@ job "${job_name}" {
   datacenters = ["${datacenter_name}"]
   type        = "service"
 
-  group "db" {
-
-    network {
-      port "postgres" {
-        to     = 5432
-      }
-    }
-
-    service {
-      name     = "postgres"
-      provider = "nomad"
-      port     = "postgres"
-    }
-
-    task "postgres" {
-      driver = "docker"
-
-      template {
-        data = <<-EOF
-          POSTGRES_PASSWORD="${db_password}"
-        EOF
-        destination = "local/.env"
-        env = true
-      }
-
-      template {
-        data = <<-EOF
-        #!/bin/bash
-        set -e
-
-        psql -v ON_ERROR_STOP=1 --username "postgres" --dbname "postgres" <<-EOSQL
-          CREATE USER hydra WITH PASSWORD '${hydra_db_password}';
-          CREATE USER kratos WITH PASSWORD '${kratos_db_password}';
-          CREATE DATABASE hydra;
-          CREATE DATABASE kratos;
-          GRANT ALL PRIVILEGES ON DATABASE hydra TO hydra;
-          GRANT ALL PRIVILEGES ON DATABASE kratos TO kratos;
-        EOSQL
-        EOF
-        destination = "local/init-user-db.sh"
-      }
-
-      config {
-        image = "postgres:${postgres_version}"
-        ports = ["postgres"]
-
-        mount {
-          type   = "bind"
-          source = "local/init-user-db.sh"
-          target = "/docker-entrypoint-initdb.d/init-user-db.sh"
-        }
-      }
-    }
-  }
   group "hydra" {
     network {
       port "hydra-public" {
@@ -65,9 +11,24 @@ job "${job_name}" {
         to = 4445
       }
     }
+    service {
+      name     = "hydra-public"
+      provider = "nomad"
+      port     = "hydra-public"
+      tags     = [
+        "traefik.enable=true",
+        "traefik.http.routers.hydra-public.rule=Host(`${hydra_public_fqdn}`)",
+        "traefik.http.routers.hydra-public.entrypoints=http"
+      ]
+    }
+    service {
+      name     = "hydra-admin"
+      provider = "nomad"
+      port     = "hydra-admin"
+    }
     task "hydra-migrate" {
       lifecycle {
-        hook = "prestart"
+        hook    = "prestart"
         sidecar = false
       }
 
@@ -75,7 +36,7 @@ job "${job_name}" {
 
       template {
         change_mode = "restart"
-        data = <<-EOF
+        data        = <<-EOF
         ${hydra_config}
         EOF
         destination = "local/hydra.yml"
@@ -83,15 +44,15 @@ job "${job_name}" {
 
       template {
         change_mode = "restart"
-        data = <<-EOF
-        DSN=postgres://hydra:${urlencode(hydra_db_password)}@{{ range nomadService "postgres" }}{{ .Address }}:{{ .Port }}{{ end }}/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+        data        = <<-EOF
+        DSN=postgres://hydra:${urlencode(hydra_db_password)}@{{ range service "postgres" }}{{ .Address }}:{{ .Port }}{{ end }}/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
         EOF
         destination = "secrets/kratos.env"
-        env = true
+        env         = true
       }
 
       config {
-        image = "oryd/hydra:${hydra_version}"
+        image   = "oryd/hydra:${hydra_version}"
         command = "migrate"
         args = [
           "-c",
@@ -113,7 +74,7 @@ job "${job_name}" {
 
       template {
         change_mode = "restart"
-        data = <<EOF
+        data        = <<EOF
 ${hydra_config}
         EOF
         destination = "local/hydra.yml"
@@ -121,11 +82,11 @@ ${hydra_config}
 
       template {
         change_mode = "restart"
-        data = <<-EOF
-        DSN=postgres://hydra:${urlencode(hydra_db_password)}@{{ range nomadService "postgres" }}{{ .Address }}:{{ .Port }}{{ end }}/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+        data        = <<-EOF
+        DSN=postgres://hydra:${urlencode(hydra_db_password)}@{{ range service "postgres" }}{{ .Address }}:{{ .Port }}{{ end }}/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
         EOF
         destination = "secrets/kratos.env"
-        env = true
+        env         = true
       }
 
       config {
@@ -143,7 +104,7 @@ ${hydra_config}
           source = "local/hydra.yml"
           target = "/etc/config/hydra/hydra.yml"
         }
-        
+
         ports = ["hydra-public", "hydra-admin"]
       }
     }
@@ -158,16 +119,33 @@ ${hydra_config}
         to = 4434
       }
     }
-    
+
+    service {
+      name     = "kratos-public"
+      provider = "nomad"
+      port     = "kratos-public"
+      tags     = [
+        "traefik.enable=true",
+        "traefik.http.routers.kratos-public.rule=Host(`${kratos_public_fqdn}`)",
+        "traefik.http.routers.kratos-public.entrypoints=http"
+      ]
+    }
+
+    service {
+      name     = "kratos-admin"
+      provider = "nomad"
+      port     = "kratos-admin"
+    }
+
     task "kratos-migrate" {
       lifecycle {
-        hook = "prestart"
+        hook    = "prestart"
         sidecar = false
       }
 
       template {
         change_mode = "restart"
-        data = <<EOF
+        data        = <<EOF
 ${kratos_config}
         EOF
         destination = "local/kratos.yml"
@@ -175,11 +153,11 @@ ${kratos_config}
 
       template {
         change_mode = "restart"
-        data = <<-EOF
-        DSN=postgres://kratos:${urlencode(kratos_db_password)}@{{ range nomadService "postgres" }}{{ .Address }}:{{ .Port }}{{ end }}/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+        data        = <<-EOF
+        DSN=postgres://kratos:${urlencode(kratos_db_password)}@{{ range service "postgres" }}{{ .Address }}:{{ .Port }}{{ end }}/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
         EOF
         destination = "secrets/kratos.env"
-        env = true
+        env         = true
       }
 
       driver = "docker"
@@ -188,12 +166,12 @@ ${kratos_config}
         image = "oryd/kratos:${kratos_version}"
         // command = "migrate"
         args = [
-         "-c",
-         "/etc/config/kratos/kratos.yml",
-         "migrate",
-         "sql",
-         "-e",
-         "--yes",
+          "-c",
+          "/etc/config/kratos/kratos.yml",
+          "migrate",
+          "sql",
+          "-e",
+          "--yes",
         ]
 
         mount {
@@ -208,7 +186,7 @@ ${kratos_config}
 
       template {
         change_mode = "restart"
-        data = <<EOF
+        data        = <<EOF
 ${kratos_config}
         EOF
         destination = "local/kratos.yml"
@@ -216,11 +194,11 @@ ${kratos_config}
 
       template {
         change_mode = "restart"
-        data = <<-EOF
-        DSN=postgres://kratos:${urlencode(kratos_db_password)}@{{ range nomadService "postgres" }}{{ .Address }}:{{ .Port }}{{ end }}/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+        data        = <<-EOF
+        DSN=postgres://kratos:${urlencode(kratos_db_password)}@{{ range service "postgres" }}{{ .Address }}:{{ .Port }}{{ end }}/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
         EOF
         destination = "secrets/kratos.env"
-        env = true
+        env         = true
       }
 
       config {
@@ -237,7 +215,7 @@ ${kratos_config}
           source = "local/kratos.yml"
           target = "/etc/config/kratos/kratos.yml"
         }
-        
+
         ports = ["kratos-public", "kratos-admin"]
       }
     }
