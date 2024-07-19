@@ -31,6 +31,44 @@ resource "tls_cert_request" "vault" {
   }
 }
 
+resource "cloudflare_r2_bucket" "vault" {
+  account_id = var.cloudflare_account_id
+  name       = var.bucket
+}
+
+resource "cloudflare_access_service_token" "this" {
+  account_id = var.cloudflare_account_id
+  name       = "Vault"
+}
+
+resource "cloudflare_api_token" "r2" {
+
+  name = "Vault"
+  policy {
+    permission_groups = [
+      data.cloudflare_api_token_permission_groups.all.r2["Workers R2 Storage Bucket Item Write"],
+    ]
+    resources = {
+      format(
+        "com.cloudflare.edge.r2.bucket.%s_default_%s",
+        var.cloudflare_account_id,
+        cloudflare_r2_bucket.vault.name
+      ) = "*"
+    }
+  }
+  condition {
+    request_ip {
+      in = [
+        for record in flatten(
+          [
+            for key in keys(data.http.dns_query) : jsondecode(data.http.dns_query[key].response_body).Answer
+          ]
+        ) : "${record.data}/32"
+      ]
+    }
+  }
+}
+
 resource "cloudflare_origin_ca_certificate" "vault" {
   csr                  = tls_cert_request.vault.cert_request_pem
   hostnames            = ["vault.${var.zone}"]
@@ -112,7 +150,7 @@ resource "cloudflare_access_policy" "service_token" {
   precedence     = 1
   include {
     service_token = [
-      var.cloudflare_access_service_token_id
+      cloudflare_access_service_token.id
     ]
   }
 }

@@ -25,26 +25,6 @@ variable "log_level" {
   }
 }
 
-variable "access_key" {
-  type        = string
-  sensitive   = true
-  description = "Access key for S3 bucket"
-  validation {
-    condition     = length(var.access_key) > 0
-    error_message = "Must specify access_key"
-  }
-}
-
-variable "secret_key" {
-  type        = string
-  sensitive   = true
-  description = "Secret key for S3 bucket"
-  validation {
-    condition     = length(var.secret_key) > 0
-    error_message = "Must specify secret_key"
-  }
-}
-
 variable "bucket" {
   type        = string
   description = "S3 bucket name"
@@ -62,11 +42,6 @@ variable "zone" {
 variable "cloudflare_account_id" {
   type        = string
   description = "Cloudflare account ID for access"
-}
-
-variable "cloudflare_access_service_token_id" {
-  type        = string
-  description = "Cloudflare access service token ID"
 }
 
 variable "github_organization" {

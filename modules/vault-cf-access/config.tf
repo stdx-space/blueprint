@@ -76,8 +76,8 @@ locals {
       content = templatefile(
         "${path.module}/templates/backend.hcl.tftpl",
         {
-          access_key = var.access_key
-          secret_key = var.secret_key
+          access_key = cloudflare_api_token.r2.value
+          secret_key = sha256(cloudflare_api_token.r2.value)
           endpoint   = "https://${var.cloudflare_account_id}.r2.cloudflarestorage.com"
           bucket     = var.bucket
         }
