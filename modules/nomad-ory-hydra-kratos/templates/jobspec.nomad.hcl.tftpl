@@ -20,11 +20,25 @@ job "${job_name}" {
         "traefik.http.routers.hydra-public.rule=Host(`${hydra_public_fqdn}`)",
         "traefik.http.routers.hydra-public.entrypoints=http"
       ]
+      check {
+        type     = "http"
+        port     = "hydra-public"
+        path     = "/health/ready"
+        interval = "30s"
+        timeout  = "3s"
+      }
     }
     service {
       name     = "hydra-admin"
       provider = "nomad"
       port     = "hydra-admin"
+      check {
+        type     = "http"
+        port     = "hydra_admin"
+        path     = "/health/ready"
+        interval = "30s"
+        timeout  = "3s"
+      }
     }
     task "hydra-migrate" {
       lifecycle {
@@ -129,12 +143,26 @@ ${hydra_config}
         "traefik.http.routers.kratos-public.rule=Host(`${kratos_public_fqdn}`)",
         "traefik.http.routers.kratos-public.entrypoints=http"
       ]
+      check {
+        type     = "http"
+        port     = "kratos-public"
+        path     = "/health/ready"
+        interval = "30s"
+        timeout  = "3s"
+      }
     }
 
     service {
       name     = "kratos-admin"
       provider = "nomad"
       port     = "kratos-admin"
+      check {
+        type     = "http"
+        port     = "kratos-admin"
+        path     = "/health/ready"
+        interval = "30s"
+        timeout  = "3s"
+      }
     }
 
     task "kratos-migrate" {
