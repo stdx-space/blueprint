@@ -92,6 +92,7 @@ locals {
         }
 
         registration = {
+          enabled  = var.kratos_registration_enabled
           ui_url   = "${local.kratos_ui_url}/registration"
           lifespan = "10m"
           after = {

@@ -48,6 +48,11 @@ variable "kratos_verification_enabled" {
   default = true
 }
 
+variable "kratos_registration_enabled" {
+  type    = bool
+  default = true
+}
+
 variable "kratos_ui_subdomain" {
   type = string
 }
