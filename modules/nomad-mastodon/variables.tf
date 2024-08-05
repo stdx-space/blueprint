@@ -75,10 +75,11 @@ variable "s3_hostname" {
 
 variable "oidc_config" {
   type = object({
-    display_name  = string
-    issuer        = string
-    client_id     = string
-    client_secret = string
+    display_name          = string
+    issuer                = string
+    client_id             = string
+    client_secret         = string
+    assume_email_verified = optional(bool, true)
   })
   sensitive = true
 }

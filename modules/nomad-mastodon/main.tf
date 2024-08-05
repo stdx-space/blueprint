@@ -32,7 +32,7 @@ locals {
     OIDC_SCOPE                             = "openid,profile,email"
     OIDC_UID_FIELD                         = "preferred_username"
     OIDC_REDIRECT_URI                      = "https://${var.mastodon_hostname}/auth/auth/openid_connect/callback"
-    OIDC_SECURITY_ASSUME_EMAIL_IS_VERIFIED = true
+    OIDC_SECURITY_ASSUME_EMAIL_IS_VERIFIED = var.oidc_config.assume_email_verified
     OIDC_CLIENT_ID                         = var.oidc_config.client_id
     OIDC_CLIENT_SECRET                     = var.oidc_config.client_secret
     OMNIAUTH_ONLY                          = true
