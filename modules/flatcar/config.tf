@@ -1,8 +1,6 @@
 data "http" "ssh_keys_import" {
-  for_each = {
-    for item in local.remote_ssh_keys : "${trimprefix(trimsuffix(item, ".keys"), "https://")}" => item
-  }
-  url = each.value
+  count = length(local.remote_ssh_keys)
+  url   = local.remote_ssh_keys[count.index]
 }
 
 locals {
@@ -16,15 +14,6 @@ locals {
         mode    = "644"
         owner   = "root"
         group   = "root"
-        tags    = "ignition"
-      },
-      {
-        path    = "/etc/flatcar/enabled-sysext.conf"
-        content = "podman"
-        enabled = var.enable_podman
-        owner   = "root"
-        group   = "root"
-        tags    = "ignition"
       },
       {
         path    = "/etc/systemd/system/docker.service.d/override.conf"
@@ -33,7 +22,6 @@ locals {
         mode    = "644"
         owner   = "root"
         group   = "root"
-        tags    = "ignition"
       },
       {
         path = "/etc/systemd/network/static.network"
@@ -46,7 +34,6 @@ locals {
         mode    = "644"
         owner   = "root"
         group   = "root"
-        tags    = "ignition"
       },
       {
         path    = "/opt/bin/update-restarter.sh"
@@ -54,7 +41,6 @@ locals {
         owner   = "root"
         group   = "root"
         enabled = true
-        tags    = "ignition"
         content = <<-EOF
           #!/bin/bash
           set -e
@@ -79,7 +65,7 @@ locals {
       for key in var.ssh_authorized_keys : key if startswith(key, "ssh")
     ],
     compact(flatten([
-      for user in keys(data.http.ssh_keys_import) : split("\n", data.http.ssh_keys_import[user].response_body)
+      for v in data.http.ssh_keys_import : split("\n", v.response_body)
     ]))
   ))
   systemd_units = concat(
