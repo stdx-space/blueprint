@@ -30,11 +30,9 @@ data "ignition_directory" "substrates" {
 }
 
 data "ignition_file" "files" {
-  for_each = local.files_contain_sensitive_data ? nonsensitive({
+  for_each = nonsensitive({
     for file in local.files : file.path => file if file.enabled == true && strcontains(file.tags, lookup(file, "tags", "ignition"))
-    }) : {
-    for file in local.files : file.path => file if file.enabled == true && strcontains(file.tags, lookup(file, "tags", "ignition"))
-  }
+  })
 
   path      = each.key
   overwrite = true
@@ -116,9 +114,9 @@ data "ignition_config" "config" {
   filesystems = [
     for disk, fs in data.ignition_filesystem.fs : fs.rendered
   ]
-  files = [
-    for path, file in data.ignition_file.files : file.rendered
-  ]
+  # files = [
+  #   for path, file in data.ignition_file.files : file.rendered
+  # ]
   systemd = concat([
     for name, unit in data.ignition_systemd_unit.services : unit.rendered
     ], var.disable_ssh ? [

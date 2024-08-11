@@ -1,10 +1,9 @@
 data "http" "ssh_keys_import" {
-  count = length(local.remote_ssh_keys)
-  url   = local.remote_ssh_keys[count.index]
+  count = length(var.ssh_keys_import)
+  url   = var.ssh_keys_import[count.index]
 }
 
 locals {
-  files_contain_sensitive_data = 0 < length(var.ca_certs)
   files = concat(
     [
       {
