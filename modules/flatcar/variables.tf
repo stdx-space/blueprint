@@ -98,7 +98,7 @@ variable "substrates" {
         mode    = optional(string, "644")
         owner   = optional(string, "root")
         group   = optional(string, "root")
-        tags    = string
+        tags    = optional(string, "ignition")
         })
     ), [])
     directories = optional(
@@ -109,7 +109,7 @@ variable "substrates" {
         group = optional(string, "root")
         })
     ), [])
-    install = object({
+    install = optional(object({
       systemd_units = list(object({
         name    = string
         content = optional(string)
@@ -117,6 +117,10 @@ variable "substrates" {
       }))
       repositories = list(string)
       packages     = list(string)
+      }), {
+      systemd_units = []
+      repositories  = []
+      packages      = []
     })
     users = optional(
       list(object({
