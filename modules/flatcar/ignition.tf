@@ -114,9 +114,9 @@ data "ignition_config" "config" {
   filesystems = [
     for disk, fs in data.ignition_filesystem.fs : fs.rendered
   ]
-  # files = [
-  #   for path, file in data.ignition_file.files : file.rendered
-  # ]
+  files = [
+    for path, file in data.ignition_file.files : file.rendered
+  ]
   systemd = concat([
     for name, unit in data.ignition_systemd_unit.services : unit.rendered
     ], var.disable_ssh ? [
