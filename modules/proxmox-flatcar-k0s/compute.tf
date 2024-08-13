@@ -9,7 +9,7 @@ module "flatcar" {
       directories = [
         {
           path = "/var/lib/k0s/manifests/oidc-reviewer"
-        }
+        },
       ]
       files = [
         {
@@ -18,7 +18,7 @@ module "flatcar" {
             apiVersion = "rbac.authorization.k8s.io/v1"
             kind       = "ClusterRoleBinding"
             metadata = {
-              name = "oidc-viewer"
+              name = "oidc-reviewer"
             }
             roleRef = {
               apiGroup = "rbac.authorization.k8s.io"
@@ -32,7 +32,7 @@ module "flatcar" {
               }
             ]
           })
-        }
+        },
       ]
     }
   ]

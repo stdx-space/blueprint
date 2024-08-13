@@ -32,18 +32,12 @@ variable "helm_repositories" {
     name = string
     url  = string
   }))
-  default = [{
-    name = "openebs-internal"
-    url  = "https://openebs.github.io/charts"
-    },
+  default = [
     {
-      name = "traefik"
-      url  = "https://traefik.github.io/charts"
+      name = "openebs-internal"
+      url  = "https://openebs.github.io/charts"
     },
-    {
-      name = "metallb"
-      url  = "https://metallb.github.io/metallb"
-  }]
+  ]
 }
 
 variable "helm_charts" {
@@ -55,35 +49,7 @@ variable "helm_charts" {
     values    = string
     namespace = string
   }))
-  default = [{
-    name      = "openebs"
-    chartname = "openebs-internal/openebs"
-    version   = "3.9.0"
-    order     = 1
-    values = yamlencode({
-      localprovisioner = {
-        hostpathClass = {
-          enabled        = true
-          isDefaultClass = true
-        }
-      }
-    })
-    namespace = "openebs"
-    },
-    {
-      name      = "traefik"
-      chartname = "traefik/traefik"
-      version   = "30.0.2"
-      order     = 2
-      namespace = "default"
-    },
-    {
-      name      = "metallb"
-      chartname = "metallb/metallb"
-      version   = "0.14.8"
-      namespace = "default"
-      order     = 3
-  }]
+  default = []
 }
 
 variable "ssh_authorized_keys" {
@@ -129,7 +95,23 @@ locals {
       }
       extensions = {
         helm = {
-          charts       = var.helm_charts
+          charts = concat(var.helm_charts, [
+            {
+              name      = "openebs"
+              chartname = "openebs-internal/openebs"
+              version   = "3.9.0"
+              order     = 1
+              values = yamlencode({
+                localprovisioner = {
+                  hostpathClass = {
+                    enabled        = true
+                    isDefaultClass = true
+                  }
+                }
+              })
+              namespace = "openebs"
+            },
+          ])
           repositories = var.helm_repositories
         }
       }
