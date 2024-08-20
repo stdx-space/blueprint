@@ -53,6 +53,15 @@ variable "ssh_authorized_keys" {
   }
 }
 
+variable "ssh_import_id" {
+  type = list(string)
+  description = "List of SSH key import IDs through provider URLs"
+  validation {
+    condition = alltrue([for item in var.ssh_import_id : startswith(item, "http")])
+    error_message = "SSH key import ID must be a valid URL"
+  }
+}
+
 variable "timezone" {
   type        = string
   default     = "Asia/Hong_Kong"
@@ -155,8 +164,3 @@ variable "base64_encode" {
   description = "Whether to base64 encode the configuration"
 }
 
-locals {
-  remote_ssh_keys = [
-    for item in var.ssh_authorized_keys : item if startswith(item, "http")
-  ]
-}

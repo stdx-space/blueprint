@@ -10,10 +10,8 @@ data "http" "ca_certs" {
 }
 
 data "http" "ssh_keys_import" {
-  for_each = {
-    for item in local.remote_ssh_keys : "${trimprefix(trimsuffix(item, ".keys"), "https://")}" => item
-  }
-  url = each.value
+  count = length(var.ssh_import_id)
+  url = var.ssh_import_id[count.index]
 }
 
 data "http" "repositories" {
@@ -57,9 +55,7 @@ locals {
         groups      = ["adm", "netdev", "plugdev", "sudo", "docker"]
         lock_passwd = true
         ssh_authorized_keys = distinct(concat(
-          [
-            for key in var.ssh_authorized_keys : key if startswith(key, "ssh")
-          ],
+          var.ssh_authorized_keys,
           compact(flatten([
             for user in keys(data.http.ssh_keys_import) : split("\n", data.http.ssh_keys_import[user].response_body)
           ]))
