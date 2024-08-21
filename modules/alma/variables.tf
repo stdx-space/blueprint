@@ -54,10 +54,11 @@ variable "ssh_authorized_keys" {
 }
 
 variable "ssh_import_id" {
-  type = list(string)
+  type        = list(string)
   description = "List of SSH key import IDs through provider URLs"
+  default     = []
   validation {
-    condition = alltrue([for item in var.ssh_import_id : startswith(item, "http")])
+    condition = length(var.ssh_import_id) > 0 && alltrue([for item in var.ssh_import_id : startswith(item, "http")])
     error_message = "SSH key import ID must be a valid URL"
   }
 }
