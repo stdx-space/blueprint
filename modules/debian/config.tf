@@ -41,7 +41,7 @@ locals {
         ssh_authorized_keys = distinct(concat(
           var.ssh_authorized_keys,
           compact(flatten([
-            for user in keys(data.http.ssh_keys_import) : split("\n", data.http.ssh_keys_import[user].response_body)
+            for v in data.http.ssh_keys_import : split("\n", v.response_body)
           ]))
         ))
       },
