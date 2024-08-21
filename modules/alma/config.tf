@@ -102,6 +102,7 @@ locals {
           owner   = "root"
           group   = "root"
           mode    = "0644"
+          tags    = "cloud-init"
         },
         {
           path = "/etc/systemd/system/getty@tty1.service.d/override.conf"
@@ -115,6 +116,7 @@ locals {
           group   = "root"
           enabled = true
           mode    = "0644"
+          tags    = "cloud-init"
         },
         {
           path    = "/etc/hostname"
@@ -123,6 +125,7 @@ locals {
           group   = "root"
           enabled = true
           mode    = "0644"
+          tags    = "cloud-init"
         },
         {
           # Adding 00 prefix to override the precedence of the default file
@@ -136,6 +139,7 @@ locals {
           group   = "root"
           enabled = length(var.ip_address) > 0 && length(var.gateway_ip) > 0 && length(var.network) > 0
           mode    = "0644"
+          tags    = "cloud-init"
         },
         {
           path    = "/etc/yum.repos.d/mongo.repo"
@@ -151,6 +155,7 @@ locals {
           group   = "root"
           enabled = true
           mode    = "0644"
+          tags    = "cloud-init"
         },
       ],
       [
@@ -161,6 +166,7 @@ locals {
           owner   = "root"
           group   = "root"
           mode    = "0644"
+          tags    = "cloud-init"
         }
       ],
       flatten(var.substrates.*.files)
