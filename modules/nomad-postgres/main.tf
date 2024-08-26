@@ -53,15 +53,20 @@ resource "nomad_job" "postgres" {
     {
       job_name        = var.postgres_job_name
       datacenter_name = var.datacenter_name
-      consul_connect_config = var.consul_job_name == "" ? [] : [
+      consul_config = var.consul_job_name != "" && !var.consul_connect ? [
         {
           consul_job_name = var.consul_job_name
         }
-      ]
+      ] : []
+      consul_connect_config = var.consul_job_name != "" && var.consul_connect ? [
+        {
+          consul_job_name = var.consul_job_name
+        }
+      ] : []
       pgbackrest_config = local.pgbackrest_conf == "" ? [] : [
         {
-          pgbackrest_conf                  = local.pgbackrest_conf
-          pgbackrest_stanza                = var.pgbackrest_stanza
+          pgbackrest_conf   = local.pgbackrest_conf
+          pgbackrest_stanza = var.pgbackrest_stanza
         }
       ]
       postgres_socket_host_volume_name = var.postgres_host_volumes_name.socket

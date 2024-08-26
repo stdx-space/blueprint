@@ -10,7 +10,14 @@ job "${job_name}" {
       }
     }
 
-%{ for c in consul_connect_config ~} 
+%{ for c in consul_config ~}
+    service {
+      name = "${c.consul_job_name}"
+      port = "postgres"
+    }
+%{ endfor ~}
+
+%{ for c in consul_connect_config ~}
     service {
       name = "${c.consul_job_name}"
       port = 5432
@@ -59,7 +66,7 @@ job "${job_name}" {
 
       user = "postgres"
 
-  %{ for c in pgbackrest_config ~} 
+  %{ for c in pgbackrest_config ~}
 
       template {
         data        = <<EOH
