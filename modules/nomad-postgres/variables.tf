@@ -14,6 +14,12 @@ variable "consul_job_name" {
   description = "Job name of PostgreSQL instance in Consul. If empty, Consul integration will be disabled."
 }
 
+variable "consul_connect" {
+  type        = bool
+  default     = false
+  description = "Whether to enable Consul Connect integration"
+}
+
 variable "backup_schedule" {
   type        = string
   default     = "@weekly"
@@ -99,5 +105,3 @@ variable "restore_backup" {
   default     = false
   description = "Whether to restore backup from specified S3 bucket"
 }
-
-
