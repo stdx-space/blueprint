@@ -1,3 +1,7 @@
+locals {
+  consul_service_name = var.consul_provider_config.service_name == "" ? var.controller_job_name : var.consul_provider_config.service_name
+}
+
 data "cloudflare_api_token_permission_groups" "all" {
   count = var.acme_email == "" ? 0 : 1
 }
@@ -16,6 +20,7 @@ resource "cloudflare_tunnel" "ingress" {
   account_id = var.cloudflare_account_id
   name       = "ingress"
   secret     = random_id.tunnel_secret.b64_std
+  config_src = var.cloudflare_tunnel_config_source
 }
 
 resource "cloudflare_api_token" "dns_challenge_token" {
@@ -55,7 +60,7 @@ data "consul_service" "nomad" {
 }
 
 resource "cloudflare_tunnel_config" "ingress" {
-  count      = var.cloudflare_account_id == "" ? 0 : 1
+  count      = var.cloudflare_account_id != "" && var.cloudflare_tunnel_config_source == "cloudflare" ? 1 : 0
   account_id = var.cloudflare_account_id
   tunnel_id  = cloudflare_tunnel.ingress[0].id
 
@@ -94,14 +99,32 @@ resource "nomad_job" "ingress-controller" {
 }
 
 resource "nomad_job" "ingress-gateway" {
-  count   = var.cloudflare_account_id == "" ? 0 : 1
+  count = var.cloudflare_account_id == "" ? 0 : 1
   jobspec = templatefile(
     "${path.module}/templates/cloudflared.nomad.hcl.tftpl",
     {
       job_name        = var.gateway_job_name
       datacenter_name = var.datacenter_name
       version         = var.cloudflared_version
-      tunnel_token    = cloudflare_tunnel.ingress[0].tunnel_token
+      remote_ingress_config = var.cloudflare_tunnel_config_source == "cloudflare" ? [{
+        tunnel_token = cloudflare_tunnel.ingress[0].tunnel_token
+      }] : []
+      local_ingress_config = var.cloudflare_tunnel_config_source == "local" ? [{
+        tunnel = cloudflare_tunnel.ingress[0].id
+        tunnel_credentials = jsonencode({
+          AccountTag   = var.cloudflare_account_id
+          TunnelName   = cloudflare_tunnel.ingress[0].name
+          TunnelSecret = cloudflare_tunnel.ingress[0].secret
+          TunnelID     = cloudflare_tunnel.ingress[0].id
+        })
+        ingress_config = yamlencode({
+          tunnel           = cloudflare_tunnel.ingress[0].id
+          credentials-file = "{{ env `NOMAD_SECRETS_DIR` }}/tunnel-credentials.json"
+          ingress = [{
+            service = "{{ range service `${local.consul_service_name}` }}http://{{ .Address }}:{{ .Port }}{{ end }}"
+          }]
+        })
+      }] : []
     }
   )
 }
