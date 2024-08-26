@@ -17,11 +17,36 @@ job "${job_name}" {
           "tunnel",
           "--loglevel",
           "debug",
+          %{ for c in local_ingress_config ~}
+          "--config",
+          "$${NOMAD_TASK_DIR}/config.yaml",
+          %{ endfor ~}
           "run",
+          %{ for c in remote_ingress_config ~}
           "--token",
-          "${tunnel_token}",
+          "${c.tunnel_token}",
+          %{ endfor ~}
+          %{ for c in local_ingress_config ~}
+          "${c.tunnel}",
+          %{ endfor ~}
         ]
       }
+
+%{ for c in local_ingress_config ~}
+      template {
+        data = <<EOH
+${c.ingress_config}
+EOH
+        destination = "local/config.yaml"
+      }
+
+      template {
+        data = <<EOH
+${c.tunnel_credentials}
+EOH
+        destination = "secrets/tunnel-credentials.json"
+      }
+%{ endfor ~}
     }
   }
 }

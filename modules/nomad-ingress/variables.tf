@@ -23,6 +23,16 @@ variable "cloudflare_account_id" {
   description = "Cloudflare account ID. Leave empty to disable ingress from cloudflare tunnel"
 }
 
+variable "cloudflare_tunnel_config_source" {
+  type        = string
+  description = "Source of the cloudflare tunnel config. Either `local` or `cloudflare`. If `local` is used, the tunnel config will be generated locally. If `cloudflare` is used, the tunnel config will be configured by `cloudflare_tunnel_config` resource."
+  validation {
+    condition     = contains(["local", "cloudflare"], var.cloudflare_tunnel_config_source)
+    error_message = "Invalid cloudflare_tunnel_config_source value. Valid values are `local` and `cloudflare`."
+  }
+  default = "cloudflare"
+}
+
 variable "acme_email" {
   type        = string
   default     = ""
