@@ -13,6 +13,7 @@ data "cloudinit_config" "user_data" {
             yum_repos = local.repositories
             users     = local.users
             bootcmd = [
+              "hostnamectl set-hostname ${var.name}",
               "dnf install -y gnupg ${contains(flatten(var.substrates.*.install.repositories), "nvidia-container-toolkit") ? "linux-headers-$(uname -r)" : ""}"
             ]
             cloud_init_modules = concat(

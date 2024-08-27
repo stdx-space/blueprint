@@ -119,15 +119,6 @@ locals {
           tags    = "cloud-init"
         },
         {
-          path    = "/etc/hostname"
-          content = var.name
-          owner   = "root"
-          group   = "root"
-          enabled = true
-          mode    = "0644"
-          tags    = "cloud-init"
-        },
-        {
           # Adding 00 prefix to override the precedence of the default file
           path = "/etc/systemd/network/00-static.network"
           content = templatefile("${path.module}/templates/static.network.tftpl", {
