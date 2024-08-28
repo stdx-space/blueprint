@@ -68,6 +68,8 @@ data "cloudinit_config" "user_data" {
               ]
             ]
             runcmd = concat(
+              [for dir in local.directories : "mkdir -m ${dir.mode} -p ${dir.path}"],
+              [for dir in local.directories : "chown -R ${dir.owner}:${dir.group} ${dir.path}"],
               var.startup_script.override_default ? [] : [
                 "systemctl daemon-reload",
                 "systemctl enable qemu-guest-agent --now",
