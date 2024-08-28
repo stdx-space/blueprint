@@ -53,6 +53,8 @@ data "cloudinit_config" "user_data" {
               ]
             ]
             runcmd = concat(
+              [for dir in local.directories : "mkdir -m ${dir.mode} -p ${dir.path}"],
+              [for dir in local.directories : "chown -R ${dir.owner}:${dir.group} ${dir.path}"],
               var.startup_script.override_default ? [] : [
                 "dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-${local.alma_major_version}-x86_64/pgdg-redhat-repo-latest.noarch.rpm",
                 "dnf -qy module disable postgresql",
