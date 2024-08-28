@@ -110,8 +110,9 @@ variable "tls" {
 
 variable "host_volume" {
   type = map(object({
-    path      = string
-    read_only = bool
+    path             = string
+    read_only        = bool
+    create_directory = optional(bool, false)
   }))
   default     = {}
   description = "Host volume configuration for Nomad"
