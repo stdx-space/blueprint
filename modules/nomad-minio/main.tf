@@ -9,5 +9,11 @@ resource "nomad_job" "minio" {
     minio_hostname  = var.minio_hostname
     minio_user      = var.minio_superuser_name
     minio_password  = local.minio_superuser_password
+    host_volume_configs = var.host_volume_config != null ? [
+      {
+        source    = var.host_volume_config.source
+        read_only = var.host_volume_config.read_only
+      }
+    ] : []
   })
 }

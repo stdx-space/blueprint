@@ -4,6 +4,14 @@ job "${job_name}" {
 
   group "minio" {
 
+%{ for config in host_volume_configs ~}
+    volume "minio-data" {
+      type      = "host"
+      source    = "${config.source}"
+      read_only = ${config.read_only}
+    }
+%{ endfor ~}
+
     network {
       mode = "bridge"
       port "web" {
@@ -56,6 +64,13 @@ job "${job_name}" {
         cpu    = 1024
         memory = 2048
       }
+%{ for config in host_volume_configs ~}
+      volume_mount {
+        volume      = "minio-data"
+        destination = "/data"
+        read_only   = ${config.read_only}
+      }
+%{ endfor ~}
     }
   }
 }

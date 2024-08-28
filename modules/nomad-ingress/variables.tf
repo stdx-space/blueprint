@@ -23,6 +23,12 @@ variable "cloudflare_account_id" {
   description = "Cloudflare account ID. Leave empty to disable ingress from cloudflare tunnel"
 }
 
+variable "cloudflare_tunnel_name" {
+  type        = string
+  description = "Name of the cloudflare tunnel. If not provided, the name will be ingress-<generated-random-string>."
+  default     = ""
+}
+
 variable "cloudflare_tunnel_config_source" {
   type        = string
   description = "Source of the cloudflare tunnel config. Either `local` or `cloudflare`. If `local` is used, the tunnel config will be generated locally. If `cloudflare` is used, the tunnel config will be configured by `cloudflare_tunnel_config` resource."

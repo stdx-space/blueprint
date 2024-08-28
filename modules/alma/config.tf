@@ -11,7 +11,7 @@ data "http" "ca_certs" {
 
 data "http" "ssh_keys_import" {
   count = length(var.ssh_import_id)
-  url = var.ssh_import_id[count.index]
+  url   = var.ssh_import_id[count.index]
 }
 
 data "http" "repositories" {
@@ -167,6 +167,7 @@ locals {
       path        = file.path
       owner       = format("%s:%s", file.owner, file.group)
       permissions = length(file.mode) < 4 ? "0${file.mode}" : file.mode
-    } if file.enabled == true && !startswith(file.content, "https://") && strcontains(file.tags, lookup(file, "tags", "cloud-init"))
+    } if file.enabled == true && !startswith(file.content, "https://") && strcontains(file.tags, "cloud-init")
   ]
+  directories = [for dir in flatten(var.substrates.*.directories) : dir if dir.enabled == true && strcontains(dir.tags, "cloud-init")]
 }

@@ -11,6 +11,11 @@ data "cloudflare_zone" "this" {
   name  = var.dns_zone_name
 }
 
+resource "random_id" "tunnel_name" {
+  count       = var.cloudflare_tunnel_name == "" ? 1 : 0
+  byte_length = 3
+}
+
 resource "random_id" "tunnel_secret" {
   byte_length = 32
 }
@@ -18,7 +23,7 @@ resource "random_id" "tunnel_secret" {
 resource "cloudflare_tunnel" "ingress" {
   count      = var.cloudflare_account_id == "" ? 0 : 1
   account_id = var.cloudflare_account_id
-  name       = "ingress"
+  name       = var.cloudflare_tunnel_name == "" ? "ingress-${random_id.tunnel_name[0].hex}" : var.cloudflare_tunnel_name
   secret     = random_id.tunnel_secret.b64_std
   config_src = var.cloudflare_tunnel_config_source
 }

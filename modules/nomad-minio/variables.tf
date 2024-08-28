@@ -23,3 +23,13 @@ variable "minio_superuser_password" {
   default   = ""
   sensitive = true
 }
+
+variable "host_volume_config" {
+  type = object({
+    source    = string
+    read_only = optional(bool, false)
+  })
+  nullable    = true
+  default     = null
+  description = "Host volume configuration for storing minio data"
+}

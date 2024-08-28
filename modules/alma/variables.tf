@@ -58,7 +58,7 @@ variable "ssh_import_id" {
   description = "List of SSH key import IDs through provider URLs"
   default     = []
   validation {
-    condition = length(var.ssh_import_id) == 0 || alltrue([for item in var.ssh_import_id : startswith(item, "http")])
+    condition     = length(var.ssh_import_id) == 0 || alltrue([for item in var.ssh_import_id : startswith(item, "http")])
     error_message = "SSH key import ID must be a valid URL"
   }
 }
@@ -126,6 +126,14 @@ variable "substrates" {
       group   = optional(string, "root")
       tags    = string
     }))
+    directories = optional(list(object({
+      path    = string
+      enabled = optional(bool, true)
+      mode    = optional(string, "755")
+      owner   = optional(string, "root")
+      group   = optional(string, "root")
+      tags    = optional(string, "ignition") # only ignition is specified for backward compatibility
+    })), [])
     install = object({
       systemd_units = list(object({
         name    = string
@@ -164,4 +172,3 @@ variable "base64_encode" {
   default     = false
   description = "Whether to base64 encode the configuration"
 }
-

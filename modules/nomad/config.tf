@@ -8,7 +8,7 @@ locals {
   }
   # Default to recommendation from Nomad docs, root if client, nomad if server.
   # https://developer.hashicorp.com/nomad/docs/operations/nomad-agent#permissions
-  nomad_user = var.nomad_user == "" ? (var.role == "server" ? "nomad" : "root") : var.nomad_user
+  nomad_user  = var.nomad_user == "" ? (var.role == "server" ? "nomad" : "root") : var.nomad_user
   nomad_group = var.nomad_group == "" ? (var.role == "server" ? "nomad" : "root") : var.nomad_group
 }
 
@@ -111,7 +111,7 @@ locals {
     }
   ]
 
-  directories = [
+  directories = concat([
     {
       path  = "/etc/nomad.d"
       owner = local.nomad_user
@@ -132,7 +132,14 @@ locals {
       owner = local.nomad_user
       group = local.nomad_group
     }
-  ]
+    ], [
+    for key, item in var.host_volume : {
+      path  = item.path
+      owner = local.nomad_user
+      group = local.nomad_group
+      tags  = "cloud-init,ignition"
+    } if item.create_directory
+  ])
 
   systemd_units = [
     {
