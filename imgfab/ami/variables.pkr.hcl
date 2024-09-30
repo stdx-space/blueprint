@@ -113,17 +113,17 @@ variable "ssh_password" {
 
 variable "cf_r2_endpoint" {
   type    = string
-  default = env("RCLONE_CONFIG_R2_ENDPOINT")
+  default = env("CF_R2_ENDPOINT_URL")
 }
 
 variable "cf_r2_access_key_id" {
   type      = string
   sensitive = true
-  default   = env("RCLONE_CONFIG_R2_ACCESS_KEY_ID")
+  default   = env("CF_R2_ACCESS_KEY_ID")
 }
 
 variable "cf_r2_secret_access_key" {
   type      = string
   sensitive = true
-  default   = env("RCLONE_CONFIG_R2_SECRET_ACCESS_KEY")
+  default   = env("CF_R2_SECRET_ACCESS_KEY")
 }
