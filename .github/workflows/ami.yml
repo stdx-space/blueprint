@@ -1,0 +1,32 @@
+name: Application Image Production
+
+on:
+  push:
+    paths:
+      - imgfab/ami/**/*
+  workflow_dispatch:
+
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: imgfab/ami
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Authenticate to Security Token Service
+        uses: narwhl/imprint@v1
+        with:
+          scope: cloudflare:r2
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -yqq rclone
+      - name: Packer build
+        run: |
+          packer build .

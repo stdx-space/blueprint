@@ -225,3 +225,15 @@ source "qemu" "nixos" {
   boot_wait    = "60s"
   boot_command = local.nixos_boot_command
 }
+
+source "null" "alma" {
+  communicator = "none"
+}
+
+source "null" "debian" {
+  communicator = "none"
+}
+
+source "null" "flatcar" {
+  communicator = "none"
+}
