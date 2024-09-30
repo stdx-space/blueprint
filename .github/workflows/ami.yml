@@ -27,6 +27,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install -yqq rclone
+          packer init .
       - name: Packer build
         run: |
           packer build .
