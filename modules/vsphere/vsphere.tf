@@ -9,7 +9,7 @@ data "vsphere_host" "this" {
 }
 
 data "vsphere_resource_pool" "this" {
-  name          = "${var.host}/Resources"
+  name          = var.resource_pool
   datacenter_id = data.vsphere_datacenter.this.id
 }
 

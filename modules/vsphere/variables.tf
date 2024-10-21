@@ -98,6 +98,12 @@ variable "host" {
   description = "vSphere host that runs the compute instance"
 }
 
+variable "resource_pool" {
+  type        = string
+  description = "vSphere resource pool"
+  default     = "${var.host}/Resources"
+}
+
 variable "datacenter" {
   type        = string
   description = "vSphere datacenter that the compute instance's host is a part of"
