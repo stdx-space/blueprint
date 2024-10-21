@@ -98,10 +98,9 @@ variable "host" {
   description = "vSphere host that runs the compute instance"
 }
 
-variable "resource_pool" {
+variable "resource_pool_id" {
   type        = string
   description = "vSphere resource pool"
-  default     = ""
 }
 
 variable "datacenter" {
@@ -141,7 +140,6 @@ variable "wait_for_guest_net_routable" {
 # Local variables
 
 locals {
-  resource_pool = length(var.resource_pool) > 1 ? var.resource_pool:"${var.host}/Resources"
   disks = length(var.disks) > 0 ? var.disks : [
     {
       storage_id       = data.vsphere_datastore.this.id

@@ -8,11 +8,6 @@ data "vsphere_host" "this" {
   datacenter_id = data.vsphere_datacenter.this.id
 }
 
-data "vsphere_resource_pool" "this" {
-  name          = local.resource_pool
-  datacenter_id = data.vsphere_datacenter.this.id
-}
-
 data "vsphere_datastore" "this" {
   name          = var.datastore
   datacenter_id = data.vsphere_datacenter.this.id
@@ -31,7 +26,7 @@ resource "terraform_data" "provisioning_config_checksum" {
 resource "vsphere_virtual_machine" "this" {
   name = var.name
 
-  resource_pool_id = data.vsphere_resource_pool.this.id
+  resource_pool_id = var.resource_pool_id
   host_system_id   = data.vsphere_host.this.id
   datastore_id     = data.vsphere_datastore.this.id
 
