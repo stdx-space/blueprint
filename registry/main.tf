@@ -1,3 +1,7 @@
+data "external" "env" {
+  program = ["jq", "-n", "env"]
+}
+
 resource "cloudflare_worker_script" "registry" {
   account_id = data.external.env.result["CLOUDFLARE_ACCOUNT_ID"]
   name       = "registry"
