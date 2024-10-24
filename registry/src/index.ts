@@ -11,7 +11,7 @@ const registry = new Hono<{ Bindings: Env }>();
 registry.use(logger());
 registry.use('*', requestId());
 
-const basePath = '/terraform/modules/v1/';
+const basePath = '/v1/modules/';
 const serviceDiscoveryResponse = {
 	"modules.v1": basePath,
 };
