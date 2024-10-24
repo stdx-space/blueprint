@@ -37,7 +37,7 @@ jobs:
 
       - name: Install build-deps and generate build artifact
         run: |
-          cd api && npm ci
+          npm ci
           npx wrangler deploy --dry-run --outdir dist
 
       - name: Setup Terraform
