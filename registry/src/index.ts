@@ -55,7 +55,14 @@ registry.get(`${basePath}/:namespace/:name/:system/versions`, async (context: Co
 	}
 });
 
-registry.get(`${basePath}/:namespace:/:name/:system/:version/download`, async (context: Context) => {
+registry.get(`${basePath}/:namespace/:name/:system/download`, async (context: Context) => {
+	context.json({
+		status: 'error',
+		message: 'not implemented'
+	}, 501)
+});
+
+registry.get(`${basePath}/:namespace/:name/:system/:version/download`, async (context: Context) => {
 	const namespace = context.req.param('namespace');
 	const name = context.req.param('name');
 	const system = context.req.param('system');
