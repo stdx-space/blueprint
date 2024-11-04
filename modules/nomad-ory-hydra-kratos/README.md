@@ -17,6 +17,6 @@ module "ory" {
   hydra_subdomain        = "auth" # required field, for oauth server
   kratos_ui_subdomain    = "login" # required field, for idp login page, instance runs externally
   kratos_admin_subdomain = "accounts" # required field, for idp admin api
-  smtp_connection_uri    = "" # required field, http config for mail gateway tbd
+  smtp_connection_uri    = "smtp://{user:password}@{host:port}" # required field, http config for mail gateway tbd
 }
 ```
