@@ -6,16 +6,35 @@ variable "job_name" {
 variable "datacenter_name" {
   type = string
 }
+variable "database_user" {
+  type    = string
+  default = "ory"
+}
+
+variable "database_addr" {
+  type = string
+}
+
+variable "database_password" {
+  type      = string
+  sensitive = true
+}
+
+variable "hydra_db_name" {
+  type    = string
+  default = "hydra"
+}
+
+variable "kratos_db_name" {
+  type    = string
+  default = "kratos"
+}
 
 variable "hydra_version" {
   type = string
 }
 
 variable "kratos_version" {
-  type = string
-}
-
-variable "postgres_version" {
   type = string
 }
 
@@ -64,21 +83,6 @@ variable "kratos_public_subdomain" {
 
 variable "kratos_admin_subdomain" {
   type = string
-}
-
-variable "database_user" {
-  type    = string
-  default = "ory"
-}
-
-variable "hydra_database_password" {
-  type = string
-  sensitive = true
-}
-
-variable "kratos_database_password" {
-  type = string
-  sensitive = true
 }
 
 variable "smtp_connection_uri" {

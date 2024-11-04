@@ -18,31 +18,19 @@ resource "random_bytes" "hydra_oidc_pairwise_salt" {
   length = 8
 }
 
-resource "random_password" "kratos_db_password" {
-  count = var.kratos_database_password == "" ? 1 : 0
-  # count = 0
-  length  = 32
-  special = false
-}
-
-resource "random_password" "hydra_db_password" {
-  count = var.hydra_database_password == "" ? 1 : 0
-  # count = 0
-  length  = 32
-  special = false
-}
-
 resource "nomad_job" "hydra-kratos" {
   jobspec = templatefile(
     "${path.module}/templates/jobspec.nomad.hcl.tftpl",
     {
       job_name           = var.job_name
       datacenter_name    = var.datacenter_name
-      hydra_db_password  = var.hydra_database_password == "" ? random_password.hydra_db_password[0].result : var.hydra_database_password
-      kratos_db_password = var.kratos_database_password == "" ? random_password.kratos_db_password[0].result : var.kratos_database_password
+      db_user            = var.database_user
+      db_password        = var.database_password
+      db_addr            = var.database_addr
+      hydra_db_name      = var.hydra_db_name
+      kratos_db_name     = var.kratos_db_name
       hydra_version      = var.hydra_version
       kratos_version     = var.kratos_version
-      postgres_version   = var.postgres_version
       hydra_config       = local.hydra_config
       hydra_public_fqdn  = local.hydra_fqdn
       kratos_config      = local.kratos_config
