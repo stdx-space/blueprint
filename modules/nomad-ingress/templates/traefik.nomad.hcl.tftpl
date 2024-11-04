@@ -38,6 +38,57 @@ job "${job_name}" {
       driver = "docker"
 
       template {
+        data = <<EOF
+[api]
+  insecure = true
+  dashboard = true
+  debug = true
+
+[ping]
+
+[log]
+  level = "DEBUG"
+
+[serversTransport]
+  insecureSkipVerify = true
+
+[entryPoints]
+  [entryPoints.http]
+    address = "{{ env `NOMAD_PORT_http` }}"
+  [entryPoints.https]
+    address = "{{ env `NOMAD_PORT_https` }}"
+
+%{ for c in acme_config ~}
+[certificatesResolvers.letsencrypt.acme]
+  email = "${c.acme_email}"
+  storage = "{{ env `NOMAD_ALLOC_DIR` }}/acme.json"
+  [certificatesResolvers.letsencrypt.acme.dnsChallenge]
+    provider = "cloudflare"
+%{ endfor ~}
+
+[providers.file]
+  filename = "/etc/traefik/dynamic.yml"
+
+%{ for c in nomad_config ~}
+[providers.nomad]
+  exposedByDefault = false
+  [providers.nomad.endpoint]
+    address = "${c.address}"
+%{ endfor ~}
+
+%{ for c in consul_config ~}
+[providers.consulCatalog]
+  exposedByDefault = false
+  connectAware = ${c.connect_aware}
+  serviceName = "${c.service_name}"
+  [providers.consulCatalog.endpoint]
+    address = "${c.address}"
+%{ endfor ~}
+EOF
+        destination = "local/traefik.toml"
+      }
+
+      template {
         data        = <<EOF
 ${static_routes}
 EOF
@@ -47,7 +98,7 @@ EOF
 
       template {
         data = <<EOF
-%{ for c in acme_config ~} 
+%{ for c in acme_config ~}
           CF_DNS_API_TOKEN=${c.cf_api_token}
 %{ endfor ~}
 
@@ -59,33 +110,7 @@ EOF
       config {
         image = "traefik:${version}"
         args = [
-          "--api.insecure=true",
-          "--api.dashboard=true",
-          "--api.debug=true",
-          "--ping=true",
-          "--log.level=DEBUG",
-          "--serversTransport.insecureSkipVerify=true",
-          "--entrypoints.http.address=:$${NOMAD_PORT_http}",
-          "--entrypoints.https.address=:$${NOMAD_PORT_https}",
-%{ for c in acme_config ~} 
-          "--certificatesresolvers.letsencrypt.acme.dnschallenge=true",
-          "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare",
-          "--certificatesresolvers.letsencrypt.acme.email=${c.acme_email}",
-          "--certificatesresolvers.letsencrypt.acme.storage=$${NOMAD_ALLOC_DIR}/acme.json",
-%{ endfor ~}
-          "--providers.file.filename=/etc/traefik/dynamic.yml",
-%{ for c in nomad_config ~} 
-          "--providers.nomad=true",
-          "--providers.nomad.endpoint.address=${c.address}",
-          "--providers.nomad.exposedByDefault=false",
-%{ endfor ~} 
-%{ for c in consul_config ~} 
-          "--providers.consulcatalog=true",
-          "--providers.consulcatalog.endpoint.address=${c.address}",
-          "--providers.consulcatalog.connectAware=${c.connect_aware}",
-          "--providers.consulcatalog.serviceName=${c.service_name}",
-          "--providers.consulcatalog.exposedByDefault=false",
-%{ endfor ~} 
+          "--configfile=$${NOMAD_TASK_DIR}/traefik.toml"
         ]
 
         mount {
