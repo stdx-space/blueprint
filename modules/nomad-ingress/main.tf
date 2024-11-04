@@ -52,18 +52,6 @@ data "consul_service" "ingress" {
   ]
 }
 
-data "consul_service" "consul" {
-  count      = var.consul_provider_config != null ? (var.consul_provider_config.address == "" ? 1 : 0) : 0
-  name       = "consul"
-  datacenter = var.datacenter_name
-}
-
-data "consul_service" "nomad" {
-  count      = var.nomad_provider_config != null ? (var.nomad_provider_config.address == "" ? 1 : 0) : 0
-  name       = "nomad"
-  datacenter = var.datacenter_name
-}
-
 resource "cloudflare_tunnel_config" "ingress" {
   count      = var.cloudflare_account_id != "" && var.cloudflare_tunnel_config_source == "cloudflare" ? 1 : 0
   account_id = var.cloudflare_account_id
@@ -90,10 +78,11 @@ resource "nomad_job" "ingress-controller" {
         cf_api_token = cloudflare_api_token.dns_challenge_token[0].value
       }]
       nomad_config = var.nomad_provider_config == null ? [] : [{
-        address = var.nomad_provider_config.address == "" ? "http://${data.consul_service.nomad[0].service[0].address}:4646" : var.nomad_provider_config.address
+        # https://github.com/hashicorp/consul-template/blob/main/README.md#multi-phase-execution
+        address = var.nomad_provider_config.address == "" ? "{{ with service `nomad` }}{{ with index . 0 }}http://{{ .Address }}:4646{{ end }}{{ end }}" : var.nomad_provider_config.address
       }]
       consul_config = var.consul_provider_config == null ? [] : [{
-        address       = var.consul_provider_config.address == "" ? "http://${data.consul_service.consul[0].service[0].address}:8500" : var.consul_provider_config.address
+        address       = var.consul_provider_config.address == "" ? "{{ with service `consul` }}{{ with index . 0 }}http://{{ .Address }}:8500{{ end }}{{ end }}" : var.consul_provider_config.address
         connect_aware = var.consul_provider_config.connect_aware
         service_name  = var.consul_provider_config.service_name == "" ? var.controller_job_name : var.consul_provider_config.service_name
         sidecars      = var.consul_provider_config.connect_aware ? [] : [{}]
@@ -126,7 +115,7 @@ resource "nomad_job" "ingress-gateway" {
           tunnel           = cloudflare_tunnel.ingress[0].id
           credentials-file = "{{ env `NOMAD_SECRETS_DIR` }}/tunnel-credentials.json"
           ingress = [{
-            service = "{{ range service `${local.consul_service_name}` }}http://{{ .Address }}:{{ .Port }}{{ end }}"
+            service = "{{ with service `${local.consul_service_name}` }}{{ with index . 0 }}http://{{ .Address }}:{{ .Port }}{{ end }}{{ end }}"
           }]
         })
       }] : []
