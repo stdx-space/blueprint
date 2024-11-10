@@ -7,7 +7,7 @@ resource "cloudflare_worker_script" "registry" {
   name                = "registry"
   content             = file("${path.module}/dist/index.js")
   module              = true
-  compatibility_date  = "2024-10-22"
+  compatibility_date  = "2024-11-06"
   compatibility_flags = ["nodejs_compat"]
 
   r2_bucket_binding {
