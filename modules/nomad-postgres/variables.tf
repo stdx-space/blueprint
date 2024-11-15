@@ -69,11 +69,12 @@ variable "datacenter_name" {
 
 variable "pgbackrest_s3_config" {
   type = object({
-    endpoint   = string
-    bucket     = string
-    access_key = string
-    secret_key = string
-    region     = string
+    endpoint         = string
+    bucket           = string
+    access_key       = string
+    secret_key       = string
+    region           = string
+    force_path_style = bool
   })
   sensitive   = true
   default     = null

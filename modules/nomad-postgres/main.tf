@@ -2,11 +2,12 @@ locals {
   pgbackrest_conf = var.pgbackrest_s3_config == null ? "" : templatefile(
     "${path.module}/templates/pgbackrest.conf.tftpl",
     {
-      s3_endpoint       = var.pgbackrest_s3_config.endpoint
-      s3_bucket         = var.pgbackrest_s3_config.bucket
-      s3_access_key     = var.pgbackrest_s3_config.access_key
-      s3_secret_key     = var.pgbackrest_s3_config.secret_key
-      s3_region         = var.pgbackrest_s3_config.region
+      s3_endpoint         = var.pgbackrest_s3_config.endpoint
+      s3_bucket           = var.pgbackrest_s3_config.bucket
+      s3_access_key       = var.pgbackrest_s3_config.access_key
+      s3_secret_key       = var.pgbackrest_s3_config.secret_key
+      s3_region           = var.pgbackrest_s3_config.region
+      s3_force_path_style = var.pgbackrest_s3_config.force_path_style
       pgbackrest_stanza = var.pgbackrest_stanza
     }
   )
