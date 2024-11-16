@@ -21,11 +21,35 @@ app.get('/healthz', async (context: Context) => context.json({ status: 'ok' }));
 app.get('/', async (context: Context) => context.json(serviceDiscoveryResponse));
 app.get('/.well-known/terraform.json', async (context: Context) => context.json(serviceDiscoveryResponse));
 
-registry.post(`/`, async (context: Context) => {});
+registry.post(`/`, async (context: Context) => {
+	context.json(
+		{
+			status: 'error',
+			message: 'not implemented',
+		},
+		501
+	);
+});
 
-registry.get(`/`, async (context: Context) => {});
+registry.get(`/`, async (context: Context) => {
+	context.json(
+		{
+			status: 'error',
+			message: 'not implemented',
+		},
+		501
+	);
+});
 
-registry.put(`/:namespace/:name/:system`, async (context: Context) => {});
+registry.put(`/:namespace/:name/:system`, async (context: Context) => {
+	context.json(
+		{
+			status: 'error',
+			message: 'not implemented',
+		},
+		501
+	);
+});
 
 registry.get(`/:namespace/:name/:system/versions`, async (context: Context) => {
 	const namespace = context.req.param('namespace');
@@ -49,12 +73,7 @@ registry.get(`/:namespace/:name/:system/versions`, async (context: Context) => {
 		});
 	} else {
 		throw new HTTPException(404, {
-			res: new Response(
-				JSON.stringify({
-					status: 'error',
-					message: 'module not found',
-				})
-			),
+			message: 'module not found',
 		});
 	}
 });
@@ -82,12 +101,7 @@ registry.get(`/:namespace/:name/:system/:version/download`, async (context: Cont
 		context.status(204);
 	} else {
 		throw new HTTPException(404, {
-			res: new Response(
-				JSON.stringify({
-					status: 'error',
-					message: 'module not found',
-				})
-			),
+			message: 'module not found',
 		});
 	}
 });
