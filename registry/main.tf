@@ -2,7 +2,7 @@ data "external" "env" {
   program = ["jq", "-n", "env"]
 }
 
-resource "cloudflare_worker_script" "registry" {
+resource "cloudflare_workers_script" "registry" {
   account_id          = data.external.env.result["CLOUDFLARE_ACCOUNT_ID"]
   name                = "registry"
   content             = file("${path.module}/dist/index.js")
