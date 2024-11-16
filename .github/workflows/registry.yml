@@ -36,7 +36,7 @@ jobs:
       - uses: actions/setup-node@v4
 
       - name: Install build-deps and generate build artifact
-        run: npm ci --slient && npm run deploy
+        run: npm ci --silent && npm run deploy
 
       - name: Setup Terraform
         uses: narwhl/setup-terraform@v1
