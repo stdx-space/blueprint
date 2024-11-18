@@ -76,6 +76,16 @@ locals {
             }
           }
         }
+        passkey = {
+          enabled = var.kratos_passkey_enabled
+          config = {
+            rp = {
+              display_name = var.application_name
+              id           = var.root_domain
+              origin       = local.kratos_ui_url
+            }
+          }
+        }
       }
 
       flows = {

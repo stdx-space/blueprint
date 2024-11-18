@@ -1,5 +1,5 @@
 locals {
-  consul_service_name = var.consul_provider_config.service_name == "" ? var.controller_job_name : var.consul_provider_config.service_name
+  consul_service_name = var.consul_provider_config != null ? (var.consul_provider_config.service_name == "" ? var.controller_job_name : var.consul_provider_config.service_name) : "${var.controller_job_name}-ingress-controller"
 }
 
 data "cloudflare_api_token_permission_groups" "all" {
@@ -7,7 +7,7 @@ data "cloudflare_api_token_permission_groups" "all" {
 }
 
 data "cloudflare_zone" "this" {
-  count = var.cloudflare_account_id == "" ? 0 : 1
+  count = var.acme_email == "" ? 0 : 1
   name  = var.dns_zone_name
 }
 
@@ -43,7 +43,7 @@ resource "cloudflare_api_token" "dns_challenge_token" {
 }
 
 data "consul_service" "ingress" {
-  name       = var.consul_provider_config != null ? (var.consul_provider_config.service_name == "" ? var.controller_job_name : var.consul_provider_config.service_name) : "${var.controller_job_name}-ingress-controller"
+  name       = local.consul_service_name
   datacenter = var.datacenter_name
 
   depends_on = [
