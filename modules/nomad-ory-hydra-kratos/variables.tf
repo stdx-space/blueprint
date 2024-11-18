@@ -72,6 +72,11 @@ variable "kratos_registration_enabled" {
   default = true
 }
 
+variable "kratos_passkey_enabled" {
+  type    = bool
+  default = false
+}
+
 variable "kratos_ui_subdomain" {
   type = string
 }
