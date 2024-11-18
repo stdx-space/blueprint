@@ -54,9 +54,9 @@ job "${job_name}" {
 
 [entryPoints]
   [entryPoints.http]
-    address = "{{ env `NOMAD_PORT_http` }}"
+    address = ":{{ env `NOMAD_PORT_http` }}"
   [entryPoints.https]
-    address = "{{ env `NOMAD_PORT_https` }}"
+    address = ":{{ env `NOMAD_PORT_https` }}"
 
 %{ for c in acme_config ~}
 [certificatesResolvers.letsencrypt.acme]
