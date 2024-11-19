@@ -1,0 +1,61 @@
+job "${job_name}" {
+  datacenters = ["${datacenter_name}"]
+  type        = "service"
+
+  group "typesense" {
+
+%{ for config in host_volume_configs ~}
+    volume "typesense-data" {
+      type      = "host"
+      source    = "${config.source}"
+      read_only = ${config.read_only}
+    }
+%{ endfor ~}
+
+    network {
+      port "typesense" {
+        to = 8108
+      }
+    }
+
+%{ for config in ephemeral_disk_configs ~}
+    ephemeral_disk {
+      size = 500
+    }
+%{ endfor ~}
+
+    task "typesense" {
+      driver = "docker"
+
+      config {
+        image = "typesense/typesense:${typesense_version}"
+        ports = ["typesense"]
+      }
+
+      service {
+        name     = "typesense"
+        provider = "nomad"
+        port     = "typesense"
+      }
+
+      env {
+        TYPESENSE_API_KEY = "${typesense_api_key}"
+%{ for config in host_volume_configs ~}
+        TYPESENSE_DATA_DIR = "/data"
+      }
+
+      volume_mount {
+        volume      = "minio-data"
+        destination = "/data"
+        read_only   = ${config.read_only}
+      }
+%{ endfor ~}
+%{ for config in ephemeral_disk_configs ~}
+        TYPESENSE_DATA_DIR = "/alloc/data"
+      }
+%{ endfor ~}
+
+    }
+  }
+
+}
