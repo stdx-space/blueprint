@@ -95,6 +95,16 @@ variable "smtp_connection_uri" {
   sensitive = true
 }
 
+variable "registration_webhooks" {
+  type = list(object({
+    url     = string
+    method  = string
+    headers = map(string)
+    body    = string
+  }))
+  default = []
+}
+
 locals {
   hydra_fqdn         = "${var.hydra_subdomain}.${var.root_domain}"
   kratos_public_fqdn = "${var.kratos_public_subdomain}.${var.root_domain}"
