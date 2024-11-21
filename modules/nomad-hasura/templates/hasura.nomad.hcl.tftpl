@@ -1,0 +1,42 @@
+job "${job_name}" {
+  datacenters = ["${datacenter_name}"]
+  type        = "service"
+
+  group "hasura" {
+    network {
+      port "hasura" {
+        to = 8080
+      }
+    }
+    task "hasura" {
+      driver = "docker"
+
+      config {
+        image = "hasura/graphql-engine:${hasura_version}"
+        ports = ["hasura"]
+      }
+
+      template {
+        data        = <<-EOF
+    HASURA_GRAPHQL_DATABASE_URL="postgres://${db_user}:${db_password}@${db_addr}"
+    HASURA_GRAPHQL_ENABLE_CONSOLE=true
+    HASURA_GRAPHQL_ADMIN_SECRET="${hasura_admin_secret}"
+    PG_DATABASE_URL="postgres://${db_user}:${db_password}@${db_addr}"
+            EOF
+        destination = "secrets/.env"
+        env         = true
+      }
+
+      service {
+        name     = "hasura"
+        provider = "nomad"
+        port     = "hasura"
+      }
+
+      resources {
+        cpu    = 1000
+        memory = 2048
+      }
+    }
+  }
+}
