@@ -15,5 +15,7 @@ resource "nomad_job" "minio" {
         read_only = var.host_volume_config.read_only
       }
     ] : []
+    resources = var.resources
   })
+  purge_on_destroy = var.purge_on_destroy
 }

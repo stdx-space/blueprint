@@ -33,3 +33,21 @@ variable "host_volume_config" {
   default     = null
   description = "Host volume configuration for storing minio data"
 }
+
+variable "resources" {
+  type = object({
+    cpu    = optional(number, 1000)
+    memory = optional(number, 2048)
+  })
+  default = {
+    cpu    = 1000
+    memory = 2048
+  }
+  description = "Resources to run the job with"
+}
+
+variable "purge_on_destroy" {
+  type        = bool
+  default     = false
+  description = "Purge the Typesense Nomad job on destroy"
+}

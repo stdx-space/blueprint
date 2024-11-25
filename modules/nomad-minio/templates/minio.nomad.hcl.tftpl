@@ -61,8 +61,8 @@ job "${job_name}" {
       }
 
       resources {
-        cpu    = 1024
-        memory = 2048
+        cpu    = ${resources.cpu}
+        memory = ${resources.memory}
       }
 %{ for config in host_volume_configs ~}
       volume_mount {
