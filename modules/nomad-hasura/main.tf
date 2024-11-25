@@ -11,6 +11,7 @@ resource "nomad_job" "hasura" {
     db_password         = var.db_password
     db_addr             = var.db_address
     hasura_admin_secret = var.hasura_admin_secret
+    resources           = var.resources
   })
   purge_on_destroy = var.purge_on_destroy
 }

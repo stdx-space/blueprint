@@ -10,7 +10,8 @@ resource "nomad_job" "redis" {
       }
     ] : []
     ephemeral_disk_configs = var.enable_ephemeral_disk ? [{}] : []
-    persistent_configs = var.persistent_config != null ? [var.persistent_config] : []
+    persistent_configs     = var.persistent_config != null ? [var.persistent_config] : []
+    resources              = var.resources
   })
   purge_on_destroy = var.purge_on_destroy
 }

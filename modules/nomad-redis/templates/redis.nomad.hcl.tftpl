@@ -54,8 +54,8 @@ job "${job_name}" {
       }
 %{ endfor ~}
       resources {
-        cpu    = 1024
-        memory = 2048
+        cpu    = ${resources.cpu}
+        memory = ${resources.memory}
       }
     }
   }

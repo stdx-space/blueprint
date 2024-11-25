@@ -15,6 +15,7 @@ resource "nomad_job" "typesense" {
       }
     ] : []
     ephemeral_disk_configs = var.enable_ephemeral_disk ? [{}] : []
+    resources              = var.resources
   })
   purge_on_destroy = var.purge_on_destroy
 }

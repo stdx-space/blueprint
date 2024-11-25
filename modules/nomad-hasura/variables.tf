@@ -44,3 +44,15 @@ variable "purge_on_destroy" {
   default     = false
   description = "Purge the Typesense Nomad job on destroy"
 }
+
+variable "resources" {
+  type = object({
+    cpu    = optional(number, 1000)
+    memory = optional(number, 2048)
+  })
+  default = {
+    cpu    = 1000
+    memory = 2048
+  }
+  description = "Resources to run the job with"
+}
