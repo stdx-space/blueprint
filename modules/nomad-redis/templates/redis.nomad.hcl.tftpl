@@ -1,0 +1,62 @@
+job "${job_name}" {
+  group "redis" {
+
+%{ for config in host_volume_configs ~}
+    volume "redis-data" {
+      type      = "host"
+      source    = "${config.source}"
+      read_only = ${config.read_only}
+    }
+%{ endfor ~}
+
+%{ for config in ephemeral_disk_configs ~}
+    ephemeral_disk {
+      size = 500
+    }
+%{ endfor ~}
+
+    network {
+      mode = "bridge"
+      port "redis" {
+        to = 6379
+      }
+    }
+
+    service {
+      name = "redis"
+      port = "redis"
+      provider = "nomad"
+    }
+
+    task "redis" {
+      driver = "docker"
+
+      config {
+        image = "redis:${redis_version}"
+        ports = ["redis"]
+        args = [
+          "redis-server",
+%{ for config in persistent_configs ~}
+          "--save",
+          "${config.save_options}",
+%{ endfor ~}
+%{ for config in ephemeral_disk_configs ~}
+          "--dir",
+          "/alloc/data",
+%{ endfor ~}
+        ]
+      }
+%{ for config in host_volume_configs ~}
+      volume_mount {
+        volume      = "redis-data"
+        destination = "/data"
+        read_only   = ${config.read_only}
+      }
+%{ endfor ~}
+      resources {
+        cpu    = ${resources.cpu}
+        memory = ${resources.memory}
+      }
+    }
+  }
+}
