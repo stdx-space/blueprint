@@ -27,6 +27,7 @@ resource "nomad_job" "hydra-kratos" {
       db_user            = var.database_user
       db_password        = var.database_password
       db_addr            = var.database_addr
+      db_sslmode         = var.database_sslmode
       hydra_db_name      = var.hydra_db_name
       kratos_db_name     = var.kratos_db_name
       hydra_version      = var.hydra_version

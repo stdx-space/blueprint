@@ -20,6 +20,15 @@ variable "database_password" {
   sensitive = true
 }
 
+variable "database_sslmode" {
+  type    = string
+  default = "disable"
+  validation {
+    condition     = contains(["disable", "require", "verify-ca", "verify-full"], var.database_sslmode)
+    error_message = "The database_sslmode value must be one of: disable, require, verify-ca, verify-full."
+  }
+}
+
 variable "hydra_db_name" {
   type    = string
   default = "hydra"
@@ -93,6 +102,16 @@ variable "kratos_admin_subdomain" {
 variable "smtp_connection_uri" {
   type      = string
   sensitive = true
+}
+
+variable "registration_webhooks" {
+  type = list(object({
+    url     = string
+    method  = string
+    headers = map(string)
+    body    = string
+  }))
+  default = []
 }
 
 locals {
