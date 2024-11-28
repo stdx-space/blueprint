@@ -14,11 +14,11 @@ job "${job_name}" {
 
     network {
       mode = "bridge"
-      port "web" {
+      port "api" {
         to = 9000
       }
 
-      port "api" {
+      port "web" {
         to = 9001
       }
     }
@@ -29,13 +29,24 @@ job "${job_name}" {
         "traefik.enable=true",
         "traefik.http.routers.minio.rule=Host(`${minio_hostname}`)",
         "traefik.http.routers.minio.entrypoints=http",
-        "traefik.consulcatalog.connect=true"
+%{ for config in consul_connect_service_configs ~}
+        "traefik.consulcatalog.connect=true",
+%{ endfor ~}
       ]
+%{ for config in consul_service_configs ~}
+      port = "api"
+%{ endfor ~}
+%{ for config in nomad_service_configs ~}
+      port     = "api"
+      provider = "nomad"
+%{ endfor ~}
+%{ for config in consul_connect_service_configs ~}
       port = 9000
 
       connect {
         sidecar_service {}
       }
+%{ endfor ~}
 
       check {
         name     = "service: minio healthcheck"
@@ -43,7 +54,9 @@ job "${job_name}" {
         path     = "/minio/health/live"
         interval = "10s"
         timeout  = "2s"
+%{ for config in consul_connect_service_configs ~}
         expose   = true
+%{ endfor ~}
       }
     }
 
