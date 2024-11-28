@@ -1,0 +1,36 @@
+job "${job_name}" {
+  datacenters = ["${datacenter_name}"]
+  type        = "batch"
+
+  group "postgres-init" {
+    task "postgres-init" {
+      driver = "docker"
+
+      template {
+        data        = <<EOH
+${init_script}
+EOH
+        destination = "$${NOMAD_TASK_DIR}/init.sql"
+      }
+      template {
+        data        = <<EOH
+set -e
+export PGPASSWORD=${postgres_superuser_password}
+psql \
+--username ${postgres_superuser_username} \
+--host {{ with service `postgres-rw` }}{{ with index . 0 }}{{ .Address }}{{ end }}{{ end }} \
+-p {{ with service `postgres-rw` }}{{ with index . 0 }}{{ .Port }}{{ end }}{{ end }} \
+-f {{ env "NOMAD_TASK_DIR" }}/init.sql
+EOH
+        destination = "$${NOMAD_TASK_DIR}/init.sh"
+      }
+      config {
+        image = "ghcr.io/zalando/${spilo_version}"
+        command = "/usr/bin/bash"
+        args = [
+          "$${NOMAD_TASK_DIR}/init.sh"
+        ]
+      }
+    }
+  }
+}
