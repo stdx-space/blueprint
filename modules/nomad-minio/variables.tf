@@ -51,3 +51,13 @@ variable "purge_on_destroy" {
   default     = false
   description = "Purge the Typesense Nomad job on destroy"
 }
+
+variable "service_discovery_provider" {
+  type    = string
+  default = "consul"
+  validation {
+    condition     = contains(["nomad", "consul", "consul-connect"], var.service_discovery_provider)
+    error_message = "Service discovery provider must be one of: nomad, consul"
+  }
+  description = "Service discovery provider to use for the Nomad job"
+}

@@ -130,6 +130,17 @@ locals {
             password = {
               hooks = []
             }
+            hooks = [for webhook in var.registration_webhooks :
+              {
+                hook = "web_hook"
+                config = {
+                  url     = webhook.url
+                  method  = webhook.method
+                  headers = webhook.headers
+                  body    = "base64://${base64encode(webhook.body)}"
+                }
+              }
+            ]
           }
         }
       }
