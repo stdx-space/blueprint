@@ -3,6 +3,10 @@ job "${job_name}" {
   type        = "service"
 
   group "${job_name}" {
+    constraint {
+      attribute = "$${attr.os.name}"
+      value     = "debian"
+    }
     network {
       mode = "bridge"
       port "postgres" {
