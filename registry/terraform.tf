@@ -1,7 +1,5 @@
 terraform {
-  backend "s3" {
-    key = "states/root/registry/terraform.tfstate"
-  }
+  backend "http" {}
   required_providers {
     cloudflare = {
       source  = "cloudflare/cloudflare"
