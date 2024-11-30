@@ -1,4 +1,4 @@
-name: ""
+name: "Publish terraform modules to registry"
 
 on:
   push:
@@ -7,12 +7,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  publish:
+  dispatch:
     runs-on: ubuntu-latest
-    name: Publish terraform modules
+    name: Dispatch subsequent publish jobs for changed modules
     defaults:
       run:
         working-dir: modules
+    outputs:
+      modules: ${{ steps.reduce.outputs.result}}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,8 +29,59 @@ jobs:
 
       - name: Reduce file changes into
         uses: actions/github-script@v7
+        id: reduce
         with:
-          script: | 
+          result-encoding: string
+          script: |
             const files = "${{ steps.changed.outputs.files }}".split('\n');
             const moduleDirectories = "${{ steps.changed.outputs.directories }}".split('\n');
             const changedModules = moduleDirectories.filter(moduleDirectory => !files.some(file => file.startsWith(moduleDirectory))
+            return changedModules;
+  publish:
+    runs-on: ubuntu-latest
+    name: Publish changed modules
+    strategy:
+      fail-fast: false
+      matrix:
+        module: ${{fromJson(needs.dispatch.outputs.modules)}}
+    defaults:
+      run:
+        working-dir: modules/${{ matrix.module }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Terraform init
+        id: init
+        run: terraform init
+
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -diff -check
+        continue-on-error: true
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Archive module
+        id: archive
+        run: |
+          tar -czf "${{ matrix.module }}.tar.gz" .
+
+      - name: Publish module
+        id: publish
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const module = "${{ matrix.module }}";
+            const moduleTarball = fs.readFileSync(`${module}.tar.gz`);
+            const data = new FormData();
+            data.append('module', module);
+            data.append('artifact', moduleTarball, `${module}.tar.gz`);
+            await fetch('https://registry.narwhl.workers.dev/v1/modules', {
+              method: 'POST',
+              body: data,
+            });
