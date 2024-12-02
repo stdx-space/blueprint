@@ -2,6 +2,10 @@ import { Context, Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { logger } from 'hono/logger';
 import { requestId } from 'hono/request-id';
+import { bearerAuth } from 'hono/bearer-auth';
+import { createRemoteJWKSet, jwtVerify, type JWTPayload } from 'jose';
+import { discoveryRequest, processDiscoveryResponse } from 'oauth4webapi';
+import semver from 'semver';
 
 interface Env {
 	modules: KVNamespace;
@@ -22,12 +26,14 @@ interface Module extends CreateModuleRequest {
 	verified: boolean;
 	downloads: number;
 	published_at: string;
+	versions: string[];
 }
 
 const basePath = '/v1/modules/';
 
 const app = new Hono<{ Bindings: Env }>();
 const registry = new Hono().basePath(basePath);
+
 app.use(logger());
 app.use('*', requestId());
 
@@ -36,50 +42,87 @@ const serviceDiscoveryResponse = {
 };
 
 app.get('/healthz', async (context: Context) => context.json({ status: 'ok' }));
-app.get('/', async (context: Context) => context.json(serviceDiscoveryResponse));
+app.get('/', async (context: Context) => context.redirect('/.well-known/terraform.json'));
 app.get('/.well-known/terraform.json', async (context: Context) => context.json(serviceDiscoveryResponse));
+app.get('/v1/metadata', async (context: Context) => {
+	const metadata = await context.env.modules.get('metadata');
+	return context.body(metadata, 200, { 'Content-Type': 'application/json' });
+})
 
-registry.post(`/`, async (context: Context) => {
-	const payload: CreateModuleRequest = await context.req.json();
-	const id = `${payload.namespace}/${payload.name}/${payload.provider}`;
-	await context.env.modules.put(
-		`modules:${id}`,
-		JSON.stringify({
-			...payload,
+async function verifyToken(token: string, context: Context) {
+	try {
+		const url = new URL('https://token.actions.githubusercontent.com');
+		const response = await discoveryRequest(url);
+		const authorizationServer = await processDiscoveryResponse(url, response);
+		const jwks = createRemoteJWKSet(new URL(authorizationServer.jwks_uri!));
+		await jwtVerify(token, jwks, {
+			issuer: authorizationServer.issuer,
+			audience: 'https://github.com/narwhl',
+			algorithms: ['RS256'],
+		});
+		return true
+	} catch (error) {
+		return false
+	}
+}
+
+registry.post(
+	`/`,
+	bearerAuth({ verifyToken }),
+	async (context: Context) => {
+		const payload: CreateModuleRequest = await context.req.json();
+		const value = await context.env.modules.get('metadata');
+		const id = crypto.randomUUID();
+		const metadata = JSON.parse(value || '{}');
+		metadata[payload.source] = `${payload.namespace}/${payload.name}/${payload.provider}`;
+		await context.env.modules.put(
+			`modules:${payload.namespace}/${payload.name}/${payload.provider}`,
+			JSON.stringify({
+				...payload,
+				id,
+				verified: true,
+				downloads: 0,
+				published_at: new Date().toISOString(),
+			})
+		);
+		return context.json({
 			id,
-			verified: true,
-			downloads: 0,
 			published_at: new Date().toISOString(),
-		})
-	);
-});
+		});
+	}
+);
 
-registry.get(`/`, async (context: Context) => {
-	const modules = await context.env.modules.list({ prefix: 'modules:' });
-	// context.json({
-	// 	meta: {
-	// 		limit: parseInt(context.req.query('limit')!) || 0,
-	// 		offset: parseInt(context.req.query('offset')!) || 0,
-	// 		next_offset: ``
-	// 	},
-	// 	modules: modules.keys.map((key: string) => JSON.parse()),
-	// });
-});
-
-registry.post(`/:namespace/:name/:provider/versions`, async (context: Context) => {
-	context.json(
-		{
-			status: 'error',
-			message: 'not implemented',
-		},
-		501
-	);
-});
+registry.post(
+	`/:namespace/:name/:provider/versions`,
+	bearerAuth({ verifyToken }),
+	async (context: Context) => {
+		const { namespace, name, provider } = context.req.param();
+		const body = await context.req.parseBody();
+		const selector = `${namespace}/${name}/${provider}`;
+		const value = await context.env.modules.get(`modules:${selector}`);
+		const module = JSON.parse(value) as Module;
+		const { versions } = module;
+		const nextVersion = semver.inc(versions[0], 'patch');
+		if (module) {
+			await context.env.modules.put(
+				`modules:${selector}`,
+				JSON.stringify({
+					...module,
+					published_at: new Date().toISOString(),
+				})
+			);
+			await context.env.artifact.put(`modules/${selector}/${nextVersion}.tar.gz`, body['module']);
+		} else {
+			return context.json({
+				status: 'error',
+				message: 'module not found',
+			}, 404);
+		}
+	}
+);
 
 registry.get(`/:namespace/:name/:provider/versions`, async (context: Context) => {
-	const namespace = context.req.param('namespace');
-	const name = context.req.param('name');
-	const provider = context.req.param('provider');
+	const { name, namespace, provider } = context.req.param();
 	const result: R2Objects = await context.env.artifact.list({
 		prefix: `${namespace}/${name}/${provider}`,
 	});
@@ -97,20 +140,23 @@ registry.get(`/:namespace/:name/:provider/versions`, async (context: Context) =>
 			],
 		});
 	} else {
-		throw new HTTPException(404, {
-			message: 'module not found',
-		});
+		return context.json({
+			status: 'error',
+			message: 'module not found'
+		}, 404)
 	}
 });
 
 registry.get(`/:namespace/:name/:provider/download`, async (context: Context) => {
-	context.json(
-		{
-			status: 'error',
-			message: 'not implemented',
-		},
-		501
-	);
+	try {
+		const { name, namespace, provider } = context.req.param();
+		const selector = `${namespace}/${name}/${provider}`;
+		const value = await context.env.modules.get(`modules:${selector}`);
+		const module = JSON.parse(value) as Module;
+		context.header('X-Terraform-Get', `https://artifact.narwhl.dev/modules/${selector}/${module.versions[0]}.tar.gz`)
+	} catch (error) {
+		
+	}
 });
 
 registry.get(`/:namespace/:name/:provider/:version/download`, async (context: Context) => {
@@ -123,11 +169,12 @@ registry.get(`/:namespace/:name/:provider/:version/download`, async (context: Co
 	});
 	if (result.objects.length > 0) {
 		context.header('X-Terraform-Get', `https://artifact.narwhl.dev/modules/${result.objects[0].key}`);
-		context.status(204);
+		return context.status(204);
 	} else {
-		throw new HTTPException(404, {
-			message: 'module not found',
-		});
+		return context.json({
+			status: 'error',
+			message: 'module not found'
+		}, 404)
 	}
 });
 

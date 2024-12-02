@@ -2,7 +2,7 @@ data "external" "env" {
   program = ["jq", "-n", "env"]
 }
 
-resource "cloudflare_workers_kv_namespace" "modules" {
+resource "cloudflare_workers_kv_namespace" "registry" {
   account_id = data.external.env.result["CLOUDFLARE_ACCOUNT_ID"]
   title      = "modules"
 }
