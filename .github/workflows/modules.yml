@@ -14,7 +14,7 @@ jobs:
       run:
         working-dir: modules
     outputs:
-      modules: ${{ steps.reduce.outputs.result}}
+      modules: ${{ steps.reduce.outputs.result }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
           echo "files=$(git diff --name-only HEAD HEAD^)" >> "$GITHUB_OUTPUT"
           echo "directories=$(ls -d)" >> "$GITHUB_OUTPUT"
 
-      - name: Reduce file changes into
+      - name: Reduce file changes to modules to publish
         uses: actions/github-script@v7
         id: reduce
         with:
@@ -35,7 +35,7 @@ jobs:
           script: |
             const files = "${{ steps.changed.outputs.files }}".split('\n');
             const moduleDirectories = "${{ steps.changed.outputs.directories }}".split('\n');
-            const changedModules = moduleDirectories.filter(moduleDirectory => !files.some(file => file.startsWith(moduleDirectory))
+            const changedModules = moduleDirectories.filter(moduleDirectory => files.some(file => file.startsWith(moduleDirectory))
             return changedModules;
   publish:
     runs-on: ubuntu-latest
@@ -43,7 +43,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: ${{fromJson(needs.dispatch.outputs.modules)}}
+        module: ${{ fromJson(needs.dispatch.outputs.modules) }}
     defaults:
       run:
         working-dir: modules/${{ matrix.module }}
