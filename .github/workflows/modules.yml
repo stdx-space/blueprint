@@ -40,7 +40,7 @@ jobs:
             const files = `${{ steps.changed.outputs.files }}`.split('\n').filter(file => file.length > 0);
             const moduleDirectories = `${{ steps.changed.outputs.directories }}`.split('\n').filter(directory => directory.length > 0);
             const changedModules = moduleDirectories.filter(moduleDirectory => files.some(file => file.startsWith(`modules/${moduleDirectory}`)))
-            console.log(`Changed modules: ${changedModules}`);
+            console.log(changedModules);
             return JSON.stringify(changedModules);
   publish:
     runs-on: ubuntu-latest
