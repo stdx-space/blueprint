@@ -1,6 +1,9 @@
 name: Deploy Terraform Module Registry
 
 on:
+  push:
+    paths:
+      - registry/**/*
   workflow_dispatch:
     inputs:
       intent:

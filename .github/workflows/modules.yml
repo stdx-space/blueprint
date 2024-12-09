@@ -1,9 +1,6 @@
 name: "Publish terraform modules to registry"
 
 on:
-  push:
-    paths:
-      - modules/**/*
   workflow_dispatch:
 
 jobs:
@@ -35,7 +32,7 @@ jobs:
           script: |
             const files = "${{ steps.changed.outputs.files }}".split('\n');
             const moduleDirectories = "${{ steps.changed.outputs.directories }}".split('\n');
-            const changedModules = moduleDirectories.filter(moduleDirectory => files.some(file => file.startsWith(moduleDirectory))
+            const changedModules = moduleDirectories.filter(moduleDirectory => files.some(file => file.startsWith(moduleDirectory)))
             return changedModules;
   publish:
     runs-on: ubuntu-latest
