@@ -35,11 +35,11 @@ variable "timezone" {
   description = "Timezone of the VM"
 }
 
-variable "disks" {
+variable "mounts" {
   type = list(object({
     label       = string
-    mount_path  = string
-    device_path = string
+    path        = string
+    partition   = string
   }))
   default     = []
   description = "List of disk configurations"
@@ -162,7 +162,7 @@ locals {
     }
   }
   disks = {
-    for disk in var.disks : disk.device_path => disk.label
+    for mount in var.mounts : mount.partition => mount.label
   }
   permissions = {
     "777" = 495
@@ -188,11 +188,11 @@ locals {
     }
   ]
   mount_units = [
-    for disk in var.disks : {
+    for mount in var.mounts : {
       name = format(
         "%s.mount",
         replace(
-          trimprefix(disk.mount_path, "/"),
+          trimprefix(mount.path, "/"),
           "/",
           "-"
         )
@@ -200,8 +200,8 @@ locals {
       content = templatefile(
         "${path.module}/templates/disk.mount.tftpl",
         {
-          label      = disk.label
-          mount_path = disk.mount_path
+          label      = mount.label
+          mount_path = mount.path
         }
       )
     }

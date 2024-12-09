@@ -14,19 +14,19 @@ module "flatcar" {
 
 `name`: Hostname for the Flatcar instance.
 
-`username`: Username for logging into the Flatcar instance, defaults to `core`.
+`username`: (optional) Username for logging into the Flatcar instance, defaults to `core`.
 
-`autologin`: Whether to enable autologin for the Flatcar instance, defaults to `true`.
+`autologin`: (optional) Whether to enable autologin for the Flatcar instance, defaults to `true`.
 
-`disable_ssh`: Option to disable SSH access to the Flatcar instance, defaults to `false`.
+`disable_ssh`: (optional) Option to disable SSH access to the Flatcar instance, defaults to `false`.
 
-`timezone`: Timezone the VM resides in (e.g `Europe/Stockholm`), defaults to `Asia/Hong_Kong`.
+`timezone`: (optional) Timezone the VM resides in (e.g `Europe/Stockholm`), defaults to `Asia/Hong_Kong`.
 
-`disks`: List of disks to mount onto the Flatcar instance
+`mounts`: (optional) List of disks to mount onto the Flatcar instance
 
 - `label`: Label for the disk storage device
-- `mount_path`: Filesystem path to mount the disk storage device to
-- `device_path`: Path to the disk storage device, e.g /dev/sda1
+- `path`: Filesystem path to mount the disk storage device to
+- `partition`: Path to the disk storage device, e.g /dev/sda1
 
 `expose_docker_socket`: Whether to enable docker socket to be accessible via a TCP listener, defaults to `false`.
 
@@ -42,8 +42,8 @@ module "flatcar" {
 
 `substrates`: List of configurations to be layer on top of Flatcar.
 
-`base64_encode`: Whether to encode the resulting ignition config file in base64, defaults to `false`.
+`base64_encode`: (optional) Whether to encode the resulting ignition config file in base64, defaults to `false`.
 
-`ssh_keys_import`: List of urls that points to your ssh public keys, support fetching over git hosting provider, e.g `https://github.com/{user}.keys`, defaults to `[]`.
+`ssh_keys_import`: (optional) List of urls that points to your ssh public keys, support fetching over git hosting provider, e.g `https://github.com/{user}.keys`, defaults to `[]`.
 
 `ssh_authorized_keys`: A list of SSH public keys to be added to the Flatcar instance login user.
