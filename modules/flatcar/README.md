@@ -4,8 +4,9 @@
 
 ```hcl
 module "flatcar" {
-  source = "registry.narwhl.workers.dev/os/flatcar/ignition"
-  name   = "hostname"
+  source              = "registry.narwhl.workers.dev/os/flatcar/ignition"
+  name                = "hostname"
+  ssh_authorized_keys = [tls.private_key.this.public_key_openssh]
 }
 ```
 
