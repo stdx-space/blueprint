@@ -47,7 +47,7 @@ app.get('/.well-known/terraform.json', async (context: Context) => context.json(
 app.get('/v1/metadata', async (context: Context) => {
 	const metadata = await context.env.modules.get('metadata');
 	return context.body(metadata, 200, { 'Content-Type': 'application/json' });
-})
+});
 
 async function verifyToken(token: string, context: Context) {
 	try {
@@ -60,93 +60,105 @@ async function verifyToken(token: string, context: Context) {
 			audience: 'https://github.com/narwhl',
 			algorithms: ['RS256'],
 		});
-		return true
+		return true;
 	} catch (error) {
-		return false
+		return false;
 	}
 }
 
-registry.post(
-	`/`,
-	bearerAuth({ verifyToken }),
-	async (context: Context) => {
-		const payload: CreateModuleRequest = await context.req.json();
-		const value = await context.env.modules.get('metadata');
-		const id = crypto.randomUUID();
-		const metadata = JSON.parse(value || '{}');
-		metadata[payload.source] = `${payload.namespace}/${payload.name}/${payload.provider}`;
-		await Promise.all([
-			context.env.modules.put(
-				`modules:${payload.namespace}/${payload.name}/${payload.provider}`,
-				JSON.stringify({
-					...payload,
-					id,
-					verified: true,
-					downloads: 0,
-					published_at: new Date().toISOString(),
-				})
-			),
-			context.env.modules.put('metadata', JSON.stringify(metadata))
-		]);
-		return context.json({
-			id,
-			published_at: new Date().toISOString(),
-		});
-	}
-);
+registry.post(`/`, bearerAuth({ verifyToken }), async (context: Context) => {
+	const payload: CreateModuleRequest = await context.req.json();
+	const value = await context.env.modules.get('metadata');
+	const id = crypto.randomUUID();
+	const metadata = JSON.parse(value || '{}');
+	metadata[payload.source] = `${payload.namespace}/${payload.name}/${payload.provider}`;
+	await Promise.all([
+		context.env.modules.put(
+			`modules:${payload.namespace}/${payload.name}/${payload.provider}`,
+			JSON.stringify({
+				...payload,
+				id,
+				verified: true,
+				downloads: 0,
+				published_at: new Date().toISOString(),
+			}),
+		),
+		context.env.modules.put('metadata', JSON.stringify(metadata)),
+	]);
+	return context.json({
+		id,
+		published_at: new Date().toISOString(),
+	});
+});
 
-registry.post(
-	`/:namespace/:name/:provider/versions`,
-	bearerAuth({ verifyToken }),
-	async (context: Context) => {
-		const { namespace, name, provider } = context.req.param();
-		const body = await context.req.parseBody();
-		const selector = `${namespace}/${name}/${provider}`;
-		const value = await context.env.modules.get(`modules:${selector}`);
-		const module = JSON.parse(value) as Module;
-		const { versions } = module;
-		const nextVersion = semver.inc(versions[0], 'patch');
-		if (module) {
-			await context.env.modules.put(
-				`modules:${selector}`,
-				JSON.stringify({
-					...module,
-					published_at: new Date().toISOString(),
-				})
-			);
-			await context.env.artifact.put(`modules/${selector}/${nextVersion}.tar.gz`, body['module']);
-		} else {
-			return context.json({
+async function getVersions(context: Context, selector: string) {
+	const result: R2Objects = await context.env.artifact.list({
+		prefix: selector,
+	});
+	return result.objects.map((object) =>
+		object.key
+			.split('/')
+			.reverse()[0]
+			.replace(/\.tgz$|\.zip|\.tar.gz$/, ''),
+	);
+}
+
+registry.post(`/:namespace/:name/:provider/versions`, bearerAuth({ verifyToken }), async (context: Context) => {
+	const { namespace, name, provider } = context.req.param();
+	const body = await context.req.parseBody();
+	const selector = `${namespace}/${name}/${provider}`;
+	const value = await context.env.modules.get(`modules:${selector}`);
+	const module = JSON.parse(value) as Module;
+	if (module) {
+		await context.env.modules.put(
+			`modules:${selector}`,
+			JSON.stringify({
+				...module,
+				published_at: new Date().toISOString(),
+			}),
+		);
+		var nextVersion = '1.0.0';
+		const publishedVersions = await getVersions(context, selector);
+		if (publishedVersions.length > 0) {
+			nextVersion = semver.inc(publishedVersions[0], 'patch');
+		}
+		await context.env.artifact.put(`modules/${selector}/${nextVersion}.tar.gz`, body['module']);
+	} else {
+		return context.json(
+			{
 				status: 'error',
 				message: 'module not found',
-			}, 404);
-		}
+			},
+			404,
+		);
 	}
-);
+});
 
 registry.get(`/:namespace/:name/:provider/versions`, async (context: Context) => {
 	const { name, namespace, provider } = context.req.param();
+	const versions = await getVersions(context, namespace);
 	const result: R2Objects = await context.env.artifact.list({
 		prefix: `${namespace}/${name}/${provider}`,
 	});
-	if (result.objects.length > 0) {
+	if (versions.length > 0) {
 		context.json({
+			source: `${namespace}/${name}/${provider}`,
 			modules: [
 				{
-					versions: result.objects.map((object) => ({
-						version: object.key
-							.split('/')
-							.reverse()[0]
-							.replace(/\.tgz$|\.zip|\.tar.gz$/, ''),
+					versions: versions.map((version: string) => ({
+						version,
 					})),
 				},
 			],
 		});
 	} else {
-		return context.json({
-			status: 'error',
-			message: 'module not found'
-		}, 404)
+		return context.json(
+			{
+				status: 'error',
+				message: 'module not found',
+			},
+			404,
+		);
 	}
 });
 
@@ -156,10 +168,8 @@ registry.get(`/:namespace/:name/:provider/download`, async (context: Context) =>
 		const selector = `${namespace}/${name}/${provider}`;
 		const value = await context.env.modules.get(`modules:${selector}`);
 		const module = JSON.parse(value) as Module;
-		context.header('X-Terraform-Get', `https://artifact.narwhl.dev/modules/${selector}/${module.versions[0]}.tar.gz`)
-	} catch (error) {
-		
-	}
+		context.header('X-Terraform-Get', `https://artifact.narwhl.dev/modules/${selector}/${module.versions[0]}.tar.gz`);
+	} catch (error) {}
 });
 
 registry.get(`/:namespace/:name/:provider/:version/download`, async (context: Context) => {
@@ -174,10 +184,13 @@ registry.get(`/:namespace/:name/:provider/:version/download`, async (context: Co
 		context.header('X-Terraform-Get', `https://artifact.narwhl.dev/modules/${result.objects[0].key}`);
 		return context.status(204);
 	} else {
-		return context.json({
-			status: 'error',
-			message: 'module not found'
-		}, 404)
+		return context.json(
+			{
+				status: 'error',
+				message: 'module not found',
+			},
+			404,
+		);
 	}
 });
 
