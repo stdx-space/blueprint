@@ -46,7 +46,7 @@ app.get('/', async (context: Context) => context.redirect('/.well-known/terrafor
 app.get('/.well-known/terraform.json', async (context: Context) => context.json(serviceDiscoveryResponse));
 app.get('/v1/metadata', async (context: Context) => {
 	const metadata = await context.env.modules.get('metadata');
-	return context.body(metadata, 200, { 'Content-Type': 'application/json' });
+	return context.body(metadata||'{}', 200, { 'Content-Type': 'application/json' });
 });
 
 async function verifyToken(token: string, context: Context) {

@@ -81,9 +81,9 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
+            const token = await core.getIDToken();
             const module = "${{ matrix.module }}";
             const moduleTarball = fs.readFileSync(`/tmp/${module}.tar.gz`);
-
             const metadataRequest = await fetch('https://registry.narwhl.workers.dev/v1/metadata');
             const metadata = await metadataRequest.json();
             const moduleSource = 'https://github.com/narwhl/blueprint/tree/main/modules/{{ matrix.module }}';
@@ -91,6 +91,9 @@ jobs:
             if (!metadata[moduleSource]) {
               const createModuleResponse = await fetch('https://registry.narwhl.workers.dev/v1/modules', {
                 method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify({
                   name: '{{ github.event.repository.name }}',
                   namespace: '{{ github.repository_owner }}',
@@ -114,6 +117,9 @@ jobs:
 
             const publishModuleResponse = await fetch('https://registry.narwhl.workers.dev/v1/modules/${moduleSelector}/versions', {
               method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`
+              },
               body: data,
             });
             if (!publishModuleResponse.ok) {
