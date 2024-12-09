@@ -4,7 +4,7 @@
 
 ```hcl
 module "flatcar" {
-  source = "github.com/narwhl/blueprint//modules/flatcar"
+  source = "registry.narwhl.workers.dev/os/flatcar/ignition"
   name   = "hostname"
 }
 ```
