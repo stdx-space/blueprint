@@ -195,7 +195,7 @@ locals {
         name    = "node-exporter.service"
         content = file("${path.module}/templates/node-exporter.service.tftpl")
       }
-    ], []
+    ]:[]
   )
   mount_units = [
     for mount in var.mounts : {
