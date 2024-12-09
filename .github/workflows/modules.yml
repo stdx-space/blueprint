@@ -40,9 +40,9 @@ jobs:
             const files = `${{ steps.changed.outputs.files }}`.split('\n').filter(file => file.length > 0);
             const moduleDirectories = `${{ steps.changed.outputs.directories }}`.split('\n').filter(directory => directory.length > 0);
             const changedModules = moduleDirectories.filter(moduleDirectory => files.some(file => file.startsWith(`modules/${moduleDirectory}`)))
-            console.log(changedModules);
             return JSON.stringify(changedModules);
   publish:
+    needs: dispatch
     runs-on: ubuntu-latest
     name: Publish changed modules
     strategy:
