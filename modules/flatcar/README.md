@@ -38,7 +38,7 @@ module "flatcar" {
 
 `nameservers`: List of nameservers to assign to the Flatcar instance, e.g `["8.8.8.8", "1.1.1.1"]`.
 
-`ca_certs`: List of CA certificates to be trusted by the Flatcar instance.
+`ca_certs`: List of CA certificates to be trusted by the Flatcar instance, either passes base64 encoded content or http url to the certificate.
 
 `substrates`: List of configurations to be layer on top of Flatcar.
 
