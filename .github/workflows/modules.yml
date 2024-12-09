@@ -115,7 +115,7 @@ jobs:
               moduleSelector = metadata[moduleSource];
               console.log(`Module ${module} already exists in registry, using selector ${moduleSelector}`);
             }
-
+            console.log(`Publishing module as ${moduleSelector}`);
             const data = new FormData();
             data.append('module', moduleTarball, `${module}.tar.gz`);
 

@@ -37,9 +37,9 @@ variable "timezone" {
 
 variable "mounts" {
   type = list(object({
-    label       = string
-    path        = string
-    partition   = string
+    label     = string
+    path      = string
+    partition = string
   }))
   default     = []
   description = "List of disk configurations"
@@ -190,12 +190,12 @@ locals {
         )
       },
     ],
-    var.expose_metrics?[
+    var.expose_metrics ? [
       {
         name    = "node-exporter.service"
         content = file("${path.module}/templates/node-exporter.service.tftpl")
       }
-    ]:[]
+    ] : []
   )
   mount_units = [
     for mount in var.mounts : {
