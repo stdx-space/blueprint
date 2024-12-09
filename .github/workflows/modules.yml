@@ -99,11 +99,11 @@ jobs:
                   'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                  name: '{{ github.event.repository.name }}',
-                  namespace: '{{ github.repository_owner }}',
-                  provider: '{{ matrix.module }}',
-                  description: '{{ matrix.module }}',
-                  owner: '{{ github.repository_owner }}',
+                  name: context.repo.repo,
+                  namespace: context.repo.owner,,
+                  provider: module,
+                  description: module,
+                  owner: context.repo.owner,
                   source: moduleSource,
                 }),
               });

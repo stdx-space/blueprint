@@ -29,7 +29,7 @@ interface Module extends CreateModuleRequest {
 	versions: string[];
 }
 
-const basePath = '/v1/modules/';
+const basePath = '/v1/modules';
 
 const app = new Hono<{ Bindings: Env }>();
 const registry = new Hono().basePath(basePath);
@@ -38,7 +38,7 @@ app.use(logger());
 app.use('*', requestId());
 
 const serviceDiscoveryResponse = {
-	'modules.v1': basePath,
+	'modules.v1': `${basePath}/`,
 };
 
 app.get('/healthz', async (context: Context) => context.json({ status: 'ok' }));
@@ -120,7 +120,7 @@ registry.post(`/:namespace/:name/:provider/versions`, bearerAuth({ verifyToken }
 		var nextVersion = '1.0.0';
 		const publishedVersions = await getVersions(context, selector);
 		if (publishedVersions.length > 0) {
-			nextVersion = semver.inc(publishedVersions[0], 'patch');
+			nextVersion = semver.inc(publishedVersions[0], 'patch')!;
 		}
 		await context.env.artifact.put(`modules/${selector}/${nextVersion}.tar.gz`, body['module']);
 	} else {
