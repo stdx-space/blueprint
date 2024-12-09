@@ -43,6 +43,6 @@ module "flatcar" {
 
 `base64_encode`: Whether to encode the resulting ignition config file in base64, defaults to `false`
 
-`ssh_keys_import`: List of urls that points to your ssh public keys, support fetching over git hosting provider, e.g `https://github.com/{user}.keys`, defaults to `[]`
+`ssh_keys_import`: List of urls that points to your ssh public keys, support fetching over git hosting provider, e.g `https://github.com/{user}.keys`, defaults to `[]`.
 
 `ssh_authorized_keys`: A list of SSH public keys to be added to the Flatcar instance login user
