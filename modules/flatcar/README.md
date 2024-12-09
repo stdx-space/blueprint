@@ -30,15 +30,15 @@ module "flatcar" {
 
 `expose_docker_socket`: Whether to enable docker socket to be accessible via a TCP listener, defaults to `false`.
 
-`network`: CIDR notation for the network to be used for the Flatcar instance, e.g `10.0.0.0/16`.
+`network`: (optional) CIDR notation for the network to be used for the Flatcar instance, e.g `10.0.0.0/16`.
 
-`ip_address`: Static IP address to assign to the Flatcar instance, e.g `10.0.0.10`.
+`ip_address`: (optional) Static IP address to assign to the Flatcar instance, e.g `10.0.0.10`.
 
-`gateway_ip`: Gateway IP address to assign to the Flatcar instance, e.g `10.0.0.1`.
+`gateway_ip`: (optional) Gateway IP address to assign to the Flatcar instance, e.g `10.0.0.1`.
 
-`nameservers`: List of nameservers to assign to the Flatcar instance, e.g `["8.8.8.8", "1.1.1.1"]`.
+`nameservers`: (optional) List of nameservers to assign to the Flatcar instance, e.g `["8.8.8.8", "1.1.1.1"]`.
 
-`ca_certs`: List of CA certificates to be trusted by the Flatcar instance, either passes base64 encoded content or http url to the certificate.
+`ca_certs`: (optional) List of CA certificates to be trusted by the Flatcar instance, either passes base64 encoded content or http url to the certificate.
 
 `substrates`: List of configurations to be layer on top of Flatcar.
 
