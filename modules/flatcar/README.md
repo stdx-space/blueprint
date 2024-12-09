@@ -12,15 +12,15 @@ module "flatcar" {
 
 ### Variables
 
-`name`: Hostname for the Flatcar instance
+`name`: Hostname for the Flatcar instance.
 
-`username`: Username for logging into the Flatcar instance, defaults to `core`
+`username`: Username for logging into the Flatcar instance, defaults to `core`.
 
-`autologin`: Whether to enable autologin for the Flatcar instance, defaults to `true`
+`autologin`: Whether to enable autologin for the Flatcar instance, defaults to `true`.
 
-`disable_ssh`: Option to disable SSH access to the Flatcar instance, defaults to `false`
+`disable_ssh`: Option to disable SSH access to the Flatcar instance, defaults to `false`.
 
-`timezone`: Timezone the VM resides in (e.g `Europe/Stockholm`), defaults to `Asia/Hong_Kong`
+`timezone`: Timezone the VM resides in (e.g `Europe/Stockholm`), defaults to `Asia/Hong_Kong`.
 
 `disks`: List of disks to mount onto the Flatcar instance
 
@@ -28,17 +28,17 @@ module "flatcar" {
 - `mount_path`: Filesystem path to mount the disk storage device to
 - `device_path`: Path to the disk storage device, e.g /dev/sda1
 
-`expose_docker_socket`: Whether to enable docker socket to be accessible via a TCP listener, defaults to `false`
+`expose_docker_socket`: Whether to enable docker socket to be accessible via a TCP listener, defaults to `false`.
 
-`network`: CIDR notation for the network to be used for the Flatcar instance, e.g `10.0.0.0/16`
+`network`: CIDR notation for the network to be used for the Flatcar instance, e.g `10.0.0.0/16`.
 
-`ip_address`: Static IP address to assign to the Flatcar instance, e.g `10.0.0.10`
+`ip_address`: Static IP address to assign to the Flatcar instance, e.g `10.0.0.10`.
 
-`gateway_ip`: Gateway IP address to assign to the Flatcar instance, e.g `10.0.0.1`
+`gateway_ip`: Gateway IP address to assign to the Flatcar instance, e.g `10.0.0.1`.
 
-`nameservers`: List of nameservers to assign to the Flatcar instance, e.g `["8.8.8.8", "1.1.1.1"]`
+`nameservers`: List of nameservers to assign to the Flatcar instance, e.g `["8.8.8.8", "1.1.1.1"]`.
 
-`ca_certs`: List of CA certificates to be trusted by the Flatcar instance
+`ca_certs`: List of CA certificates to be trusted by the Flatcar instance.
 
 `substrates`: List of configurations to be layer on top of Flatcar.
 
