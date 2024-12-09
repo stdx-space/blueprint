@@ -75,16 +75,19 @@ registry.post(
 		const id = crypto.randomUUID();
 		const metadata = JSON.parse(value || '{}');
 		metadata[payload.source] = `${payload.namespace}/${payload.name}/${payload.provider}`;
-		await context.env.modules.put(
-			`modules:${payload.namespace}/${payload.name}/${payload.provider}`,
-			JSON.stringify({
-				...payload,
-				id,
-				verified: true,
-				downloads: 0,
-				published_at: new Date().toISOString(),
-			})
-		);
+		await Promise.all([
+			context.env.modules.put(
+				`modules:${payload.namespace}/${payload.name}/${payload.provider}`,
+				JSON.stringify({
+					...payload,
+					id,
+					verified: true,
+					downloads: 0,
+					published_at: new Date().toISOString(),
+				})
+			),
+			context.env.modules.put('metadata', JSON.stringify(metadata))
+		]);
 		return context.json({
 			id,
 			published_at: new Date().toISOString(),
