@@ -57,6 +57,12 @@ variable "expose_docker_socket" {
   description = "Whether to expose the Docker socket to the VM"
 }
 
+variable "expose_metrics" {
+  type        = bool
+  default     = false
+  description = "Whether to enable prometheus node-exporter as system service container"
+}
+
 variable "network" {
   type        = string
   default     = ""
@@ -172,21 +178,25 @@ locals {
     "600" = 416
   }
   subnet_bits = 0 < length(var.network) ? split("/", var.network)[1] : "24"
-  default_units = [
-    {
-      name = "settimezone.service"
-      content = templatefile(
-        "${path.module}/templates/settimezone.service.tftpl",
-        {
-          timezone = var.timezone
-        }
-      )
-    },
-    {
-      name    = "node-exporter.service"
-      content = file("${path.module}/templates/node-exporter.service.tftpl")
-    }
-  ]
+  default_units = concat(
+    [
+      {
+        name = "settimezone.service"
+        content = templatefile(
+          "${path.module}/templates/settimezone.service.tftpl",
+          {
+            timezone = var.timezone
+          }
+        )
+      },
+    ],
+    var.expose_metrics?[
+      {
+        name    = "node-exporter.service"
+        content = file("${path.module}/templates/node-exporter.service.tftpl")
+      }
+    ], []
+  )
   mount_units = [
     for mount in var.mounts : {
       name = format(

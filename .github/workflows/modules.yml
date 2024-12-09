@@ -87,7 +87,7 @@ jobs:
             const path = require('path');
             const token = await core.getIDToken();
             const module = "${{ matrix.module }}";
-            const moduleTarball = fs.readFileSync(`/tmp/${module}.tar.gz`);
+            const moduleTarball = await fs.openAsBlob(`/tmp/${module}.tar.gz`);
             const metadataRequest = await fetch('https://registry.narwhl.workers.dev/v1/metadata');
             const metadata = await metadataRequest.json();
             const moduleSource = `https://github.com/narwhl/blueprint/tree/main/modules/${module}`;
