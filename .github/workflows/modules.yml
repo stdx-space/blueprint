@@ -119,7 +119,7 @@ jobs:
             const data = new FormData();
             data.append('module', moduleTarball, `${module}.tar.gz`);
 
-            const publishModuleResponse = await fetch('https://registry.narwhl.workers.dev/v1/modules/${moduleSelector}/versions', {
+            const publishModuleResponse = await fetch(`https://registry.narwhl.workers.dev/v1/modules/${moduleSelector}/versions`, {
               method: 'POST',
               headers: {
                 'Authorization': `Bearer ${token}`

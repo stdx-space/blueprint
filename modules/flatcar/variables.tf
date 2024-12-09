@@ -1,6 +1,7 @@
 variable "name" {
   type        = string
   description = "Hostname of the Flatcar VM"
+  default     = "localhost"
   validation {
     condition     = length(var.name) > 0
     error_message = "Instance name must be set"
