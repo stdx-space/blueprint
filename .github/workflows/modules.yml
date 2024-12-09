@@ -12,7 +12,7 @@ jobs:
     name: Dispatch subsequent publish jobs for changed modules
     defaults:
       run:
-        working-dir: modules
+        working-directory: modules
     outputs:
       modules: ${{ steps.reduce.outputs.result }}
     steps:
@@ -46,7 +46,7 @@ jobs:
         module: ${{ fromJson(needs.dispatch.outputs.modules) }}
     defaults:
       run:
-        working-dir: modules/${{ matrix.module }}
+        working-directory: modules/${{ matrix.module }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -78,10 +78,40 @@ jobs:
             const path = require('path');
             const module = "${{ matrix.module }}";
             const moduleTarball = fs.readFileSync(`${module}.tar.gz`);
+
+            const metadataRequest = await fetch('https://registry.narwhl.workers.dev/v1/metadata');
+            const metadata = await metadataRequest.json();
+            const moduleSource = 'https://github.com/narwhl/blueprint/tree/main/modules/{{ matrix.module }}';
+            var moduleSelector = '{{ github.repository_owner }}/{{ github.event.repository.name }}/{{ matrix.module }}';
+            if (!metadata[moduleSource]) {
+              const createModuleResponse = await fetch('https://registry.narwhl.workers.dev/v1/modules', {
+                method: 'POST',
+                body: JSON.stringify({
+                  name: '{{ github.event.repository.name }}',
+                  namespace: '{{ github.repository_owner }}',
+                  provider: '{{ matrix.module }}',
+                  description: '{{ matrix.module }}',
+                  owner: '{{ github.repository_owner }}',
+                  source: moduleSource,
+                }),
+              });
+              if (!createModuleResponse.ok) {
+                throw new Error(`Failed to create module ${module} in registry: ${createModuleResponse.status} ${createModuleResponse.statusText}`);
+              }
+              console.log(`Module ${module} created in registry, using selector ${moduleSelector}`);
+            } else {
+              moduleSelector = metadata[moduleSource];
+              console.log(`Module ${module} already exists in registry, using selector ${moduleSelector}`);
+            }
+
             const data = new FormData();
-            data.append('module', module);
-            data.append('artifact', moduleTarball, `${module}.tar.gz`);
-            await fetch('https://registry.narwhl.workers.dev/v1/modules', {
+            data.append('module', moduleTarball, `${module}.tar.gz`);
+
+            const publishModuleResponse = await fetch('https://registry.narwhl.workers.dev/v1/modules/${moduleSelector}/versions', {
               method: 'POST',
               body: data,
             });
+            if (!publishModuleResponse.ok) {
+              throw new Error(`Failed to publish module ${module} to registry: ${publishModuleResponse.status} ${publishModuleResponse.statusText}`);
+            }
+            console.log(`Module ${module} published to registry`);
