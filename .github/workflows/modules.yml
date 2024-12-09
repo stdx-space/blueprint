@@ -28,7 +28,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
           {
             echo 'directories<<EOF'
-            ls -d
+            ls -d */ | cut -f1 -d'/'
             echo 'EOF'
           } >> "$GITHUB_OUTPUT"
       - name: Reduce file changes to modules to publish
@@ -37,8 +37,8 @@ jobs:
         with:
           result-encoding: string
           script: |
-            const files = "${{ steps.changed.outputs.files }}".split('\n');
-            const moduleDirectories = "${{ steps.changed.outputs.directories }}".split('\n');
+            const files = "${{ steps.changed.outputs.files }}".split('\n').filter(file => file.length > 0);
+            const moduleDirectories = "${{ steps.changed.outputs.directories }}".split('\n').filter(directory => directory.length > 0);
             const changedModules = moduleDirectories.filter(moduleDirectory => files.some(file => file.startsWith(moduleDirectory)))
             return changedModules;
   publish:

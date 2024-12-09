@@ -77,7 +77,7 @@ variable "gateway_ip" {
 
 variable "nameservers" {
   type        = list(string)
-  default     = ["1.1.1.1"]
+  default     = ["1.1.1.1", "8.8.8.8"]
   description = "List of nameservers for the VM"
 }
 
