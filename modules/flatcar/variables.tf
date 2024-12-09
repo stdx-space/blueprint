@@ -143,7 +143,7 @@ variable "ssh_authorized_keys" {
   type        = list(string)
   description = "List of SSH public keys to add to the VM"
   validation {
-    condition     = length(var.ssh_authorized_keys) > 0
+    condition     = var.disable_ssh || length(var.ssh_authorized_keys) > 0
     error_message = "At least one SSH public key must be set to prevent locked out"
   }
 }
