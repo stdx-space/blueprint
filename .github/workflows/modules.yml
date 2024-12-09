@@ -90,8 +90,8 @@ jobs:
             const moduleTarball = fs.readFileSync(`/tmp/${module}.tar.gz`);
             const metadataRequest = await fetch('https://registry.narwhl.workers.dev/v1/metadata');
             const metadata = await metadataRequest.json();
-            const moduleSource = 'https://github.com/narwhl/blueprint/tree/main/modules/{{ matrix.module }}';
-            var moduleSelector = '{{ github.repository_owner }}/{{ github.event.repository.name }}/{{ matrix.module }}';
+            const moduleSource = `https://github.com/narwhl/blueprint/tree/main/modules/${module}`;
+            var moduleSelector = `${context.repo.owner}/${context.repo.repo}/${module}`;
             if (!metadata[moduleSource]) {
               const createModuleResponse = await fetch('https://registry.narwhl.workers.dev/v1/modules', {
                 method: 'POST',
@@ -100,12 +100,12 @@ jobs:
                 },
                 body: JSON.stringify({
                   name: context.repo.repo,
-                  namespace: context.repo.owner,,
+                  namespace: context.repo.owner,
                   provider: module,
                   description: module,
                   owner: context.repo.owner,
                   source: moduleSource,
-                }),
+                })
               });
               if (!createModuleResponse.ok) {
                 throw new Error(`Failed to create module ${module} in registry: ${createModuleResponse.status} ${createModuleResponse.statusText}`);
