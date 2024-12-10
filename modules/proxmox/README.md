@@ -6,7 +6,7 @@
 
 ```hcl
 module "proxmox" {
-  source              = "git::https://gitlab.com/narwhl/wip/blueprint.git//modules/proxmox"
+  source              = "registry.narwhl.workers.dev/hypervisor/vm/proxmox"
   name                = "vm-name"
   vcpus               = 4
   memory              = 4096                                         # optional, defaults to 512MBs
@@ -21,7 +21,7 @@ module "proxmox" {
 
 ```hcl
 module "proxmox" {
-  source              = "git::https://gitlab.com/narwhl/wip/blueprint.git//modules/proxmox"
+  source              = "registry.narwhl.workers.dev/hypervisor/vm/proxmox"
   name                = var.name
   node                = var.node
   firmware            = "uefi"
