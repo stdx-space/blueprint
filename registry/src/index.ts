@@ -88,7 +88,7 @@ registry.post(`/`, bearerAuth({ verifyToken }), async (context: Context) => {
 	return context.json({
 		id,
 		published_at: new Date().toISOString(),
-	});
+	}, 201);
 });
 
 async function getVersions(context: Context, selector: string) {
@@ -125,6 +125,9 @@ registry.post(`/:namespace/:name/:provider/versions`, bearerAuth({ verifyToken }
 				}),
 			)
 		])
+		return context.json({
+			status: 'ok',
+		}, 201);
 	} else {
 		return context.json(
 			{
@@ -139,11 +142,8 @@ registry.post(`/:namespace/:name/:provider/versions`, bearerAuth({ verifyToken }
 registry.get(`/:namespace/:name/:provider/versions`, async (context: Context) => {
 	const { name, namespace, provider } = context.req.param();
 	const versions = await getVersions(context, namespace);
-	const result: R2Objects = await context.env.artifact.list({
-		prefix: `${namespace}/${name}/${provider}`,
-	});
 	if (versions.length > 0) {
-		context.json({
+		return context.json({
 			source: `${namespace}/${name}/${provider}`,
 			modules: [
 				{

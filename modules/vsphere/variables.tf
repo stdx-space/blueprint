@@ -153,7 +153,7 @@ locals {
   vapp = {
     "cloud-init" = {}
     "ignition"   = toset([var.provisioning_config.type])
-    "talos"   = {}
+    "talos"      = {}
   }[var.provisioning_config.type]
   extra_config = {
     "cloud-init" = {

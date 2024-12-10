@@ -69,6 +69,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Archive module
+        id: archive
+        run: |
+          tar -czf "/tmp/${{ matrix.module }}.tar.gz" .
+
       - name: Terraform init
         id: init
         run: terraform init
@@ -81,11 +86,6 @@ jobs:
       - name: Terraform Validate
         id: validate
         run: terraform validate -no-color
-
-      - name: Archive module
-        id: archive
-        run: |
-          tar -czf "/tmp/${{ matrix.module }}.tar.gz" .
 
       - name: Publish module
         id: publish
