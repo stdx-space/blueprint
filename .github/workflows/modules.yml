@@ -2,6 +2,15 @@ name: "Publish terraform modules to registry"
 
 on:
   workflow_dispatch:
+    inputs:
+      increment:
+        type: choice
+        description: Segment to perform version increment for
+        default: "patch"
+        options:
+          - major
+          - minor
+          - patch
 
 permissions:
   contents: read
@@ -117,6 +126,7 @@ jobs:
             }
             console.log(`Publishing module as ${moduleSelector}`);
             const data = new FormData();
+            data.append('increment', '${{ github.event.inputs.increment }}');
             data.append('module', moduleTarball, `${module}.tar.gz`);
 
             const publishModuleResponse = await fetch(`https://registry.narwhl.workers.dev/v1/modules/${moduleSelector}/versions`, {

@@ -110,19 +110,21 @@ registry.post(`/:namespace/:name/:provider/versions`, bearerAuth({ verifyToken }
 	const value = await context.env.modules.get(`modules:${selector}`);
 	const module = JSON.parse(value) as Module;
 	if (module) {
-		await context.env.modules.put(
-			`modules:${selector}`,
-			JSON.stringify({
-				...module,
-				published_at: new Date().toISOString(),
-			}),
-		);
 		var nextVersion = '1.0.0';
-		const publishedVersions = await getVersions(context, selector);
-		if (publishedVersions.length > 0) {
-			nextVersion = semver.inc(publishedVersions[0], 'patch')!;
+		if (module.versions.length > 0) {
+			nextVersion = semver.inc(module.versions[0], body['increment'] as semver.ReleaseType)!;
 		}
-		await context.env.artifact.put(`modules/${selector}/${nextVersion}.tar.gz`, body['module']);
+		await Promise.all([
+			context.env.artifact.put(`modules/${selector}/${nextVersion}.tar.gz`, body['module']),
+			context.env.modules.put(
+				`modules:${selector}`,
+				JSON.stringify({
+					...module,
+					verions: [nextVersion, ...module.versions],
+					published_at: new Date().toISOString(),
+				}),
+			)
+		])
 	} else {
 		return context.json(
 			{
@@ -173,10 +175,7 @@ registry.get(`/:namespace/:name/:provider/download`, async (context: Context) =>
 });
 
 registry.get(`/:namespace/:name/:provider/:version/download`, async (context: Context) => {
-	const namespace = context.req.param('namespace');
-	const name = context.req.param('name');
-	const provider = context.req.param('provider');
-	const version = context.req.param('version');
+	const { namespace, name, provider, version } = context.req.param();
 	const result: R2Objects = await context.env.artifact.list({
 		prefix: `${namespace}/${name}/${provider}/${version}`,
 	});
