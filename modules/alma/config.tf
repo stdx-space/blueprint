@@ -70,7 +70,8 @@ locals {
   packages = concat(
     var.default_packages,
     var.additional_packages,
-    flatten(var.substrates.*.install.packages)
+    flatten(var.substrates.*.install.packages),
+    var.expose_metrics ? ["prometheus-node-exporter"] : []
   )
   ca_certs = {
     trusted = [

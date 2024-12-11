@@ -47,10 +47,7 @@ variable "password" {
 variable "ssh_authorized_keys" {
   type        = list(string)
   description = "SSH public keys"
-  validation {
-    condition     = length(var.ssh_authorized_keys) > 0
-    error_message = "At least one SSH public key must be set to prevent locked out"
-  }
+  default     = []
 }
 
 variable "ssh_import_id" {
@@ -77,6 +74,12 @@ variable "disks" {
   }))
   default     = []
   description = "List of disk configurations"
+}
+
+variable "expose_metrics" {
+  type        = bool
+  default     = false
+  description = "Whether to enable prometheus node-exporter as system service container"
 }
 
 variable "expose_docker_socket" {
