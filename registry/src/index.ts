@@ -120,7 +120,7 @@ registry.post(`/:namespace/:name/:provider/versions`, bearerAuth({ verifyToken }
 				`modules:${selector}`,
 				JSON.stringify({
 					...module,
-					verions: [nextVersion, ...module.versions],
+					versions: [nextVersion, ...module.versions],
 					published_at: new Date().toISOString(),
 				}),
 			)
