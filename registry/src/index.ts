@@ -175,13 +175,13 @@ registry.get(`/:namespace/:name/:provider/download`, async (context: Context) =>
 });
 
 registry.get(`/:namespace/:name/:provider/:version/download`, async (context: Context) => {
-	const { namespace, name, provider, version } = context.req.param();
+	const { ...selector } = context.req.param();
 	const result: R2Objects = await context.env.artifact.list({
-		prefix: `${namespace}/${name}/${provider}/${version}`,
+		prefix: `modules/${Object.values(selector).join('/')}`,
 	});
 	if (result.objects.length > 0) {
-		context.header('X-Terraform-Get', `https://artifact.narwhl.dev/modules/${result.objects[0].key}`);
-		return context.status(204);
+		context.header('X-Terraform-Get', `https://artifact.narwhl.dev/${result.objects[0].key}`);
+		return context.body(null, 204);
 	} else {
 		return context.json(
 			{
