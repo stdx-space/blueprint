@@ -171,6 +171,7 @@ registry.get(`/:namespace/:name/:provider/download`, async (context: Context) =>
 		const value = await context.env.modules.get(`modules:${selector}`);
 		const module = JSON.parse(value) as Module;
 		context.header('X-Terraform-Get', `https://artifact.narwhl.dev/modules/${selector}/${module.versions[0]}.tar.gz`);
+		return context.body(null, 204);
 	} catch (error) {}
 });
 

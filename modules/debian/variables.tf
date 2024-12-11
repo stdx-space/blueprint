@@ -22,11 +22,16 @@ variable "default_packages" {
     "jq",
     "net-tools",
     "podman",
-    "prometheus-node-exporter",
     "qemu-guest-agent",
     "rsync",
     "vim",
   ]
+}
+
+variable "expose_metrics" {
+  type        = bool
+  default     = false
+  description = "Whether to enable prometheus node-exporter as system service container"
 }
 
 variable "username" {
@@ -49,10 +54,7 @@ variable "password" {
 variable "ssh_authorized_keys" {
   type        = list(string)
   description = "SSH public keys"
-  validation {
-    condition     = length(var.ssh_authorized_keys) > 0
-    error_message = "At least one SSH public key must be set to prevent locked out"
-  }
+  default     = []
 }
 
 variable "ssh_import_id" {
@@ -176,8 +178,3 @@ variable "base64_encode" {
   description = "Whether to base64 encode the configuration"
 }
 
-locals {
-  remote_ssh_keys = [
-    for item in var.ssh_authorized_keys : item if startswith(item, "http")
-  ]
-}

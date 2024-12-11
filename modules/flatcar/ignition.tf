@@ -1,6 +1,12 @@
 data "ignition_user" "operator" {
   name                = var.username
   ssh_authorized_keys = local.ssh_authorized_keys
+  lifecycle {
+    precondition {
+      condition     = length(var.ssh_authorized_keys) > 0 || var.disable_ssh == true
+      error_message = "SSH keys must be set to prevent lockout if SSH wasn't disabled"
+    }
+  }
 }
 
 data "ignition_user" "external" {

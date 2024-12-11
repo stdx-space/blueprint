@@ -21,7 +21,7 @@ variable "username" {
 variable "autologin" {
   type        = bool
   description = "Whether Flatcar will autologin in console"
-  default     = true
+  default     = false
 }
 
 variable "disable_ssh" {
@@ -149,16 +149,17 @@ variable "base64_encode" {
 variable "ssh_authorized_keys" {
   type        = list(string)
   description = "List of SSH public keys to add to the VM"
-  validation {
-    condition     = var.disable_ssh || length(var.ssh_authorized_keys) > 0
-    error_message = "At least one SSH public key must be set to prevent locked out"
-  }
+  default     = []
 }
 
 variable "ssh_keys_import" {
   type        = list(string)
   description = "List of URLs to fetch SSH public keys from"
   default     = []
+  validation {
+    condition     = length(var.ssh_import_id) == 0 || alltrue([for item in var.ssh_import_id : startswith(item, "http")])
+    error_message = "SSH key import ID must be a valid URL"
+  }
 }
 
 locals {
