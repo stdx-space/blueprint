@@ -30,6 +30,8 @@ module "flatcar" {
 
 `expose_docker_socket`: Whether to enable docker socket to be accessible via a TCP listener, defaults to `false`.
 
+`expose_metrics`: Whether to enable prometheus node-exporter as systemd service container, defaults to `false`.
+
 `network`: (optional) CIDR notation for the network to be used for the Flatcar instance, e.g `10.0.0.0/16`.
 
 `ip_address`: (optional) Static IP address to assign to the Flatcar instance, e.g `10.0.0.10`.
