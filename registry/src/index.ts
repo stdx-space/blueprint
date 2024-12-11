@@ -166,20 +166,31 @@ registry.get(`/:namespace/:name/:provider/versions`, async (context: Context) =>
 
 registry.get(`/:namespace/:name/:provider/download`, async (context: Context) => {
 	try {
-		const { name, namespace, provider } = context.req.param();
-		const selector = `${namespace}/${name}/${provider}`;
+		const { ...params } = context.req.param();
+		const selector = Object.values(params).join('/');
 		const value = await context.env.modules.get(`modules:${selector}`);
 		const module = JSON.parse(value) as Module;
+		await context.env.modules.put(`modules:${selector}`, JSON.stringify({
+			...module,
+			downloads: module.downloads + 1,
+		}));
 		context.header('X-Terraform-Get', `https://artifact.narwhl.dev/modules/${selector}/${module.versions[0]}.tar.gz`);
 		return context.body(null, 204);
 	} catch (error) {}
 });
 
 registry.get(`/:namespace/:name/:provider/:version/download`, async (context: Context) => {
-	const { ...selector } = context.req.param();
+	const { ...params } = context.req.param();
+	const selector = Object.values(params).join('/');
 	const result: R2Objects = await context.env.artifact.list({
-		prefix: `modules/${Object.values(selector).join('/')}`,
+		prefix: `modules/${selector}`,
 	});
+	const value = await context.env.modules.get(`modules:${selector}`);
+	const module = JSON.parse(value) as Module;
+	await context.env.modules.put(`modules:${selector}`, JSON.stringify({
+		...module,
+		downloads: module.downloads + 1,
+	}));
 	if (result.objects.length > 0) {
 		context.header('X-Terraform-Get', `https://artifact.narwhl.dev/${result.objects[0].key}`);
 		return context.body(null, 204);

@@ -157,7 +157,7 @@ variable "ssh_keys_import" {
   description = "List of URLs to fetch SSH public keys from"
   default     = []
   validation {
-    condition     = length(var.ssh_import_id) == 0 || alltrue([for item in var.ssh_import_id : startswith(item, "http")])
+    condition     = length(var.ssh_keys_import) == 0 || alltrue([for item in var.ssh_keys_import : startswith(item, "http")])
     error_message = "SSH key import ID must be a valid URL"
   }
 }

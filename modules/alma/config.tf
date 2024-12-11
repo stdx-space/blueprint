@@ -10,8 +10,8 @@ data "http" "ca_certs" {
 }
 
 data "http" "ssh_keys_import" {
-  count = length(var.ssh_import_id)
-  url   = var.ssh_import_id[count.index]
+  count = length(var.ssh_keys_import)
+  url   = var.ssh_keys_import[count.index]
 }
 
 data "http" "repositories" {
