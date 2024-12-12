@@ -6,14 +6,14 @@ Include output `manifest` in `substrates` of `debian` or `flatcar` module.
 
 ```terraform
 module "nomad" {
-    source = "github.com/narwhl/blueprint//modules/nomad"
+    source = "registry.narwhl.workers.dev/service/nomad/systemd"
     datacenter_name = "dc1"
     role            = "server"
 }
 
 # Alternatively, you may use Flatcar module
 module "debian" {
-  source = "github.com/narwhl/blueprint//modules/debian"
+  source = "registry.narwhl.workers.dev/os/debian/cloudinit"
   name   = "debian-vm"
   substrates = [
     module.nomad.manifest,
