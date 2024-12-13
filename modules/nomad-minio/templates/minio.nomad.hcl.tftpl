@@ -21,6 +21,12 @@ job "${job_name}" {
       port "web" {
         to = 9001
       }
+
+%{ for config in https_configs ~}
+      port "tls" {
+        to = 8443
+      }
+%{ endfor ~}
     }
 
     service {
@@ -60,6 +66,14 @@ job "${job_name}" {
       }
     }
 
+    service {
+      name     = "minio-tls"
+      port     = "tls"
+%{ for config in nomad_service_configs ~}
+      provider = "nomad"
+%{ endfor ~}
+    }
+
     task "minio" {
       driver = "docker"
 
@@ -85,5 +99,40 @@ job "${job_name}" {
       }
 %{ endfor ~}
     }
+
+%{ for config in https_configs ~}
+    task "minio-tls-proxy" {
+      driver = "docker"
+
+      lifecycle {
+        hook    = "poststart"
+        sidecar = true
+      }
+
+      config {
+        image = "caddy:2"
+
+        args = [
+          "caddy",
+          "run",
+          "--config",
+          "/local/conf/Caddyfile",
+        ]
+      }
+
+      template {
+        # https://caddy.community/t/https-on-a-local-ip-address-with-docker/11096/5
+        data = <<EOH
+:8443 {
+    reverse_proxy :9000
+    tls internal {
+        on_demand
+    }
+}
+EOH
+        destination = "local/conf/Caddyfile"
+      }
+    }
+%{ endfor ~}
   }
 }

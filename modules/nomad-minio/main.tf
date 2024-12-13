@@ -19,6 +19,7 @@ resource "nomad_job" "minio" {
     consul_service_configs         = var.service_discovery_provider == "consul" ? [{}] : []
     consul_connect_service_configs = var.service_discovery_provider == "consul-connect" ? [{}] : []
     nomad_service_configs          = var.service_discovery_provider == "nomad" ? [{}] : []
+    https_configs                  = var.enable_https ? [{}] : []
   })
   purge_on_destroy = var.purge_on_destroy
 }
