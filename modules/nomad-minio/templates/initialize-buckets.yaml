@@ -1,0 +1,20 @@
+---
+- name: Create an S3 bucket
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+      - initialize-buckets-vars.yaml
+  tasks:
+      - name: Install boto3
+        community.general.apk:
+            name: py3-boto3
+            state: present
+      - name: Create a new S3 bucket
+        amazon.aws.s3_bucket:
+            name: "{{ item }}"
+            endpoint_url: "{{ aws_endpoint_url }}"
+            access_key: "{{ aws_access_key }}"
+            secret_key: "{{ aws_secret_key }}"
+            state: present
+            region: us-east-1
+        loop: "{{ s3_buckets }}"

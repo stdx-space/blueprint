@@ -100,6 +100,36 @@ job "${job_name}" {
 %{ endfor ~}
     }
 
+    task "minio-initialize-buckets" {
+      lifecycle {
+        hook    = "poststart"
+        sidecar = false
+      }
+      driver = "docker"
+
+      config {
+        image = "alpine/ansible:latest"
+        command = "ansible-playbook"
+        args  = ["local/initialize-buckets.yaml"]
+      }
+
+      template {
+        data        = <<-EOF
+${initialize_buckets_playbook}
+EOF
+        destination     = "local/initialize-buckets.yaml"
+        left_delimiter  = "<<"
+        right_delimiter = ">>"
+      }
+
+      template {
+        data        = <<-EOF
+${initialize_buckets_vars}
+EOF
+        destination = "local/initialize-buckets-vars.yaml"
+      }
+    }
+
 %{ for config in https_configs ~}
     task "minio-tls-proxy" {
       driver = "docker"

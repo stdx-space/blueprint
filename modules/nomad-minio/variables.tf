@@ -24,6 +24,12 @@ variable "minio_superuser_password" {
   sensitive = true
 }
 
+variable "create_buckets" {
+  type        = list(string)
+  default     = []
+  description = "List of buckets to create"
+}
+
 variable "host_volume_config" {
   type = object({
     source    = string
