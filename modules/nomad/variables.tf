@@ -30,7 +30,7 @@ variable "log_level" {
 
 variable "role" {
   type        = string
-  default     = "client"
+  default     = "server"
   description = "Role of the Nomad agent"
   validation {
     condition     = var.role == "client" || var.role == "server"
