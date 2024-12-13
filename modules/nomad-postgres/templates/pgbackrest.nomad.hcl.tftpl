@@ -8,6 +8,10 @@ job "${job_name}" {
   }
 
   group "${job_name}" {
+    constraint {
+      attribute = "$${attr.os.name}"
+      value     = "debian"
+    }
     volume "postgres-socket" {
       type   = "host"
       source = "${postgres_socket_host_volume_name}"
@@ -59,4 +63,3 @@ EOH
     }
   }
 }
-

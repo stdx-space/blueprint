@@ -41,11 +41,18 @@ variable "pgbackrest_restore_job_name" {
   default = "pgbackrest-restore"
 }
 
+variable "postgres_superuser_password" {
+  type        = string
+  default     = ""
+  description = "Password of the postgres superuser"
+}
+
 variable "postgres_init" {
   type = list(object({
-    database = string
-    user     = optional(string, "")
-    password = optional(string, "")
+    database    = string
+    user        = optional(string, "")
+    password    = optional(string, "")
+    create_user = optional(bool, true)
   }))
   default     = []
   description = "The PostgreSQL databases and users to be created. The user will have the same name as the database if not specified. Leave password empty if it should be generated. Can be in Go (Nomad) template syntax for accessing Consul K/V, Vault secrets or Nomad variables, etc."
@@ -105,4 +112,10 @@ variable "restore_backup" {
   type        = bool
   default     = false
   description = "Whether to restore backup from specified S3 bucket"
+}
+
+variable "purge_on_destroy" {
+  type        = bool
+  description = "Whether to purge the job on destroy"
+  default     = false
 }
