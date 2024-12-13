@@ -109,9 +109,11 @@ variable "postgres_host_volumes_name" {
 }
 
 variable "restore_backup" {
-  type        = bool
-  default     = false
-  description = "Whether to restore backup from specified S3 bucket"
+  type = object({
+    backup_set = optional(string, "latest")
+  })
+  default     = null
+  description = "Backup restore configuration. If not null, creates a one-off restore job to restore with specified config."
 }
 
 variable "purge_on_destroy" {

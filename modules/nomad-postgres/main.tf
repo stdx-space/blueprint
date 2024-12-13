@@ -55,6 +55,7 @@ resource "random_password" "postgres_superuser_password" {
 }
 
 resource "nomad_job" "postgres" {
+  count = var.restore_backup != null ? 0 : 1
   jobspec = templatefile(
     "${path.module}/templates/postgres.nomad.hcl.tftpl",
     {
@@ -85,7 +86,7 @@ resource "nomad_job" "postgres" {
 }
 
 resource "nomad_job" "postgres_init" {
-  count = var.restore_backup ? 0 : 1
+  count = var.restore_backup != null ? 0 : 1
   jobspec = templatefile(
     "${path.module}/templates/postgres-init.nomad.hcl.tftpl",
     {
@@ -117,7 +118,7 @@ resource "nomad_job" "pgbackrest" {
 }
 
 resource "nomad_job" "pgbackrest_init" {
-  count = var.restore_backup || var.pgbackrest_s3_config == null ? 0 : 1
+  count = var.restore_backup != null || var.pgbackrest_s3_config == null ? 0 : 1
   jobspec = templatefile(
     "${path.module}/templates/pgbackrest-init.nomad.hcl.tftpl",
     {
@@ -134,7 +135,7 @@ resource "nomad_job" "pgbackrest_init" {
 }
 
 resource "nomad_job" "pgbackrest_restore" {
-  count = var.restore_backup ? 1 : 0
+  count = var.restore_backup != null ? 1 : 0
   jobspec = templatefile(
     "${path.module}/templates/pgbackrest-restore.nomad.hcl.tftpl",
     {
