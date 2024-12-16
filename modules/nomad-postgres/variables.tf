@@ -21,8 +21,24 @@ variable "consul_connect" {
 }
 
 variable "backup_schedule" {
-  type        = string
-  default     = "@weekly"
+  type = object({
+    full = object({
+      schedule        = string
+      retention_count = number
+    })
+    incremental = object({
+      schedule = string
+    })
+  })
+  default = {
+    full = {
+      schedule        = "@weekly"
+      retention_count = 4
+    }
+    incremental = {
+      schedule = "@daily"
+    }
+  }
   description = "Backup schedule in cron syntax"
 }
 

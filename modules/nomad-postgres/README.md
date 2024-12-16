@@ -18,7 +18,15 @@ module "nomad_postgres" {
     secret_key = "<secret_key>"
     region     = "us-east-1"
   }
-  backup_schedule = "@weekly"
+  backup_schedule = {
+    full = {
+      schedule        = "@weekly" # schedule defined in cron syntax
+      retention_count = 4         # number of full backups to keep
+    }
+    incremental = {
+      schedule = "@daily"
+    }
+  }
   # Do not provide restore_backup config unless performing a restore
   # restore_backup = {
   #   backup_set = "latest"
@@ -100,6 +108,29 @@ If backup is enabled (i.e. pgbackrest_s3_config is not null), the module will
 create a periodic job to backup the cluster with pgbackrest. Apart from
 periodic backups, it also updates PostgreSQL configuration to send WAL files
 to the backup location for online backup.
+
+### Schedule
+
+The module runs 2 kinds of backups: full and incremental. The full backup
+includes all data files and the incremental backup only includes incremental
+changes since the last backup.
+
+The backup schedule is configured by setting the `backup_schedule` configuration.
+
+```terraform
+module "nomad_postgres" {
+  ...
+  backup_schedule = {
+    full = {
+      schedule        = "@weekly" # schedule defined in cron syntax
+      retention_count = 4         # number of full backups to keep
+    }
+    incremental = {
+      schedule = "@daily"
+    }
+  }
+}
+```
 
 ### Restoration
 

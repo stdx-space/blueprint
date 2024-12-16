@@ -2,13 +2,14 @@ locals {
   pgbackrest_conf = var.pgbackrest_s3_config == null ? "" : templatefile(
     "${path.module}/templates/pgbackrest.conf.tftpl",
     {
-      s3_endpoint         = var.pgbackrest_s3_config.endpoint
-      s3_bucket           = var.pgbackrest_s3_config.bucket
-      s3_access_key       = var.pgbackrest_s3_config.access_key
-      s3_secret_key       = var.pgbackrest_s3_config.secret_key
-      s3_region           = var.pgbackrest_s3_config.region
-      s3_force_path_style = var.pgbackrest_s3_config.force_path_style
-      pgbackrest_stanza   = var.pgbackrest_stanza
+      s3_endpoint          = var.pgbackrest_s3_config.endpoint
+      s3_bucket            = var.pgbackrest_s3_config.bucket
+      s3_access_key        = var.pgbackrest_s3_config.access_key
+      s3_secret_key        = var.pgbackrest_s3_config.secret_key
+      s3_region            = var.pgbackrest_s3_config.region
+      s3_force_path_style  = var.pgbackrest_s3_config.force_path_style
+      full_retention_count = var.backup_schedule.full.retention_count
+      pgbackrest_stanza    = var.pgbackrest_stanza
     }
   )
   postgres_superuser_password = var.postgres_superuser_password == "" ? random_password.postgres_superuser_password[0].result : var.postgres_superuser_password
@@ -99,7 +100,7 @@ resource "nomad_job" "postgres_init" {
   purge_on_destroy = var.purge_on_destroy
 }
 
-resource "nomad_job" "pgbackrest" {
+resource "nomad_job" "pgbackrest_full" {
   count = var.pgbackrest_s3_config == null ? 0 : 1
   jobspec = templatefile(
     "${path.module}/templates/pgbackrest.nomad.hcl.tftpl",
@@ -108,7 +109,27 @@ resource "nomad_job" "pgbackrest" {
       datacenter_name                  = var.datacenter_name
       pgbackrest_conf                  = local.pgbackrest_conf
       pgbackrest_stanza                = var.pgbackrest_stanza
-      backup_schedule                  = var.backup_schedule
+      backup_schedule                  = var.backup_schedule.full.schedule
+      backup_type                      = "full"
+      postgres_socket_host_volume_name = var.postgres_host_volumes_name.socket
+      postgres_data_host_volume_name   = var.postgres_host_volumes_name.data
+      postgres_log_host_volume_name    = var.postgres_host_volumes_name.log
+    }
+  )
+  purge_on_destroy = var.purge_on_destroy
+}
+
+resource "nomad_job" "pgbackrest_incremental" {
+  count = var.pgbackrest_s3_config == null ? 0 : 1
+  jobspec = templatefile(
+    "${path.module}/templates/pgbackrest.nomad.hcl.tftpl",
+    {
+      job_name                         = var.pgbackrest_job_name
+      datacenter_name                  = var.datacenter_name
+      pgbackrest_conf                  = local.pgbackrest_conf
+      pgbackrest_stanza                = var.pgbackrest_stanza
+      backup_schedule                  = var.backup_schedule.incremental.schedule
+      backup_type                      = "incr"
       postgres_socket_host_volume_name = var.postgres_host_volumes_name.socket
       postgres_data_host_volume_name   = var.postgres_host_volumes_name.data
       postgres_log_host_volume_name    = var.postgres_host_volumes_name.log

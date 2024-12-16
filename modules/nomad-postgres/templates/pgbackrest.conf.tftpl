@@ -9,7 +9,7 @@ repo1-storage-verify-tls=n
 %{ if s3_force_path_style == true }repo1-s3-uri-style=path
 %{ endif }repo1-path=/pgbackrest
 
-repo1-retention-full=1
+repo1-retention-full=${full_retention_count}
 start-fast=y
 archive-async=y
 
