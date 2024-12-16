@@ -66,6 +66,7 @@ job "${job_name}" {
       }
     }
 
+%{ for config in https_configs ~}
     service {
       name     = "minio-tls"
       port     = "tls"
@@ -73,6 +74,7 @@ job "${job_name}" {
       provider = "nomad"
 %{ endfor ~}
     }
+%{ endfor ~}
 
     task "minio" {
       driver = "docker"
