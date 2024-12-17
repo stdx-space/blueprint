@@ -3,6 +3,10 @@ job "${job_name}" {
   type        = "batch"
 
   group "${job_name}" {
+    constraint {
+      attribute = "$${attr.os.name}"
+      value     = "debian"
+    }
     volume "postgres-socket" {
       type   = "host"
       source = "${postgres_socket_host_volume_name}"
@@ -14,6 +18,25 @@ job "${job_name}" {
     volume "postgres-log" {
       type   = "host"
       source = "${postgres_log_host_volume_name}"
+    }
+    task "${job_name}-init" {
+      driver = "exec"
+      lifecycle {
+        hook    = "prestart"
+        sidecar = false
+      }
+      volume_mount {
+        volume      = "postgres-data"
+        destination = "/var/lib/postgresql"
+      }
+      config {
+        command = "/usr/bin/find"
+        args = [
+          "/var/lib/postgresql/15/main",
+          "-mindepth", "1",
+          "-delete",
+        ]
+      }
     }
     task "${job_name}" {
       driver = "exec"
@@ -35,7 +58,7 @@ job "${job_name}" {
 
       config {
         command = "/usr/bin/pgbackrest"
-        args    = [
+        args = [
           "--config", "$${NOMAD_TASK_DIR}/pgbackrest.conf",
           "--stanza=${pgbackrest_stanza}",
           "--delta",
@@ -54,4 +77,3 @@ EOH
     }
   }
 }
-

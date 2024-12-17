@@ -1,4 +1,4 @@
-job "${job_name}" {
+job "${job_name}-${backup_type}" {
   datacenters = ["*"]
   type        = "batch"
 
@@ -7,7 +7,11 @@ job "${job_name}" {
     prohibit_overlap = true
   }
 
-  group "${job_name}" {
+  group "${job_name}-${backup_type}" {
+    constraint {
+      attribute = "$${attr.os.name}"
+      value     = "debian"
+    }
     volume "postgres-socket" {
       type   = "host"
       source = "${postgres_socket_host_volume_name}"
@@ -20,7 +24,7 @@ job "${job_name}" {
       type   = "host"
       source = "${postgres_log_host_volume_name}"
     }
-    task "${job_name}" {
+    task "${job_name}-${backup_type}" {
       driver = "exec"
 
       volume_mount {
@@ -43,7 +47,7 @@ job "${job_name}" {
         args    = [
           "--config", "$${NOMAD_TASK_DIR}/pgbackrest.conf",
           "--stanza=${pgbackrest_stanza}",
-          "--type=full",
+          "--type=${backup_type}",
           "backup"
         ]
       }
@@ -59,4 +63,3 @@ EOH
     }
   }
 }
-

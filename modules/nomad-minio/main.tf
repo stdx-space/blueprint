@@ -19,6 +19,14 @@ resource "nomad_job" "minio" {
     consul_service_configs         = var.service_discovery_provider == "consul" ? [{}] : []
     consul_connect_service_configs = var.service_discovery_provider == "consul-connect" ? [{}] : []
     nomad_service_configs          = var.service_discovery_provider == "nomad" ? [{}] : []
+    https_configs                  = var.enable_https ? [{}] : []
+    initialize_buckets_playbook    = file("${path.module}/templates/initialize-buckets.yaml")
+    initialize_buckets_vars = yamlencode({
+      aws_access_key   = var.minio_superuser_name
+      aws_secret_key   = local.minio_superuser_password
+      aws_endpoint_url = "http://localhost:9000"
+      s3_buckets       = var.create_buckets
+    })
   })
   purge_on_destroy = var.purge_on_destroy
 }

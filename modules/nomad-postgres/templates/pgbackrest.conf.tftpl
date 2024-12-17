@@ -5,10 +5,11 @@ repo1-s3-bucket=${s3_bucket}
 repo1-s3-key=${s3_access_key}
 repo1-s3-key-secret=${s3_secret_key}
 repo1-s3-region=${s3_region}
+repo1-storage-verify-tls=n
 %{ if s3_force_path_style == true }repo1-s3-uri-style=path
-%{ endif }repo1-path=/var/lib/pgbackrest
+%{ endif }repo1-path=/pgbackrest
 
-repo1-retention-full=1
+repo1-retention-full=${full_retention_count}
 start-fast=y
 archive-async=y
 

@@ -24,6 +24,12 @@ variable "minio_superuser_password" {
   sensitive = true
 }
 
+variable "create_buckets" {
+  type        = list(string)
+  default     = []
+  description = "List of buckets to create"
+}
+
 variable "host_volume_config" {
   type = object({
     source    = string
@@ -59,5 +65,10 @@ variable "service_discovery_provider" {
     condition     = contains(["nomad", "consul", "consul-connect"], var.service_discovery_provider)
     error_message = "Service discovery provider must be one of: nomad, consul"
   }
-  description = "Service discovery provider to use for the Nomad job"
+}
+
+variable "enable_https" {
+  type        = bool
+  default     = false
+  description = "Whether HTTPS proxy should be enabled. Used to support TLS only use cases like pgbackrest."
 }

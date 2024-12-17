@@ -21,8 +21,24 @@ variable "consul_connect" {
 }
 
 variable "backup_schedule" {
-  type        = string
-  default     = "@weekly"
+  type = object({
+    full = object({
+      schedule        = string
+      retention_count = number
+    })
+    incremental = object({
+      schedule = string
+    })
+  })
+  default = {
+    full = {
+      schedule        = "@weekly"
+      retention_count = 4
+    }
+    incremental = {
+      schedule = "@daily"
+    }
+  }
   description = "Backup schedule in cron syntax"
 }
 
@@ -41,11 +57,18 @@ variable "pgbackrest_restore_job_name" {
   default = "pgbackrest-restore"
 }
 
+variable "postgres_superuser_password" {
+  type        = string
+  default     = ""
+  description = "Password of the postgres superuser"
+}
+
 variable "postgres_init" {
   type = list(object({
-    database = string
-    user     = optional(string, "")
-    password = optional(string, "")
+    database    = string
+    user        = optional(string, "")
+    password    = optional(string, "")
+    create_user = optional(bool, true)
   }))
   default     = []
   description = "The PostgreSQL databases and users to be created. The user will have the same name as the database if not specified. Leave password empty if it should be generated. Can be in Go (Nomad) template syntax for accessing Consul K/V, Vault secrets or Nomad variables, etc."
@@ -102,7 +125,15 @@ variable "postgres_host_volumes_name" {
 }
 
 variable "restore_backup" {
+  type = object({
+    backup_set = optional(string, "latest")
+  })
+  default     = null
+  description = "Backup restore configuration. If not null, creates a one-off restore job to restore with specified config."
+}
+
+variable "purge_on_destroy" {
   type        = bool
+  description = "Whether to purge the job on destroy"
   default     = false
-  description = "Whether to restore backup from specified S3 bucket"
 }
