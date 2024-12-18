@@ -4,7 +4,7 @@
 
 ```hcl
 module "vsphere" {
-  source = "github.com/narwhl/blueprint//modules/vsphere"
+  source = "registry.narwhl.workers.dev/hypervisor/vm/vsphere"
   name                = "vm-name"                                 # required
   vcpus               = 4                                         # optional, defaults to 1
   memory              = 4096                                      # optional, defaults to 512MBs

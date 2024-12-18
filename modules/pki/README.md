@@ -4,7 +4,7 @@
 
 ```hcl
 module "pki" {
-  source              = "github.com/narwhl/blueprint//modules/pki"
+  source              = "registry.narwhl.workers.dev/generic/pki/tls"
   root_ca_common_name = "ACME"         # required
   root_ca_org_name    = "ACME Inc"     # required
   root_ca_org_unit    = "Product Team" # required
