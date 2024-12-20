@@ -15,6 +15,24 @@ module "ingress" {
 }
 ```
 
+## Cloudflare Tunnel Configuration Source
+
+Cloudflare tunnel have two modes of configuration source, which can be
+specified via `cloudflare_tunnel_config_source` variable:
+
+- local: cloudflare uses the tunnel configuration from local configuration file
+in the container. The module uses the template functionality in Nomad to render
+a dynamic configuration file pointing to `traefik` address depending on
+`traefik` consul service address at runtime.
+- cloudflare: cloudflare uses the tunnel configuration from the cloudflare. The
+module will fetch `traefik` address from the `traefik` consul service while
+applying the Terraform configuration and upload the tunnel configuration to
+cloudflare during Terraform apply.
+
+You are recommendend to use `local` as configuration source as the ingress
+config can be updated dynamically without the need of re-applying the Terraform
+configuration.
+
 ## Default Traefik Configuration
 
 By default, this module sets up 2 entrypoints for traefik ingress:
