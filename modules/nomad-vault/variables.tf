@@ -18,6 +18,11 @@ variable "log_level" {
   }
 }
 
+variable "skip_create_bucket" {
+  type    = bool
+  default = true
+}
+
 variable "bucket" {
   type        = string
   description = "S3 bucket name"

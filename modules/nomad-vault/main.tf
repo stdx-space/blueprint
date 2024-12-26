@@ -1,5 +1,10 @@
 data "cloudflare_api_token_permission_groups" "all" {}
 
+resource "cloudflare_r2_bucket" "this" {
+  count      = var.skip_create_bucket ? 0 : 1
+  account_id = data.external.env.result.CLOUDFLARE_ACCOUNT_ID
+  name       = var.bucket
+}
 resource "cloudflare_api_token" "this" {
   name = "vault"
 
@@ -12,7 +17,7 @@ resource "cloudflare_api_token" "this" {
       format(
         "com.cloudflare.edge.r2.bucket.%s_default_%s",
         data.external.env.result.CLOUDFLARE_ACCOUNT_ID,
-        "vault"
+        var.bucket
       ) = "*"
     }
   }
@@ -25,7 +30,7 @@ resource "tailscale_tailnet_key" "this" {
 }
 
 resource "tailscale_webhook" "this" {
-  endpoint_url = ""
+  endpoint_url  = ""
   subscriptions = ["subnetIPForwardingNotEnabled", "nodeCreated"]
 }
 
