@@ -4,7 +4,7 @@
 
 ```hcl
 module "nomad_minio" {
-  source          = "github.com/narwhl/blueprint//modules/nomad-minio"
+  source          = "registry.narwhl.workers.dev/stack/minio/nomad"
   datacenter_name = "dc1"
   minio_hostname  = "files.example.app"
 }

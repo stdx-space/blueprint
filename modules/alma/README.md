@@ -4,7 +4,7 @@
 
 ```hcl
 module "alma" {
-  source = "github.com/narwhl/blueprint//modules/alma"
+  source = "registry.narwhl.workers.dev/os/alma/cloudinit"
   name   = "vm-name"
 }
 ```
@@ -46,7 +46,7 @@ writing, this module does not export a network-data config and it's intented to 
 
 ```
 module "instance" {
-  source              = "github.com/narwhl/blueprint//modules/proxmox"
+  source              = "registry.narwhl.workers.dev/hypervisor/vm/proxmox"
   name                = "vm-test"
   node                = "pve"
   vcpus               = 4

@@ -9,7 +9,7 @@ Below is an example of how to use this module to create a PostgreSQL cluster wit
 
 ```terraform
 module "nomad_postgres" {
-  source = "github.com/narwhl/blueprint//modules/nomad-postgres"
+  source          = "registry.narwhl.workers.dev/stack/postgres/nomad"
   datacenter_name = "dc1"
   pgbackrest_s3_config = {
     endpoint   = "https://${data.cloudflare_accounts.cf_account.accounts[0].id}.r2.cloudflarestorage.com"
@@ -47,7 +47,7 @@ If you are using `debian` module, you may refer to the below example.
 
 ```terraform
 module "debian" {
-  source = "github.com/narwhl/blueprint//modules/debian"
+  source = "registry.narwhl.workers.dev/os/debian/cloudinit"
   name   = "vm-name"
   ...
   additional_packages = [
@@ -74,7 +74,7 @@ To run `nomad-postgres` module, you need to configure 3 host volumes `postgres-d
 ```terraform
 
 module "nomad" {
-  source = "github.com/narwhl/blueprint//modules/nomad"
+  source = "registry.narwhl.workers.dev/service/nomad/systemd"
   datacenter_name = "dc1"
   role            = "server"
   host_volume     = {

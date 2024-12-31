@@ -4,7 +4,7 @@
 
 ```hcl
 module "typesense" {
-  source                = "github.com/narwhl/blueprint//modules/nomad-typesense"
+  source                = "registry.narwhl.workers.dev/stack/typesense/nomad"
   datacenter_name       = local.datacenter_name      # Nomad datacenter name
   typesense_version     = "26.0"                     # Typesense version
   typesense_api_key     = "<your-typesense-api-key>" # Typesense API key

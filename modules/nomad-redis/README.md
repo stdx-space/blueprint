@@ -4,7 +4,7 @@
 
 ```hcl
 module "redis" {
-  source                = "github.com/narwhl/blueprint//modules/nomad-redis"
+  source                = "registry.narwhl.workers.dev/stack/redis/nomad"
   datacenter_name       = local.datacenter_name # Nomad datacenter name
   redis_version         = "7"                   # Redis version
   enable_ephemeral_disk = true                  # Enable Nomad ephemeral disk for the storing redis data temporarily. Cannot be used with host volumes.
@@ -43,7 +43,7 @@ volume. This should be under the `client` stanza.
 
 ```hcl
 host_volume "host-volume-name" {
-  path      = "/opt/typesense/data"
+  path      = "/opt/redis/data"
   read_only = false
 }
 ```
