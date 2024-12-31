@@ -52,7 +52,7 @@ jobs:
           script: |
             const files = `${{ steps.changed.outputs.files }}`.split('\n').filter(file => file.length > 0);
             const moduleDirectories = `${{ steps.changed.outputs.directories }}`.split('\n').filter(directory => directory.length > 0);
-            const changedModules = moduleDirectories.filter(moduleDirectory => files.some(file => file.startsWith(`modules/${moduleDirectory}`)))
+            const changedModules = moduleDirectories.filter(moduleDirectory => files.some(file => file.startsWith(`modules/${moduleDirectory}/`)));
             return JSON.stringify(changedModules);
   publish:
     needs: dispatch
