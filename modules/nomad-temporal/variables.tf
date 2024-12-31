@@ -1,6 +1,6 @@
 variable "job_name" {
   type    = string
-  default = "temporal" 
+  default = "temporal"
 }
 
 variable "datacenter_name" {
