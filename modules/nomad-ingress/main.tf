@@ -118,7 +118,7 @@ resource "nomad_job" "ingress-gateway" {
           credentials-file = "{{ env `NOMAD_SECRETS_DIR` }}/tunnel-credentials.json"
           ingress = [merge({
             service = "{{ with service `${local.consul_service_name}` }}{{ with index . 0 }}${local.protocol}://{{ .Address }}:{{ .Port }}{{ end }}{{ end }}"
-          }, var.use_https ? {
+            }, var.use_https ? {
             originRequest = {
               noTLSVerify = true
               http2Origin = true
