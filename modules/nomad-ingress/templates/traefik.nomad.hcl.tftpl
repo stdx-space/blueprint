@@ -22,7 +22,7 @@ job "${job_name}" {
     }
 
     service {
-      port = "http"
+      port = "${protocol}"
 %{ for c in consul_config ~}
       name = "${c.service_name}"
       connect {

@@ -114,6 +114,18 @@ variable "registration_webhooks" {
   default = []
 }
 
+variable "traefik_entrypoint" {
+  type = object({
+    http  = optional(string, "http")
+    https = optional(string, "https")
+  })
+  default = {
+    http  = "http"
+    https = "https"
+  }
+  description = "Traefik entrypoint to use"
+}
+
 locals {
   hydra_fqdn         = "${var.hydra_subdomain}.${var.root_domain}"
   kratos_public_fqdn = "${var.kratos_public_subdomain}.${var.root_domain}"

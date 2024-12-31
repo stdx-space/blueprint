@@ -1,5 +1,6 @@
 locals {
   consul_service_name = var.consul_provider_config != null ? (var.consul_provider_config.service_name == "" ? var.controller_job_name : var.consul_provider_config.service_name) : "${var.controller_job_name}-ingress-controller"
+  protocol            = var.use_https ? "https" : "http"
 }
 
 data "cloudflare_api_token_permission_groups" "all" {
@@ -43,7 +44,6 @@ resource "cloudflare_api_token" "dns_challenge_token" {
 }
 
 data "consul_service" "ingress" {
-  count      = var.cloudflare_account_id != "" && var.cloudflare_tunnel_config_source == "cloudflare" ? 1 : 0
   name       = local.consul_service_name
   datacenter = var.datacenter_name
 
@@ -60,7 +60,7 @@ resource "cloudflare_tunnel_config" "ingress" {
 
   config {
     ingress_rule {
-      service = "http://${data.consul_service.ingress[0].service[0].address}:${data.consul_service.ingress[0].service[0].port}"
+      service = "${local.protocol}://${data.consul_service.ingress.service[0].address}:${data.consul_service.ingress.service[0].port}"
     }
   }
 
@@ -74,6 +74,7 @@ resource "nomad_job" "ingress-controller" {
       job_name        = var.controller_job_name
       datacenter_name = var.datacenter_name
       version         = var.traefik_version
+      protocol        = local.protocol
       acme_config = var.acme_email == "" ? [] : [{
         acme_email   = var.acme_email
         cf_api_token = cloudflare_api_token.dns_challenge_token[0].value
@@ -115,9 +116,14 @@ resource "nomad_job" "ingress-gateway" {
         ingress_config = yamlencode({
           tunnel           = cloudflare_tunnel.ingress[0].id
           credentials-file = "{{ env `NOMAD_SECRETS_DIR` }}/tunnel-credentials.json"
-          ingress = [{
-            service = "{{ with service `${local.consul_service_name}` }}{{ with index . 0 }}http://{{ .Address }}:{{ .Port }}{{ end }}{{ end }}"
-          }]
+          ingress = [merge({
+            service = "{{ with service `${local.consul_service_name}` }}{{ with index . 0 }}${local.protocol}://{{ .Address }}:{{ .Port }}{{ end }}{{ end }}"
+          }, var.use_https ? {
+            originRequest = {
+              noTLSVerify = true
+              http2Origin = true
+            }
+          } : {})]
         })
       }] : []
     }

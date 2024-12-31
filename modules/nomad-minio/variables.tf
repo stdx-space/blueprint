@@ -72,3 +72,15 @@ variable "enable_https" {
   default     = false
   description = "Whether HTTPS proxy should be enabled. Used to support TLS only use cases like pgbackrest."
 }
+
+variable "traefik_entrypoint" {
+  type = object({
+    http  = optional(string, "http")
+    https = optional(string, "https")
+  })
+  default = {
+    http  = "http"
+    https = "https"
+  }
+  description = "Traefik entrypoint to use"
+}
