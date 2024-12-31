@@ -4,7 +4,7 @@
 
 ```hcl
 module "debian" {
-  source = "github.com/narwhl/blueprint//modules/debian"
+  source = "registry.narwhl.workers.dev/os/debian/cloudinit"
   name   = "vm-name"
 }
 ```

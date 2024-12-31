@@ -36,6 +36,7 @@ resource "nomad_job" "hydra-kratos" {
       hydra_public_fqdn  = local.hydra_fqdn
       kratos_config      = local.kratos_config
       kratos_public_fqdn = local.kratos_public_fqdn
+      traefik_entrypoint = var.traefik_entrypoint
     }
   )
 }

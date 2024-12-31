@@ -95,3 +95,9 @@ variable "consul_provider_config" {
   default     = null
   description = "Configuration for Consul Traefik integration. The address from Consul `consul` service will be used if address is left empty. TLS is not supported at the moment. Note that consul service discovery will only enable if the config value is not null. You need to supply an empty object if you use all defaulted values."
 }
+
+variable "use_https" {
+  type        = bool
+  description = "Whether to use https for ingress"
+  default     = false
+}

@@ -20,6 +20,7 @@ resource "nomad_job" "minio" {
     consul_connect_service_configs = var.service_discovery_provider == "consul-connect" ? [{}] : []
     nomad_service_configs          = var.service_discovery_provider == "nomad" ? [{}] : []
     https_configs                  = var.enable_https ? [{}] : []
+    traefik_entrypoint             = var.traefik_entrypoint
     initialize_buckets_playbook    = file("${path.module}/templates/initialize-buckets.yaml")
     initialize_buckets_vars = yamlencode({
       aws_access_key   = var.minio_superuser_name

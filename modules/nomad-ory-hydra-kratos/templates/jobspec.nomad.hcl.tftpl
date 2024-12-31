@@ -18,7 +18,10 @@ job "${job_name}" {
       tags     = [
         "traefik.enable=true",
         "traefik.http.routers.hydra-public.rule=Host(`${hydra_public_fqdn}`)",
-        "traefik.http.routers.hydra-public.entrypoints=http"
+        "traefik.http.routers.hydra-public.entrypoints=${traefik_entrypoint.http}",
+        "traefik.http.routers.hydra-public-secure.rule=Host(`${hydra_public_fqdn}`)",
+        "traefik.http.routers.hydra-public-secure.entrypoints=${traefik_entrypoint.https}",
+        "traefik.http.routers.hydra-public-secure.tls=true",
       ]
       check {
         type     = "http"
@@ -141,7 +144,10 @@ ${hydra_config}
       tags     = [
         "traefik.enable=true",
         "traefik.http.routers.kratos-public.rule=Host(`${kratos_public_fqdn}`)",
-        "traefik.http.routers.kratos-public.entrypoints=http"
+        "traefik.http.routers.kratos-public.entrypoints=${traefik_entrypoint.http}",
+        "traefik.http.routers.kratos-public-secure.rule=Host(`${kratos_public_fqdn}`)",
+        "traefik.http.routers.kratos-public-secure.entrypoints=${traefik_entrypoint.https}",
+        "traefik.http.routers.kratos-public-secure.tls=true",
       ]
       check {
         type     = "http"

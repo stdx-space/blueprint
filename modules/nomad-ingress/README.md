@@ -4,6 +4,7 @@ Minimal configuration for running the module:
 
 ```hcl
 module "ingress" {
+  source                          = "registry.narwhl.workers.dev/stack/ingress/nomad"
   datacenter_name                 = "dc1"
   traefik_version                 = ""
   cloudflared_version             = ""
@@ -12,6 +13,7 @@ module "ingress" {
   cloudflare_account_id           = "" // leave empty to disable cloudflare tunnel component
   acme_email                      = ""
   static_routes                   = "" // static routes defined in traefik dynamic configuration YAML format
+  use_https                       = true // whether to use https for communication between cloudflare tunnel and traefik
 }
 ```
 
@@ -111,7 +113,7 @@ ingress. The example sets up a route for `my-service` with the hostname
 be accessible through `http://my-service.domain.tld` after configuring the
 DNS record for `my-service.domain.tld` to point to the ingress address.
 
-```yaml
+```hcl
 service {
   name = "my-service"
   provider = "nomad"

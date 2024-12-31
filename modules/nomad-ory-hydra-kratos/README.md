@@ -4,6 +4,7 @@
 
 ```hcl
 module "ory" {
+  source                 = "registry.narwhl.workers.dev/stack/idp/nomad"
   datacenter_name        = "dc1" # name of the datacenter in Nomad
   database_user          = "ory" # optional field, defaults to "ory", need to configure externally since db is not hosted from within this module
   database_password      = "my_secret_password" # required field, a single user will manages both hydra and kratos simultaneously
@@ -12,7 +13,7 @@ module "ory" {
   kratos_db_name         = "kratos" # optional field, defaults to "kratos"
   hydra_version          = "" # required field, should obtain this from oci image tag from registry
   kratos_version         = "" # required field, should obtain this from oci image tag from registry
-  application_name       = "Acme Signle Sign-on" # required field 
+  application_name       = "Acme Signle Sign-on" # required field
   root_domain            = "domain.tld" # required field, for composing subdomains that both hydra and kratos uses for its services
   hydra_subdomain        = "auth" # required field, for oauth server
   kratos_ui_subdomain    = "login" # required field, for idp login page, instance runs externally
