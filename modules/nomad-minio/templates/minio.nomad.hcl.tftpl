@@ -30,7 +30,7 @@ job "${job_name}" {
     }
 
     service {
-      name = "minio"
+      name = "${job_name}"
       tags = [
         "traefik.enable=true",
         "traefik.http.routers.${job_name}.rule=Host(`${minio_hostname}`)",
@@ -71,7 +71,7 @@ job "${job_name}" {
 
 %{ for config in https_configs ~}
     service {
-      name     = "minio-tls"
+      name     = "${job_name}-tls"
       port     = "tls"
 %{ for config in nomad_service_configs ~}
       provider = "nomad"
