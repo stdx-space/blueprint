@@ -4,7 +4,7 @@
 
 ```hcl
 module "mastodon" {
-  source            = "github.com/narwhl/blueprint//modules/nomad-mastodon"
+  source            = "registry.narwhl.workers.dev/stack/mastodon/nomad"
   datacenter_name   = "dc1"
   mastodon_version  = "v4.2.10"
   mastodon_hostname = "mastodon.example.social"
