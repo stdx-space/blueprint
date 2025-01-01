@@ -28,6 +28,11 @@ variable "create_buckets" {
   type        = list(string)
   default     = []
   description = "List of buckets to create"
+
+  validation {
+    condition     = alltrue([for bucket in var.create_buckets : length(bucket) > 3])
+    error_message = "Bucket names must be at least 3 characters long"
+  }
 }
 
 variable "host_volume_config" {
