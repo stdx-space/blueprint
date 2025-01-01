@@ -33,11 +33,11 @@ job "${job_name}" {
       name = "minio"
       tags = [
         "traefik.enable=true",
-        "traefik.http.routers.minio.rule=Host(`${minio_hostname}`)",
-        "traefik.http.routers.minio.entrypoints=${traefik_entrypoint.http}",
-        "traefik.http.routers.minio-secure.rule=Host(`${minio_hostname}`)",
-        "traefik.http.routers.minio-secure.entrypoints=${traefik_entrypoint.https}",
-        "traefik.http.routers.minio-secure.tls=true",
+        "traefik.http.routers.${job_name}.rule=Host(`${minio_hostname}`)",
+        "traefik.http.routers.${job_name}.entrypoints=${traefik_entrypoint.http}",
+        "traefik.http.routers.${job_name}-secure.rule=Host(`${minio_hostname}`)",
+        "traefik.http.routers.${job_name}-secure.entrypoints=${traefik_entrypoint.https}",
+        "traefik.http.routers.${job_name}-secure.tls=true",
 %{ for config in consul_connect_service_configs ~}
         "traefik.consulcatalog.connect=true",
 %{ endfor ~}
