@@ -44,6 +44,7 @@ resource "cloudflare_api_token" "dns_challenge_token" {
 }
 
 data "consul_service" "ingress" {
+  count      = var.cloudflare_account_id != "" && var.cloudflare_tunnel_config_source == "cloudflare" ? 1 : 0
   name       = local.consul_service_name
   datacenter = var.datacenter_name
 
@@ -60,7 +61,7 @@ resource "cloudflare_tunnel_config" "ingress" {
 
   config {
     ingress_rule {
-      service = "${local.protocol}://${data.consul_service.ingress.service[0].address}:${data.consul_service.ingress.service[0].port}"
+      service = "${local.protocol}://${data.consul_service.ingress[0].service[0].address}:${data.consul_service.ingress[0].service[0].port}"
     }
   }
 
