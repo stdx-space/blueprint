@@ -36,6 +36,7 @@ resource "nomad_job" "spilo" {
   jobspec = templatefile("${path.module}/templates/spilo.nomad.hcl", {
     job_name                    = var.job_name
     datacenter_name             = var.datacenter_name
+    namespace                   = var.namespace
     spilo_version               = var.spilo_version
     nodes                       = local.nodes
     etcd_cluster_http           = join(",", [for node in local.nodes : "etcd-${node.short_name}={{ range nomadService \"spilo-${node.short_name}-etcd-peer\" }}http://{{ .Address }}:{{ .Port }}{{ end }}"])
