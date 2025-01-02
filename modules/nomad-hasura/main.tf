@@ -6,6 +6,7 @@ resource "nomad_job" "hasura" {
   jobspec = templatefile("${path.module}/templates/hasura.nomad.hcl.tftpl", {
     job_name            = var.job_name
     datacenter_name     = var.datacenter_name
+    namespace           = var.namespace
     hasura_version      = var.hasura_version
     db_user             = var.db_username
     db_password         = var.db_password

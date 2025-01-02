@@ -1,5 +1,6 @@
 job "${job_name}" {
   datacenters = ["${datacenter_name}"]
+  namespace   = "${namespace}"
   type        = "service"
 
   group "hydra" {

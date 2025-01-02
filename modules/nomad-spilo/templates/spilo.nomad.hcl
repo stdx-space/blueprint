@@ -1,6 +1,7 @@
 job "${job_name}" {
   datacenters = ["${datacenter_name}"]
-  type = "service"
+  namespace   = "${namespace}"
+  type        = "service"
   %{ for node in nodes}
   group "spilo-etcd-${node.short_name}" {
 

@@ -54,6 +54,11 @@ variable "datacenter_name" {
   }
 }
 
+variable "namespace" {
+  type    = string
+  default = "default"
+}
+
 variable "traefik_version" {
   type        = string
   description = "Version of traefik to deploy"

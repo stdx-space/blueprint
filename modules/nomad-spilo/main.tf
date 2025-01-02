@@ -57,6 +57,7 @@ resource "nomad_job" "postgres_init" {
     {
       job_name                    = var.postgres_init_job_name
       datacenter_name             = var.datacenter_name
+      namespace                   = var.namespace
       spilo_version               = var.spilo_version
       postgres_superuser_username = var.postgres_superuser_username
       postgres_superuser_password = var.postgres_superuser_password

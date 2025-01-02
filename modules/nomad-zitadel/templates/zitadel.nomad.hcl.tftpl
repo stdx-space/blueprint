@@ -1,0 +1,86 @@
+job "${job_name}" {
+  datacenters = ["${datacenter_name}"]
+  namespace   = "${namespace}"
+  type        = "service"
+
+  group "zitadel" {
+
+    network {
+      mode = "bridge"
+      port "http" {
+        to = 8080
+      }
+    }
+
+    service {
+      name     = "${job_name}"
+      port     = "http"
+      provider = "nomad"
+      check {
+        type     = "http"
+        path     = "/admin/v1/healthz"
+        interval = "10s"
+        timeout  = "2s"
+        header {
+          Host              = ["${external_domain}"]
+          X-Forwarded-Proto = ["https"]
+        }
+      }
+      tags = [
+        "traefik.enable=true",
+        "traefik.http.routers.${job_name}.entrypoints=${traefik_entrypoint.http}",
+        "traefik.http.routers.${job_name}.rule=Host(`${external_domain}`)",
+        "traefik.http.routers.${job_name}-secure.entrypoints=${traefik_entrypoint.https}",
+        "traefik.http.routers.${job_name}-secure.rule=Host(`${external_domain}`)",
+        "traefik.http.routers.${job_name}-secure.tls=true",
+        "traefik.http.services.${job_name}.loadbalancer.server.scheme=h2c",
+        # https://github.com/zitadel/zitadel/issues/8675
+        # set https forward header to fix issuer url
+        "traefik.http.middlewares.${job_name}-headers.headers.customrequestheaders.X-Forwarded-Proto=https",
+        "traefik.http.routers.${job_name}.middlewares=${job_name}-headers@nomad",
+      ]
+    }
+
+    task "zitadel" {
+      driver = "docker"
+
+      config {
+        image   = "ghcr.io/zitadel/zitadel:${zitadel_version}"
+        command = "start-from-init"
+        args = [
+          "--masterkeyFromEnv",
+          "--tlsMode", "external"
+        ]
+        ports = ["http"]
+      }
+
+      template {
+        data        = <<-EOH
+          ZITADEL_DATABASE_POSTGRES_HOST = "${postgres_host}"
+          ZITADEL_DATABASE_POSTGRES_PORT = "${postgres_port}"
+          ZITADEL_DATABASE_POSTGRES_DATABASE = "${postgres_database}"
+          ZITADEL_DATABASE_POSTGRES_USER_USERNAME = "${postgres_username}"
+          ZITADEL_DATABASE_POSTGRES_USER_PASSWORD = "${postgres_password}"
+          ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE = "${postgres_ssl_mode}"
+          ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME = "${postgres_admin_username}"
+          ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD = "${postgres_admin_password}"
+          ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE = "${postgres_ssl_mode}"
+          ZITADEL_EXTERNALDOMAIN = "${external_domain}"
+          ZITADEL_EXTERNALPORT = "443"
+          ZITADEL_EXTERNALSECURE = "true"
+          ZITADEL_FIRSTINSTANCE_ORG_NAME = "${organization_name}"
+          ZITADEL_FIRSTINSTANCE_ORG_HUMAN_USERNAME = "${root_username}"
+          ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD = "${root_password}"
+          ZITADEL_MASTERKEY = "${masterkey}"
+        EOH
+        destination = "local/config.env"
+        env         = true
+      }
+
+      resources {
+        cpu    = ${resources.cpu}
+        memory = ${resources.memory}
+      }
+    }
+  }
+}

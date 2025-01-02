@@ -10,6 +10,7 @@ resource "nomad_job" "temporal" {
     {
       job_name              = var.job_name
       datacenter_name       = var.datacenter_name
+      namespace             = var.namespace
       elasticsearch_version = var.elasticsearch_version
       postgres_version      = var.postgres_version
       temporal_version      = var.temporal_version

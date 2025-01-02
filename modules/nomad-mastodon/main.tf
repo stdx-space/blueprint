@@ -45,6 +45,7 @@ resource "nomad_job" "mastodon_init" {
   jobspec = templatefile("${path.module}/templates/mastodon-init.nomad.hcl.tftpl", {
     job_name          = var.init_job_name
     datacenter_name   = var.datacenter_name
+    namespace         = var.namespace
     mastodon_version  = var.mastodon_version
     mastodon_env_file = local.mastodon_env_file
   })
@@ -54,6 +55,7 @@ resource "nomad_job" "mastodon" {
   jobspec = templatefile("${path.module}/templates/mastodon.nomad.hcl.tftpl", {
     job_name          = var.job_name
     datacenter_name   = var.datacenter_name
+    namespace         = var.namespace
     mastodon_hostname = var.mastodon_hostname
     mastodon_version  = var.mastodon_version
     mastodon_env_file = local.mastodon_env_file

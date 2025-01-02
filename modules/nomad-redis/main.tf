@@ -2,6 +2,7 @@ resource "nomad_job" "redis" {
   jobspec = templatefile("${path.module}/templates/redis.nomad.hcl.tftpl", {
     job_name        = var.job_name
     datacenter_name = var.datacenter_name
+    namespace       = var.namespace
     redis_version   = var.redis_version
     host_volume_configs = var.host_volume_config != null ? [
       {

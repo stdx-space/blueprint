@@ -6,6 +6,7 @@ resource "nomad_job" "typesense" {
   jobspec = templatefile("${path.module}/templates/typesense.nomad.hcl.tftpl", {
     job_name          = var.job_name
     datacenter_name   = var.datacenter_name
+    namespace         = var.namespace
     typesense_version = var.typesense_version
     typesense_api_key = var.typesense_api_key
     host_volume_configs = var.host_volume_config != null ? [

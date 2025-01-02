@@ -7,6 +7,11 @@ variable "datacenter_name" {
   }
 }
 
+variable "namespace" {
+  type    = string
+  default = "default"
+}
+
 variable "job_name" {
   default     = "redis"
   description = "Nomad job name"

@@ -15,6 +15,11 @@ variable "datacenter_name" {
   description = "Name of the datacenter to deploy to"
 }
 
+variable "namespace" {
+  type    = string
+  default = "default"
+}
+
 variable "spilo_version" {
   default     = "spilo-16:3.2-p2"
   description = "Spilo version to deploy"

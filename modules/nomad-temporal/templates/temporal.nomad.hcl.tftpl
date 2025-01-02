@@ -1,7 +1,7 @@
 job "${job_name}" {
   datacenters = ["${datacenter_name}"]
-
-  type = "service"
+  namespace   = "${namespace}"
+  type        = "service"
 
   group "database" {
     network {

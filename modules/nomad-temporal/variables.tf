@@ -13,6 +13,11 @@ variable "datacenter_name" {
   }
 }
 
+variable "namespace" {
+  type    = string
+  default = "default"
+}
+
 variable "elasticsearch_version" {
   type        = string
   description = "Elasticsearch version"

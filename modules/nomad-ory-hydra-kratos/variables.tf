@@ -6,6 +6,11 @@ variable "job_name" {
 variable "datacenter_name" {
   type = string
 }
+
+variable "namespace" {
+  type    = string
+  default = "default"
+}
 variable "database_user" {
   type    = string
   default = "ory"

@@ -74,6 +74,7 @@ resource "nomad_job" "ingress-controller" {
     {
       job_name        = var.controller_job_name
       datacenter_name = var.datacenter_name
+      namespace       = var.namespace
       version         = var.traefik_version
       protocol        = local.protocol
       acme_config = var.acme_email == "" ? [] : [{
@@ -102,6 +103,7 @@ resource "nomad_job" "ingress-gateway" {
     {
       job_name        = var.gateway_job_name
       datacenter_name = var.datacenter_name
+      namespace       = var.namespace
       version         = var.cloudflared_version
       remote_ingress_config = var.cloudflare_tunnel_config_source == "cloudflare" ? [{
         tunnel_token = cloudflare_tunnel.ingress[0].tunnel_token

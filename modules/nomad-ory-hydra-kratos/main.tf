@@ -24,6 +24,7 @@ resource "nomad_job" "hydra-kratos" {
     {
       job_name           = var.job_name
       datacenter_name    = var.datacenter_name
+      namespace          = var.namespace
       db_user            = var.database_user
       db_password        = var.database_password
       db_addr            = var.database_addr
