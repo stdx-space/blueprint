@@ -11,10 +11,11 @@
             state: present
       - name: Create a new S3 bucket
         amazon.aws.s3_bucket:
-            name: "{{ item }}"
+            name: "{{ item.name }}"
             endpoint_url: "{{ aws_endpoint_url }}"
             access_key: "{{ aws_access_key }}"
             secret_key: "{{ aws_secret_key }}"
+            policy: "{{ item.policy }}"
             state: present
             region: us-east-1
         loop: "{{ s3_buckets }}"

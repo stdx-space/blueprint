@@ -30,12 +30,15 @@ variable "minio_superuser_password" {
 }
 
 variable "create_buckets" {
-  type        = list(string)
+  type        = list(object({
+    name   = string
+    policy = optional(string, "null")
+  }))
   default     = []
   description = "List of buckets to create"
 
   validation {
-    condition     = alltrue([for bucket in var.create_buckets : length(bucket) >= 3])
+    condition     = alltrue([for bucket in var.create_buckets : length(bucket.name) >= 3])
     error_message = "Bucket names must be at least 3 characters long"
   }
 }
