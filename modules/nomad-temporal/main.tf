@@ -1,23 +1,20 @@
-resource "random_password" "db_password" {
-  length           = 32
-  special          = true
-  override_special = "!#$%&*()-_=+[]{}<>:?"
-}
-
 resource "nomad_job" "temporal" {
   jobspec = templatefile(
     "${path.module}/templates/temporal.nomad.hcl.tftpl",
     {
-      job_name              = var.job_name
-      datacenter_name       = var.datacenter_name
-      namespace             = var.namespace
-      elasticsearch_version = var.elasticsearch_version
-      postgres_version      = var.postgres_version
-      temporal_version      = var.temporal_version
-      temporal_ui_version   = var.temporal_ui_version
-      db_password           = random_password.db_password.result
-      db_username           = var.postgres_username
+      job_name            = var.job_name
+      service_name        = var.service_name
+      datacenter_name     = var.datacenter_name
+      namespace           = var.namespace
+      temporal_version    = var.temporal_version
+      temporal_ui_version = var.temporal_ui_version
+      db_password         = var.postgres_password
+      db_user             = var.postgres_username
+      db_host             = var.postgres_host
+      db_port             = var.postgres_port
+      db_name             = var.postgres_database
+      visibility_db_name  = var.postgres_visibility_database
     }
   )
-  purge_on_destroy = true
+  purge_on_destroy = var.purge_on_destroy
 }
