@@ -30,7 +30,7 @@ variable "minio_superuser_password" {
 }
 
 variable "create_buckets" {
-  type        = list(object({
+  type = list(object({
     name   = string
     policy = optional(string, "null")
   }))
