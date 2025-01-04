@@ -84,13 +84,13 @@ locals {
       )
     },
     {
-      path    = "/etc/nomad.d/encryption.hcl"
+      path    = "/etc/nomad.d/tls.hcl"
       enabled = 0 < sum([for value in values(var.tls).*.content : length(value)])
       tags    = "cloud-init,ignition"
       owner   = local.nomad_user
       group   = local.nomad_group
       content = templatefile(
-        "${path.module}/templates/encryption.hcl.tftpl",
+        "${path.module}/templates/tls.hcl.tftpl",
         {
           tls_credentials = {
             for key, item in var.tls : key => item.path
