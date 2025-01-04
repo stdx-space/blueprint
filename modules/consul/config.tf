@@ -33,14 +33,14 @@ locals {
       content = ""
     },
     {
-      path    = "/etc/consul.d/consul.hcl"
-      tags    = "cloud-init,ignition"
+      path = "/etc/consul.d/consul.hcl"
+      tags = "cloud-init,ignition"
       content = templatefile("${path.module}/templates/consul.hcl.tftpl", {
         ui      = var.ui
         connect = var.connect
       })
-      owner   = var.consul_user
-      group   = var.consul_group
+      owner = var.consul_user
+      group = var.consul_group
     },
     {
       path = "/etc/consul.d/client.hcl"
