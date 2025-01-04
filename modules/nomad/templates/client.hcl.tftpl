@@ -1,14 +1,14 @@
-bind_addr  = "0.0.0.0"
+bind_addr  = "${listen_addr}"
 datacenter = "${datacenter_name}"
 data_dir   = "${data_dir}"
 log_level  = "${log_level}"
 advertise = {
-  http = "{{ GetPrivateIP }}"
-  rpc  = "{{ GetPrivateIP }}"
-  serf = "{{ GetPrivateIP }}"
+  http = "${advertise_addr}"
+  rpc  = "${advertise_addr}"
+  serf = "${advertise_addr}"
 }
 client = {
-  enabled  = true
+  enabled  = ${enabled}
   cni_path = "/usr/lib/cni"
 %{ for host_volume_name, host_volume in host_volumes ~}
   host_volume "${host_volume_name}" {

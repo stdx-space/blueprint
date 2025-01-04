@@ -1,8 +1,8 @@
 datacenter     = "${datacenter_name}"
 data_dir       = "${data_dir}"
-client_addr    = "0.0.0.0"
-bind_addr      = "{{ GetPrivateIP }}"
-advertise_addr = "{{ GetPrivateIP }}"
+client_addr    = "${client_addr}"
+bind_addr      = "${bind_addr}"
+advertise_addr = "${advertise_addr}"
 retry_join     = ${retry_join}
 log_level      = "${log_level}"
 encrypt        = "${gossip_key}"

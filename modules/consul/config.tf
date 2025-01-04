@@ -35,7 +35,10 @@ locals {
     {
       path    = "/etc/consul.d/consul.hcl"
       tags    = "cloud-init,ignition"
-      content = file("${path.module}/templates/consul.hcl.tftpl")
+      content = templatefile("${path.module}/templates/consul.hcl.tftpl", {
+        ui      = var.ui
+        connect = var.connect
+      })
       owner   = var.consul_user
       group   = var.consul_group
     },
@@ -47,6 +50,9 @@ locals {
         {
           datacenter_name = var.datacenter_name
           data_dir        = var.data_dir
+          client_addr     = var.client_addr
+          bind_addr       = var.listen_addr
+          advertise_addr  = var.advertise_addr
           retry_join      = jsonencode(var.retry_join)
           log_level       = var.log_level
           gossip_key      = var.gossip_key

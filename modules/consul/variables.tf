@@ -25,6 +25,24 @@ variable "gossip_key" {
   sensitive   = true
 }
 
+variable "advertise_addr" {
+  type        = string
+  default     = "{{ GetPrivateIP }}"
+  description = "Address to advertise for Consul agent"
+}
+
+variable "listen_addr" {
+  type        = string
+  default     = "{{ GetPrivateIP }}"
+  description = "Address to bind the Consul agent to"
+}
+
+variable "client_addr" {
+  type        = string
+  default     = "0.0.0.0"
+  description = "Address to bind the Consul agent to for client communication"
+}
+
 variable "bootstrap_expect" {
   type        = number
   default     = 1
@@ -67,6 +85,17 @@ variable "role" {
   }
 }
 
+variable "ui" {
+  type        = bool
+  default     = true
+  description = "Enable Consul UI"
+}
+
+variable "connect" {
+  type        = bool
+  default     = true
+  description = "Enable Consul Connect"
+}
 
 variable "consul_user" {
   type        = string

@@ -18,6 +18,24 @@ variable "datacenter_name" {
   }
 }
 
+variable "listen_addr" {
+  type        = string
+  default     = "0.0.0.0"
+  description = "Address to bind the Nomad agent to"
+}
+
+variable "advertise_addr" {
+  type        = string
+  default     = "{{ GetPrivateIP }}"
+  description = "Address to advertise for Nomad agent"
+}
+
+variable "disable_client" {
+  type        = bool
+  default     = false
+  description = "Disable client mode for Nomad agent"
+}
+
 variable "log_level" {
   type        = string
   default     = "INFO"

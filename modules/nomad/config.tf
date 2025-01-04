@@ -77,6 +77,9 @@ locals {
           data_dir        = var.data_dir
           log_level       = var.log_level
           host_volumes    = var.host_volume
+          advertise_addr  = var.advertise_addr
+          listen_addr     = var.listen_addr
+          enabled         = !var.disable_client
         }
       )
     },
