@@ -20,6 +20,7 @@ locals {
     S3_ENABLED                             = true
     S3_ENDPOINT                            = var.s3_endpoint
     S3_BUCKET                              = var.s3_bucket
+    S3_FORCE_SINGLE_REQUEST                = true
     AWS_ACCESS_KEY_ID                      = var.s3_access_key
     AWS_SECRET_ACCESS_KEY                  = var.s3_secret_key
     S3_HOSTNAME                            = var.s3_hostname
