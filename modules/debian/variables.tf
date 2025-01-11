@@ -51,6 +51,12 @@ variable "password" {
   sensitive   = true
 }
 
+variable "autologin" {
+  type        = bool
+  description = "Disables authentication requirement for tty1 console"
+  default     = false
+}
+
 variable "ssh_authorized_keys" {
   type        = list(string)
   description = "SSH public keys"

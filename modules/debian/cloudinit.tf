@@ -26,6 +26,8 @@ data "cloudinit_config" "user_data" {
             }
             users = local.users
             bootcmd = [
+              "echo 'blacklist rfkill' | tee -a /etc/modprobe.d/blacklist.conf",
+              "echo 'blacklist cfg80211' | tee -a /etc/modprobe.d/blacklist.conf",
               "apt-get update && apt-get install -y gnupg ${contains(flatten(var.substrates.*.install.repositories), "nvidia-container-toolkit") ? "linux-headers-$(uname -r)" : ""}"
             ]
             cloud_init_modules = concat(
