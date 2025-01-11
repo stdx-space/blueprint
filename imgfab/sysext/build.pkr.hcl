@@ -1,9 +1,9 @@
 build {
   sources = [
     "source.null.cloudflared",
-    "source.null.cniplugins",
+    "source.null.cni-plugins",
     "source.null.coredns",
-    "source.null.consultemplate",
+    "source.null.consul-template",
     "source.null.consul",
     "source.null.lego",
     "source.null.nomad",
