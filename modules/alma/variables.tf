@@ -11,6 +11,7 @@ variable "name" {
 variable "default_packages" {
   type = list(string)
   default = [
+    "ca-certificates",
     "containerd.io",
     "docker-ce",
     "docker-ce-cli",
@@ -23,6 +24,7 @@ variable "default_packages" {
     "podman",
     "qemu-guest-agent",
     "rsync",
+    "tar",
     "unzip",
     "vim",
     "zip",
