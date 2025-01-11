@@ -181,6 +181,6 @@ locals {
   ]
   directories = [for dir in flatten(var.substrates.*.directories) : dir if dir.enabled == true && strcontains(dir.tags, "cloud-init")]
   dns_servers = join("\n", [
-    for nameserver in var.nameservers : "DNS${index(nameserver) + 1}=${nameserver}"
+    for nameserver in distinct(var.nameservers) : "DNS${index(distinct(var.nameservers), nameserver) + 1}=${nameserver}"
   ])
 }
