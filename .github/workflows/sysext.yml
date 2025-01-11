@@ -11,7 +11,29 @@ permissions:
   id-token: write
 
 jobs:
+  authenticate:
+    outputs:
+      endpoint: ${{ steps.authenticate.outputs.endpoint }}
+      access_key_id: ${{ steps.authenticate.outputs.access_key_id }}
+      secret_access_key: ${{ steps.authenticate.outputs.secret_access_key }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate to Security Token Service
+        uses: narwhl/imprint@v1
+        with:
+          scope: cloudflare:r2
+      - name: Set outputs
+        id: authenticate
+        run: |
+          echo "access_key_id=${{ env.CF_R2_ACCESS_KEY_ID }}" >> $GITHUB_OUTPUT
+          echo "secret_access_key=${{ env.CF_R2_SECRET_ACCESS_KEY }}" >> $GITHUB_OUTPUT
+          echo "endpoint=${{ env.CF_R2_ENDPOINT_URL }}" >> $GITHUB_OUTPUT
   build:
+    needs: authenticate
+    env:
+      CF_R2_ACCESS_KEY_ID: ${{ needs.authenticate.outputs.access_key_id }}
+      CF_R2_SECRET_ACCESS_KEY: ${{ needs.authenticate.outputs.secret_access_key }}
+      CF_R2_ENDPOINT_URL: ${{ needs.authenticate.outputs.endpoint }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -24,18 +46,17 @@ jobs:
           - consultemplate
           - consul
           - coredns
+          - etcd
           - lego
           - nomad
+          - node-exporter
+          - promtail
           - stepca
           - tailscale
           - vault
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Authenticate to Security Token Service
-        uses: narwhl/imprint@v1
-        with:
-          scope: cloudflare:r2
       - name: Install dependencies
         run: |
           sudo apt-get update && sudo apt-get install -yqq squashfs-tools rclone
