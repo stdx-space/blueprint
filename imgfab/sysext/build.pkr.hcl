@@ -224,7 +224,7 @@ build {
 
   post-processor "shell-local" {
     inline = [
-      "rclone copy -v *.raw r2:artifact/sysext/",
+      "rclone copy -v ${source.name}-${local.syspkgs[source.name].version}-x86-64.raw r2:artifact/sysext/",
     ]
     environment_vars = [
       "RCLONE_CONFIG_R2_TYPE=s3",
