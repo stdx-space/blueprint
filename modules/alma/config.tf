@@ -97,6 +97,15 @@ locals {
     for file in concat(
       [
         {
+          path    = "/etc/cloud/cloud-init.disabled"
+          content = ""
+          enabled = true
+          tags    = "cloud-init"
+          owner   = "root"
+          group   = "root"
+          mode    = "0644"
+        },
+        {
           path    = "/etc/systemd/system/docker.service.d/override.conf"
           content = file("${path.module}/templates/docker-service-override.conf.tftpl")
           enabled = var.expose_docker_socket
@@ -119,20 +128,20 @@ locals {
           mode    = "0644"
           tags    = "cloud-init"
         },
-        {
-          # Adding 00 prefix to override the precedence of the default file
-          path = "/etc/systemd/network/00-static.network"
-          content = templatefile("${path.module}/templates/static.network.tftpl", {
-            ip_address  = "${var.ip_address}/${local.subnet_bits}"
-            gateway_ip  = var.gateway_ip
-            nameservers = var.nameservers
-          })
-          owner   = "root"
-          group   = "root"
-          enabled = length(var.ip_address) > 0 && length(var.gateway_ip) > 0 && length(var.network) > 0
-          mode    = "0644"
-          tags    = "cloud-init"
-        },
+        # {
+        #   # Adding 00 prefix to override the precedence of the default file
+        #   path = "/etc/systemd/network/00-static.network"
+        #   content = templatefile("${path.module}/templates/static.network.tftpl", {
+        #     ip_address  = "${var.ip_address}/${local.subnet_bits}"
+        #     gateway_ip  = var.gateway_ip
+        #     nameservers = var.nameservers
+        #   })
+        #   owner   = "root"
+        #   group   = "root"
+        #   enabled = length(var.ip_address) > 0 && length(var.gateway_ip) > 0 && length(var.network) > 0
+        #   mode    = "0644"
+        #   tags    = "cloud-init"
+        # },
         {
           path    = "/etc/yum.repos.d/mongo.repo"
           content = <<-EOF
@@ -171,4 +180,7 @@ locals {
     } if file.enabled == true && !startswith(file.content, "https://") && strcontains(file.tags, "cloud-init")
   ]
   directories = [for dir in flatten(var.substrates.*.directories) : dir if dir.enabled == true && strcontains(dir.tags, "cloud-init")]
+  dns_servers = join("\n", [
+    for nameserver in var.nameservers : "DNS${index(nameserver) + 1}=${nameserver}"
+  ])
 }
