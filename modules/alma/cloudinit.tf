@@ -18,8 +18,6 @@ data "cloudinit_config" "user_data" {
             "echo 'GATEWAY=${var.gateway_ip}' >> /etc/sysconfig/network-scripts/ifcfg-eth0",
             "echo 'NETMASK=${cidrnetmask(var.network)}' >> /etc/sysconfig/network-scripts/ifcfg-eth0",
             "echo '${local.dns_servers}' >> /etc/sysconfig/network-scripts/ifcfg-eth0",
-            "echo 'ONBOOT=yes' >> /etc/sysconfig/network-scripts/ifcfg-eth0",
-            "echo 'NM_CONTROLLED=no' >> /etc/sysconfig/network-scripts/ifcfg-eth0",
             "systemctl restart NetworkManager",
             "dnf install -y gnupg ${contains(flatten(var.substrates.*.install.repositories), "nvidia-container-toolkit") ? "linux-headers-$(uname -r)" : ""}"
           ]
