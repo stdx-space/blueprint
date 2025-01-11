@@ -135,7 +135,7 @@ build {
       local.templates["node-exporter"],
       [
         "curl -LO ${local.syspkgs["node-exporter"].pkg_url}",
-        "tar -C node-exporter-${local.syspkgs["node-exporter"].version}-amd64/usr/sbin -xzf ${local.syspkgs["node-exporter"].filename} node_exporter",
+        "tar -C node-exporter-${local.syspkgs["node-exporter"].version}-amd64/usr/sbin -xzf ${local.syspkgs["node-exporter"].filename} --strip-components=1 ${trimsuffix(local.syspkgs["node-exporter"].filename, ".tar.gz")}/node_exporter",
         "cp templates/node-exporter.socket node-exporter-${local.syspkgs["node-exporter"].version}-amd64/usr/lib/systemd/system/node_exporter.socket"
       ],
       [
