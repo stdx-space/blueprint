@@ -59,7 +59,8 @@ data "cloudinit_config" "user_data" {
                 "systemctl daemon-reload",
                 "systemctl enable qemu-guest-agent docker --now"
               ],
-              var.startup_script.inline
+              var.startup_script.inline,
+              ["touch /etc/cloud/cloud-init.disabled"]
             )
             power_state = {
               delay = "now"

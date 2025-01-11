@@ -97,15 +97,6 @@ locals {
     for file in concat(
       [
         {
-          path    = "/etc/cloud/cloud-init.disabled"
-          content = ""
-          enabled = true
-          tags    = "cloud-init"
-          owner   = "root"
-          group   = "root"
-          mode    = "0644"
-        },
-        {
           path    = "/etc/systemd/system/docker.service.d/override.conf"
           content = file("${path.module}/templates/docker-service-override.conf.tftpl")
           enabled = var.expose_docker_socket
