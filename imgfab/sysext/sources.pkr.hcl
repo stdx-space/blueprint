@@ -2,11 +2,11 @@ source "null" "cloudflared" {
   communicator = "none"
 }
 
-source "null" "cniplugins" {
+source "null" "cni-plugins" {
   communicator = "none"
 }
 
-source "null" "consultemplate" {
+source "null" "consul-template" {
   communicator = "none"
 }
 

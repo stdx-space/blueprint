@@ -31,7 +31,7 @@ build {
   }
 
   provisioner "shell-local" {
-    only = ["null.cniplugins"]
+    only = ["null.cni-plugins"]
     inline = concat(
       local.templates["cni-plugins"],
       [
@@ -46,7 +46,7 @@ build {
   }
 
   provisioner "shell-local" {
-    only = ["null.consultemplate"]
+    only = ["null.consul-template"]
     inline = concat(
       local.templates["consul-template"],
       [
