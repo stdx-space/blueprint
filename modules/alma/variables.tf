@@ -23,7 +23,10 @@ variable "default_packages" {
     "podman",
     "qemu-guest-agent",
     "rsync",
+    "unzip",
     "vim",
+    "zip",
+    "zstd",
   ]
 }
 
