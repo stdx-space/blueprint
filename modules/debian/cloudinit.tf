@@ -69,7 +69,8 @@ data "cloudinit_config" "user_data" {
                 "systemctl enable qemu-guest-agent --now",
                 "systemctl restart --no-block systemd-resolved systemd-networkd",
               ],
-              var.startup_script.inline
+              var.startup_script.inline,
+              ["touch /etc/cloud/cloud-init.disabled"]
             )
             power_state = {
               delay = "now"

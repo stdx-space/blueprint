@@ -39,6 +39,7 @@ locals {
         "coredns",
         "lego",
         "nomad",
+        "node-exporter",
         "promtail",
         "step-ca",
         "tailscale",

@@ -30,6 +30,10 @@ source "null" "nomad" {
   communicator = "none"
 }
 
+source "null" "node-exporter" {
+  communicator = "none"
+}
+
 source "null" "promtail" {
   communicator = "none"
 }

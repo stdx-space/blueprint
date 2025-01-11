@@ -70,8 +70,7 @@ locals {
   packages = concat(
     var.default_packages,
     var.additional_packages,
-    flatten(var.substrates.*.install.packages),
-    var.expose_metrics ? ["prometheus-node-exporter"] : []
+    flatten(var.substrates.*.install.packages)
   )
   ca_certs = {
     trusted = [
@@ -115,7 +114,7 @@ locals {
           )
           owner   = "root"
           group   = "root"
-          enabled = true
+          enabled = var.autologin
           mode    = "0644"
           tags    = "cloud-init"
         },

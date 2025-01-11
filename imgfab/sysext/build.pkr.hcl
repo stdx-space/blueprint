@@ -7,6 +7,7 @@ build {
     "source.null.consul",
     "source.null.lego",
     "source.null.nomad",
+    "source.null.node-exporter",
     "source.null.promtail",
     "source.null.stepca",
     "source.null.tailscale",
@@ -124,6 +125,25 @@ build {
       [
         "mksquashfs nomad-${local.syspkgs.nomad.version}-amd64 nomad-${local.syspkgs.nomad.version}-x86-64.raw",
         "rm -rf nomad-${local.syspkgs.nomad.version}-amd64 ${local.syspkgs.nomad.filename}",
+      ]
+    )
+  }
+
+  provisioner "shell-local" {
+    only = ["null.node-exporter"]
+    inline = concat(
+      local.templates["node-exporter"],
+      [
+        "curl -LO ${local.syspkgs["node-exporter"].pkg_url}",
+        "tar -C node-exporter-${local.syspkgs["node-exporter"].version}-amd64/usr/sbin -xzf ${local.syspkgs["node-exporter"].filename} node_exporter",
+        "cp templates/node-exporter.socket node-exporter-${local.syspkgs["node-exporter"].version}-amd64/usr/lib/systemd/system/node_exporter.socket"
+      ],
+      [
+        for step in local.copy_service_unit_steps : format(step, "node-exporter", local.syspkgs["node-exporter"].version)
+      ],
+      [
+        "mksquashfs node-exporter-${local.syspkgs["node-exporter"].version}-amd64 node-exporter-${local.syspkgs["node-exporter"].version}-x86-64.raw",
+        "rm -rf node-exporter-${local.syspkgs["node-exporter"].version}-amd64 ${local.syspkgs["node-exporter"].filename}",
       ]
     )
   }
