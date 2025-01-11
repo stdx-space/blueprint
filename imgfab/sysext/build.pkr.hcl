@@ -9,7 +9,7 @@ build {
     "source.null.nomad",
     "source.null.node-exporter",
     "source.null.promtail",
-    "source.null.stepca",
+    "source.null.step-ca",
     "source.null.tailscale",
     "source.null.vault",
   ]
@@ -164,7 +164,7 @@ build {
   }
 
   provisioner "shell-local" {
-    only = ["null.stepca"]
+    only = ["null.step-ca"]
     inline = concat(
       local.templates["step-ca"],
       [

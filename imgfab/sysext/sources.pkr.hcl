@@ -38,7 +38,7 @@ source "null" "promtail" {
   communicator = "none"
 }
 
-source "null" "stepca" {
+source "null" "step-ca" {
   communicator = "none"
 }
 
