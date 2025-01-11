@@ -12,19 +12,26 @@ variable "default_packages" {
   type = list(string)
   default = [
     "apt-transport-https",
+    "ca-certificates",
     "containerd.io",
+    "curl",
     "docker-ce",
     "docker-ce-cli",
     "docker-buildx-plugin",
     "docker-compose-plugin",
     "dnsutils",
     "git",
+    "gzip",
     "jq",
     "net-tools",
     "podman",
     "qemu-guest-agent",
     "rsync",
+    "tar",
     "vim",
+    "unzip",
+    "zip",
+    "zstd"
   ]
 }
 
