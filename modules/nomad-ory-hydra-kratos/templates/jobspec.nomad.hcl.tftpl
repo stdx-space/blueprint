@@ -63,7 +63,7 @@ job "${job_name}" {
       template {
         change_mode = "restart"
         data        = <<-EOF
-        DSN=postgres://${db_user}:${urlencode(db_password)}@${db_addr}/${hydra_db_name}?sslmode=${db_sslmode}&max_conns=20&max_idle_conns=4
+        DSN=postgres://${db_user}:${db_password}@${db_addr}/${hydra_db_name}?sslmode=${db_sslmode}&max_conns=20&max_idle_conns=4
         EOF
         destination = "secrets/kratos.env"
         env         = true
@@ -101,7 +101,7 @@ ${hydra_config}
       template {
         change_mode = "restart"
         data        = <<-EOF
-        DSN=postgres://${db_user}:${urlencode(db_password)}@${db_addr}/${hydra_db_name}?sslmode=${db_sslmode}&max_conns=20&max_idle_conns=4
+        DSN=postgres://${db_user}:${db_password}@${db_addr}/${hydra_db_name}?sslmode=${db_sslmode}&max_conns=20&max_idle_conns=4
         EOF
         destination = "secrets/kratos.env"
         env         = true
@@ -189,7 +189,7 @@ ${kratos_config}
       template {
         change_mode = "restart"
         data        = <<-EOF
-        DSN=postgres://${db_user}:${urlencode(db_password)}@${db_addr}/${kratos_db_name}?sslmode=${db_sslmode}&max_conns=20&max_idle_conns=4
+        DSN=postgres://${db_user}:${db_password}@${db_addr}/${kratos_db_name}?sslmode=${db_sslmode}&max_conns=20&max_idle_conns=4
         EOF
         destination = "secrets/kratos.env"
         env         = true
@@ -230,7 +230,7 @@ ${kratos_config}
       template {
         change_mode = "restart"
         data        = <<-EOF
-        DSN=postgres://${db_user}:${urlencode(db_password)}@${db_addr}/${kratos_db_name}?sslmode=${db_sslmode}&max_conns=20&max_idle_conns=4
+        DSN=postgres://${db_user}:${db_password}@${db_addr}/${kratos_db_name}?sslmode=${db_sslmode}&max_conns=20&max_idle_conns=4
         EOF
         destination = "secrets/kratos.env"
         env         = true
