@@ -66,12 +66,12 @@ locals {
           enabled = true
         }
         webauthn = {
-          enabled = true
+          enabled = var.kratos_webauthn_enabled
           config = {
             passwordless = true
             rp = {
               display_name = var.application_name
-              id           = var.root_domain
+              id           = local.kratos_ui_fqdn
               origin       = local.kratos_ui_url
             }
           }
@@ -81,7 +81,7 @@ locals {
           config = {
             rp = {
               display_name = var.application_name
-              id           = var.root_domain
+              id           = local.kratos_ui_fqdn
               origin       = local.kratos_ui_url
             }
           }
@@ -95,6 +95,20 @@ locals {
 
         settings = {
           ui_url = "${local.kratos_ui_url}/settings"
+
+          after = {
+            hooks = [for webhook in var.settings_webhooks :
+              {
+                hook = "web_hook"
+                config = {
+                  url     = webhook.url
+                  method  = webhook.method
+                  headers = webhook.headers
+                  body    = "base64://${base64encode(webhook.body)}"
+                }
+              }
+            ]
+          }
         }
 
         recovery = {

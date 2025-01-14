@@ -86,6 +86,11 @@ variable "kratos_registration_enabled" {
   default = true
 }
 
+variable "kratos_webauthn_enabled" {
+  type    = bool
+  default = false
+}
+
 variable "kratos_passkey_enabled" {
   type    = bool
   default = false
@@ -119,6 +124,17 @@ variable "registration_webhooks" {
   default = []
 }
 
+variable "settings_webhooks" {
+  type = list(object({
+    url     = string
+    method  = string
+    headers = map(string)
+    body    = string
+  }))
+  default     = []
+  description = "Webhooks to call after settings are updated"
+}
+
 variable "traefik_entrypoint" {
   type = object({
     http  = optional(string, "http")
@@ -135,5 +151,6 @@ locals {
   hydra_fqdn         = "${var.hydra_subdomain}.${var.root_domain}"
   kratos_public_fqdn = "${var.kratos_public_subdomain}.${var.root_domain}"
   kratos_admin_fqdn  = "${var.kratos_admin_subdomain}.${var.root_domain}"
+  kratos_ui_fqdn     = "${var.kratos_ui_subdomain}.${var.root_domain}"
   kratos_ui_url      = "https://${var.kratos_ui_subdomain}.${var.root_domain}"
 }
