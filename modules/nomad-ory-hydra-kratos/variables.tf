@@ -114,6 +114,17 @@ variable "smtp_connection_uri" {
   sensitive = true
 }
 
+variable "email_from_address" {
+  type        = string
+  description = "The email address to send emails from"
+}
+
+variable "email_from_name" {
+  type        = string
+  default     = "Account Notifications"
+  description = "The name to use when sending emails"
+}
+
 variable "registration_webhooks" {
   type = list(object({
     url     = string

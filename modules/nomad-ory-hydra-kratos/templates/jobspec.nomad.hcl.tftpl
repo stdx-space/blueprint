@@ -242,7 +242,12 @@ ${kratos_config}
         args = [
           "serve",
           "-c",
-          "/etc/config/kratos/kratos.yml"
+          "/etc/config/kratos/kratos.yml",
+          # Note that Kratos expects the courier to be a singleton.
+          # The courier needs to be run as a separate singleton if Kratos
+          # needs to be scaled to multiple instances.
+          # https://www.ory.sh/docs/kratos/self-hosted/mail-courier-selfhosted
+          "--watch-courier",
         ]
 
         mount {
