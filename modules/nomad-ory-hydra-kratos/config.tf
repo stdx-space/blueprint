@@ -195,6 +195,8 @@ locals {
     courier = {
       smtp = {
         connection_uri = var.smtp_connection_uri
+        from_address   = var.email_from_address
+        from_name      = var.email_from_name
       }
     }
 
