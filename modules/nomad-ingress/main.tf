@@ -105,6 +105,7 @@ resource "nomad_job" "ingress-gateway" {
       datacenter_name = var.datacenter_name
       namespace       = var.namespace
       version         = var.cloudflared_version
+      http2_config    = var.use_https ? [{}] : []
       remote_ingress_config = var.cloudflare_tunnel_config_source == "cloudflare" ? [{
         tunnel_token = cloudflare_tunnel.ingress[0].tunnel_token
       }] : []

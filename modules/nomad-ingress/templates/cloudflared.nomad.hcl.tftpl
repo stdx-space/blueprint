@@ -18,6 +18,10 @@ job "${job_name}" {
           "tunnel",
           "--loglevel",
           "debug",
+          %{ for c in http2_config ~}
+          "--protocol",
+          "http2",
+          %{ endfor ~}
           %{ for c in local_ingress_config ~}
           "--config",
           "$${NOMAD_TASK_DIR}/config.yaml",
