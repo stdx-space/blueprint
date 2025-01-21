@@ -127,6 +127,8 @@ registry.post(`/:namespace/:name/:provider/versions`, bearerAuth({ verifyToken }
 		])
 		return context.json({
 			status: 'ok',
+			module: `registry.narwhl.dev/${selector}`,
+			version: nextVersion,
 		}, 201);
 	} else {
 		return context.json(
@@ -176,7 +178,15 @@ registry.get(`/:namespace/:name/:provider/download`, async (context: Context) =>
 		}));
 		context.header('X-Terraform-Get', `https://artifact.narwhl.dev/modules/${selector}/${module.versions[0]}.tar.gz`);
 		return context.body(null, 204);
-	} catch (error) {}
+	} catch (error) {
+		return context.json(
+			{
+				status: 'error',
+				message: 'module not found',
+			},
+			404,
+		);
+	}
 });
 
 registry.get(`/:namespace/:name/:provider/:version/download`, async (context: Context) => {
