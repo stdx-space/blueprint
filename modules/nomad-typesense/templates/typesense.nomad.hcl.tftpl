@@ -46,7 +46,7 @@ job "${job_name}" {
       }
 
       volume_mount {
-        volume      = "minio-data"
+        volume      = "typesense-data"
         destination = "/data"
         read_only   = ${config.read_only}
       }
