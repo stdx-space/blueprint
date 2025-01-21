@@ -1,6 +1,9 @@
 name: "Publish terraform modules to registry"
 
 on:
+  pull_request:
+    paths:
+      - modules/**
   workflow_dispatch:
     inputs:
       increment:
@@ -92,6 +95,7 @@ jobs:
 
       - name: Publish module
         id: publish
+        if: github.event_name == 'workflow_dispatch'
         uses: actions/github-script@v7
         with:
           script: |
@@ -143,3 +147,11 @@ jobs:
               throw new Error(`Failed to publish module ${module} to registry: ${publishModuleResponse.status} ${publishModuleResponse.statusText}`);
             }
             console.log(`Module ${module} published to registry`);
+            const result = await publishModuleResponse.json();
+            await core.summary
+              .addHeading(`Module publish result`)
+              .addTable([
+                [{data: 'Path', header: true}, {data: 'Version', header: true}],
+                [result.module, result.version]
+              ])
+              .write();
