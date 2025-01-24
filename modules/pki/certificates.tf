@@ -34,7 +34,7 @@ resource "tls_locally_signed_cert" "intermediate_ca" {
   ca_private_key_pem = tls_private_key.root_ca.private_key_pem
   ca_cert_pem        = tls_self_signed_cert.root_ca.cert_pem
 
-  validity_period_hours = var.ttl
+  validity_period_hours = var.intermediate_ca_ttl
   is_ca_certificate     = true
 
   allowed_uses = [
@@ -73,7 +73,7 @@ resource "tls_locally_signed_cert" "clients" {
   ca_private_key_pem = tls_private_key.intermediate_ca.private_key_pem
   ca_cert_pem        = tls_locally_signed_cert.intermediate_ca.cert_pem
 
-  validity_period_hours = var.ttl
+  validity_period_hours = each.value.ttl
   is_ca_certificate     = false
 
   allowed_uses = [
@@ -90,7 +90,7 @@ resource "tls_locally_signed_cert" "servers" {
   ca_private_key_pem = tls_private_key.intermediate_ca.private_key_pem
   ca_cert_pem        = tls_locally_signed_cert.intermediate_ca.cert_pem
 
-  validity_period_hours = var.ttl
+  validity_period_hours = each.value.ttl
   is_ca_certificate     = false
 
   allowed_uses = [

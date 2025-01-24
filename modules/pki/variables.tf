@@ -18,6 +18,12 @@ variable "ttl" {
   }
 }
 
+variable "intermediate_ca_ttl" {
+  type        = number
+  description = "Time in hours until intermediate CA's expiration or its renewal"
+  default     = 26298 // 3 Years
+}
+
 variable "country" {
   type        = string
   description = "Country for the Root CA certificate"
@@ -66,6 +72,7 @@ variable "extra_server_certificates" {
   type = list(object({
     san_dns_names    = list(string)
     san_ip_addresses = list(string)
+    ttl              = optional(number, 13149) // 1.5 Years
   }))
   description = "List of domain names to generate server certificates for"
   default     = []

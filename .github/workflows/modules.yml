@@ -1,6 +1,9 @@
 name: "Publish terraform modules to registry"
 
 on:
+  push:
+    paths:
+      - modules/**
   pull_request:
     paths:
       - modules/**
@@ -21,6 +24,8 @@ permissions:
 
 jobs:
   dispatch:
+    # Only run if triggered by a pull request or manually or commit is not a merge
+    if: contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name) || !startsWith(github.event.push.head_commit.message, 'Merge pull request')
     runs-on: ubuntu-latest
     name: Dispatch subsequent publish jobs for changed modules
     defaults:
