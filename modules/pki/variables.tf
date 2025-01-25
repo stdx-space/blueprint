@@ -22,6 +22,10 @@ variable "intermediate_ca_ttl" {
   type        = number
   description = "Time in hours until intermediate CA's expiration or its renewal"
   default     = 26298 // 3 Years
+  validation {
+    condition     = var.intermediate_ca_ttl >= 1
+    error_message = "TTL must be larger than 1"
+  }
 }
 
 variable "country" {
@@ -63,6 +67,7 @@ variable "root_ca_org_unit" {
 variable "extra_client_certificates" {
   type = list(object({
     common_name = string
+    ttl         = optional(number, 6574) // 9 Months
   }))
   description = "List of common names to generate client certificates for"
   default     = []
@@ -87,6 +92,7 @@ locals {
     for signing_request in var.extra_server_certificates : signing_request.san_dns_names[0] => {
       dns_names    = signing_request.san_dns_names
       ip_addresses = signing_request.san_ip_addresses
+      ttl          = signing_request.ttl
     }
   }
 }

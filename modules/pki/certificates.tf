@@ -42,6 +42,13 @@ resource "tls_locally_signed_cert" "intermediate_ca" {
     "key_encipherment",
     "cert_signing"
   ]
+
+  lifecycle {
+    precondition {
+      condition     = var.ttl > var.intermediate_ca_ttl
+      error_message = "Intermediate CA TTL must be less than Root CA TTL"
+    }
+  }
 }
 
 resource "tls_cert_request" "clients" {
@@ -81,6 +88,13 @@ resource "tls_locally_signed_cert" "clients" {
     "key_encipherment",
     "digital_signature"
   ]
+
+  lifecycle {
+    precondition {
+      condition     = var.intermediate_ca_ttl > each.value.ttl
+      error_message = "Client certificate TTL must be less than Intermediate CA TTL"
+    }
+  }
 }
 
 resource "tls_locally_signed_cert" "servers" {
@@ -99,4 +113,11 @@ resource "tls_locally_signed_cert" "servers" {
     "key_encipherment",
     "digital_signature"
   ]
+
+  lifecycle {
+    precondition {
+      condition     = var.intermediate_ca_ttl > each.value.ttl
+      error_message = "Server certificate TTL must be less than Intermediate CA TTL"
+    }
+  }
 }
