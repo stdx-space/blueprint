@@ -99,12 +99,6 @@ resource "proxmox_virtual_environment_vm" "this" {
     content {
       interface         = local.cloudinit_drive_interface[var.firmware]
       user_data_file_id = proxmox_virtual_environment_file.provisioning_config.id
-      ip_config {
-        ipv4 {
-          address = var.ip_address
-          gateway = var.gateway
-        }
-      }
     }
   }
 

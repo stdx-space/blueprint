@@ -85,16 +85,6 @@ variable "networks" {
   }
 }
 
-variable "ip_address" {
-  type    = string
-  default = "dhcp"
-}
-
-variable "gateway" {
-  type    = string
-  default = null
-}
-
 variable "use_iso" {
   type    = bool
   default = false
