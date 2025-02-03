@@ -1,0 +1,160 @@
+job "${job_name}" {
+  datacenters = ["${datacenter}"]
+  namespace   = "${namespace}"
+  type        = "service"
+  group "vaultwarden" {
+    
+    network {
+      port "http" {
+        to = 80
+      }
+    }
+
+    service {
+      name     = "${job_name}"
+      port     = "http"
+      task     = "vaultwarden"
+      provider = "${service_discovery_provider}"
+      tags = [
+        "traefik.enable=true",
+        "traefik.http.routers.${job_name}.rule=Host(`${fqdn}`)",
+        "traefik.http.routers.${job_name}.entrypoints=${traefik_entrypoints.http}",
+        "traefik.http.routers.${job_name}-secure.rule=Host(`${fqdn}`)",
+        "traefik.http.routers.${job_name}-secure.entrypoints=${traefik_entrypoints.https}",
+        "traefik.http.routers.${job_name}-secure.tls=true",
+      ]
+      check {
+        type     = "http"
+        path     = "/alive"
+        interval = "60s"
+        timeout  = "10s"
+        method   = "GET"
+      }
+    }
+
+    ephemeral_disk {
+      migrate = true
+      size    = 512
+      sticky  = true
+    }
+
+    task "vaultwarden" {
+      driver = "docker"
+
+      env {
+        SIGNUPS_ALLOWED   = false
+        TZ                = "Asia/Hong_Kong"
+        DOMAIN            = "https://${fqdn}"
+        DATA_FOLDER       = "$${NOMAD_ALLOC_DIR}/data/vaultwarden"
+        DATABASE_URL      = "$${NOMAD_ALLOC_DIR}/data/db.sqlite3"
+      }
+
+      config {
+        image = "vaultwarden/server:${vaultwarden_version}"
+        ports = ["http"]
+      }
+
+      resources {
+        cpu    = ${resources.cpu}
+        memory = ${resources.memory}
+      }
+    }
+
+    task "vaultwarden-backup" {
+      driver = "docker"
+      config {
+        image = "restic/restic:${restic_version}"
+        entrypoint = ["/bin/sh"]
+        args = ["/local/entrypoint.sh"]
+      }
+      template {
+        data = <<EOH
+${backup_entrypoint_script}
+        EOH
+        destination = "local/entrypoint.sh"
+      }
+      template {
+        data = <<EOH
+${crontab}
+        EOH
+        destination = "local/crontabs/root"
+      }
+      template {
+        data = <<EOH
+${restic_env}
+        EOH
+        destination = "secrets/.env"
+        env         = true
+      }
+    }
+
+    task "vaultwarden-restore" {
+      lifecycle {
+        hook = "prestart"
+        sidecar = false
+      }
+      driver = "docker"
+      config {
+        image = "restic/restic:${restic_version}"
+        entrypoint = ["/bin/sh"]
+        args = ["/local/entrypoint.sh"]
+      }
+      template {
+        data = <<EOH
+${restore_entrypoint_script}
+        EOH
+        destination = "local/entrypoint.sh"
+      }
+      template {
+        data = <<EOH
+${restic_env}
+        EOH
+        destination = "secrets/.env"
+        env         = true
+      }
+    }
+
+    task "litestream-restore" {
+      lifecycle {
+        hook = "prestart"
+        sidecar = false
+      }
+      driver = "docker"
+      config {
+        image = "litestream/litestream:${litestream_version}"
+        args = [
+          "restore",
+          "-config",
+          "/secrets/litestream.yml",
+          "-if-replica-exists",
+          "$${NOMAD_ALLOC_DIR}/data/db.sqlite3",
+        ]
+      }
+      template {
+        data = <<EOH
+${litestream_config}
+        EOH
+        destination = "secrets/litestream.yml"
+      }
+    }
+
+    task "litestream-replicate" {
+      driver = "docker"
+      config {
+        image = "litestream/litestream:${litestream_version}"
+        args = [
+          "replicate",
+          "-config",
+          "/secrets/litestream.yml",
+        ]
+      }
+      template {
+        data = <<EOH
+${litestream_config}
+        EOH
+        destination = "secrets/litestream.yml"
+      }
+    }
+  }
+}
+
