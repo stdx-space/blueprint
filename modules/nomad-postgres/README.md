@@ -59,8 +59,8 @@ module "debian" {
     inline = [
       "systemctl stop postgresql",
       "systemctl mask postgresql",
-      "pg_dropcluster 15 main",
-      "pg_createcluster 15 main",
+      "pg_dropcluster 15 main", # drop the original cluster created by debian apt install
+      "pg_createcluster <postgres_version> <postgres_cluster_name> -p 5432", # initialize a new cluster to be used in nomad, note that the port must be 5432
     ]
   }
 }

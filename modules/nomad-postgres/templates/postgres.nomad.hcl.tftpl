@@ -64,7 +64,7 @@ job "${job_name}" {
       config {
         command = "/usr/bin/pg_ctlcluster"
         args = [
-          "15", "main", "start", "--foreground"
+          "${postgres_version}", "${postgres_cluster_name}", "start", "--foreground"
         ]
       }
 
@@ -85,14 +85,14 @@ archive_mode = on
 archive_command = 'pgbackrest --stanza=${c.pgbackrest_stanza} --config /local/pgbackrest.conf archive-push %p'
 EOH
         # exec driver can render templates outside of the NOMAD_TASK_DIR
-        destination = "/etc/postgresql/15/main/conf.d/50-pgbackrest.conf"
+        destination = "/etc/postgresql/${postgres_version}/${postgres_cluster_name}/conf.d/50-pgbackrest.conf"
       }
 
   %{ endfor ~}
 
       template {
         data        = "listen_addresses = '*'"
-        destination = "/etc/postgresql/15/main/conf.d/50-listen-addresses.conf"
+        destination = "/etc/postgresql/${postgres_version}/${postgres_cluster_name}/conf.d/50-listen-addresses.conf"
       }
       template {
         data        = <<EOH
@@ -112,7 +112,7 @@ host    replication     all             ::1/128                 trust
 # Allow connections outside container
 host    all             all             all                     scram-sha-256
 EOH
-        destination = "/etc/postgresql/15/main/pg_hba.conf"
+        destination = "/etc/postgresql/${postgres_version}/${postgres_cluster_name}/pg_hba.conf"
       }
     }
   }
