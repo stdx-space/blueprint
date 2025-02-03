@@ -63,6 +63,17 @@ variable "postgres_superuser_password" {
   description = "Password of the postgres superuser"
 }
 
+variable "postgres_version" {
+  type        = string
+  description = "The PostgreSQL version"
+}
+
+variable "postgres_cluster_name" {
+  type        = string
+  default     = "main"
+  description = "The PostgreSQL cluster name"
+}
+
 variable "postgres_init" {
   type = list(object({
     database    = string
