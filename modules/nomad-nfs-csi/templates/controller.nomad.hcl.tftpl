@@ -4,12 +4,12 @@ job "plugin-nfs-controller" {
     task "plugin" {
       driver = "docker"
       config {
-        image = "registry.k8s.io/sig-storage/nfsplugin:${version}"
+        image = "mcr.microsoft.com/k8s/csi/nfs-csi:${version}"
         args = [
-          "--v=5",
+          "--endpoint=unix://csi/csi.sock",
           "--nodeid=$${attr.unique.hostname}",
-          "--endpoint=unix:///csi/csi.sock",
-          "--drivername=nfs.csi.k8s.io"
+          "--logtostderr",
+          "-v=5",
         ]
       }
       csi_plugin {
@@ -19,7 +19,7 @@ job "plugin-nfs-controller" {
       }
       resources {
         memory = 128
-        cpu    = 100
+        cpu    = 250
       }
     }
   }

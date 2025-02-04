@@ -20,7 +20,7 @@ variable "datacenter_name" {
 
 variable "nfs_csi_driver_version" {
   type        = string
-  default     = "v4.5.0"
+  default     = "latest"
   description = "Version of CSI driver to use for NFS, from https://github.com/kubernetes-csi/csi-driver-nfs/releases/"
 }
 

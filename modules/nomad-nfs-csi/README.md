@@ -4,9 +4,9 @@
 
 ```
 module "nfs-csi" {
-  source                 = "git::https://gitlab.com/narwhl/wip/blueprint.git//modules/nomad-nfs-csi"
-  datacenter_name        = "sight"
-  nfs_csi_driver_version = "v4.1.0"
+  source                 = "registry.narwhl.workers.dev/plugins/nfs/nomad"
+  datacenter_name        = "dc0"
+  nfs_csi_driver_version = "v4.1.0" # defaults to 'latest'
   nfs_server_address     = "192.168.0.1"
   nfs_share_name         = "/mnt/share"
   volumes = [
