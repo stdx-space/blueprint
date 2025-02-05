@@ -4,23 +4,32 @@
 
 ```hcl
 module "pki" {
-  source              = "registry.narwhl.workers.dev/generic/pki/tls"
+  source              = "registry.narwhl.workers.dev/security/pki/tls"
   root_ca_common_name = "ACME"         # required
   root_ca_org_name    = "ACME Inc"     # required
   root_ca_org_unit    = "Product Team" # required
   ttl                 = 8760           # optional, unit is hours and it defaults to 87660 (10 years)
-  # optional, list of client certificates to generate
-  extra_client_certificates = [
-    {
-      common_name = "Client 1"
-    }
-  ]
-  # optional, list of server certificates to generate
-  extra_server_certificates = [
-    {
-      san_dns_names = ["server.global.nomad"]
-      san_ip_addresses = ["127.0.0.1"]
-    }
-  ]
 }
 ```
+
+## Argument Reference
+
+### Required
+
+- `root_ca_common_name` (String) 
+
+- `root_ca_org_name` (String)
+
+- `root_ca_org_unit` (String)
+
+### Optional
+
+- `bit_length` (Number)
+
+- `ttl` (Number)
+
+- `intermediate_ca_ttl` (Number)
+
+- `country` (String)
+
+- `locality` (String)

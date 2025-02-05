@@ -63,36 +63,3 @@ variable "root_ca_org_unit" {
   type        = string
   description = "Organizational Unit for the Root CA certifcate"
 }
-
-variable "extra_client_certificates" {
-  type = list(object({
-    common_name = string
-    ttl         = optional(number, 6574) // 9 Months
-  }))
-  description = "List of common names to generate client certificates for"
-  default     = []
-}
-
-variable "extra_server_certificates" {
-  type = list(object({
-    san_dns_names    = list(string)
-    san_ip_addresses = list(string)
-    ttl              = optional(number, 13149) // 1.5 Years
-  }))
-  description = "List of domain names to generate server certificates for"
-  default     = []
-}
-
-locals {
-  dns_ip_map = {
-    for key in var.extra_server_certificates : key.san_dns_names[0] => key.san_ip_addresses
-  }
-  clients = { for client in var.extra_client_certificates : client.common_name => client }
-  servers = {
-    for signing_request in var.extra_server_certificates : signing_request.san_dns_names[0] => {
-      dns_names    = signing_request.san_dns_names
-      ip_addresses = signing_request.san_ip_addresses
-      ttl          = signing_request.ttl
-    }
-  }
-}

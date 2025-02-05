@@ -5,27 +5,19 @@ data "external" "openssl" {
   }
 }
 
-output "keychain" {
+output "root_ca" {
   value = {
-    root_ca_cert               = tls_self_signed_cert.root_ca.cert_pem
-    root_ca_private_key        = tls_private_key.root_ca.private_key_pem
-    root_ca_sha256_fingerprint = data.external.openssl.result.fingerprint
-    intermediate_ca_cert       = tls_locally_signed_cert.intermediate_ca.cert_pem
-    intermediate_ca_key        = tls_private_key.intermediate_ca.private_key_pem
+    cert_pem           = tls_self_signed_cert.root_ca.cert_pem
+    private_key_pem    = tls_private_key.root_ca.private_key_pem
+    sha256_fingerprint = data.external.openssl.result.fingerprint
+  }
+  sensitive = true
+}
 
-    server_keys = {
-      for key in var.extra_server_certificates : key.san_dns_names[0] => tls_private_key.servers[key.san_dns_names[0]].private_key_pem
-    }
-    server_certificates = {
-      for key in var.extra_server_certificates : key.san_dns_names[0] => tls_locally_signed_cert.servers[key.san_dns_names[0]].cert_pem
-    }
-
-    client_keys = {
-      for key in var.extra_client_certificates : key.common_name => tls_private_key.clients[key.common_name].private_key_pem
-    }
-    client_certificates = {
-      for key in var.extra_client_certificates : key.common_name => tls_locally_signed_cert.clients[key.common_name].cert_pem
-    }
+output "intermediate_ca" {
+  value = {
+    intermediate_ca_cert = tls_locally_signed_cert.intermediate_ca.cert_pem
+    intermediate_ca_key  = tls_private_key.intermediate_ca.private_key_pem
   }
   sensitive = true
 }
