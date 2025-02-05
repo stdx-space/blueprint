@@ -1,3 +1,7 @@
+data "http" "upstream" {
+  url = var.supplychain
+}
+
 locals {
   systemd_units = [
     {
