@@ -22,7 +22,7 @@ locals {
       content = templatefile(
         "${path.module}/templates/watcher.path.tftpl",
         {
-          path    = "/usr/bin/tailscaled"
+          path    = "/usr/sbin/tailscaled"
           service = "tailscale-watcher.service"
         }
       )

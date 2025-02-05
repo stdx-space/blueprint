@@ -54,6 +54,9 @@ build {
         "unzip ${local.syspkgs["consul-template"].filename} -d consul-template-${local.syspkgs["consul-template"].version}-amd64/usr/bin",
       ],
       [
+        for step in local.copy_service_unit_steps : format(step, "consul-template", local.syspkgs["consul-template"].version)
+      ],
+      [
         "mksquashfs consul-template-${local.syspkgs["consul-template"].version}-amd64 consul-template-${local.syspkgs["consul-template"].version}-x86-64.raw",
         "rm -rf consul-template-${local.syspkgs["consul-template"].version}-amd64 ${local.syspkgs["consul-template"].filename}",
       ]

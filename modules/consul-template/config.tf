@@ -14,6 +14,13 @@ locals {
   ]
   configs = [
     {
+      path    = "/etc/sysconfig/consul-template"
+      tags    = "ignition"
+      owner   = "root"
+      group   = "root"
+      content = ""
+    },
+    {
       path    = "/etc/consul-template.d/template.hcl"
       tags    = "cloud-init,ignition"
       owner   = "root"

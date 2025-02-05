@@ -1,0 +1,13 @@
+[Unit]
+Description=consul-template
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+EnvironmentFile=-/etc/sysconfig/consul-template
+ExecStart=/usr/bin/consul-template $OPTIONS -config=/etc/consul-template.d
+KillSignal=SIGINT
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
