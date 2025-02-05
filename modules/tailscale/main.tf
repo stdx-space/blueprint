@@ -7,7 +7,26 @@ locals {
     {
       name    = "authenticate-tailscale.service"
       content = file("${path.module}/templates/authenticate-tailscale.service")
-    }
+    },
+    {
+      name = "tailscale-watcher.service"
+      content = templatefile(
+        "${path.module}/templates/watcher.service.tftpl", {
+          package = "tailscale"
+          service = "tailscaled"
+        }
+      )
+    },
+    {
+      name = "tailscale-watcher.path"
+      content = templatefile(
+        "${path.module}/templates/watcher.path.tftpl",
+        {
+          path    = "/usr/bin/tailscaled"
+          service = "tailscale-watcher.service"
+        }
+      )
+    },
   ]
   directories = [
     {
