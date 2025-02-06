@@ -6,7 +6,7 @@
 module "certificates" {
   source             = "registry.narwhl.workers.dev/security/certificates/tls"
   ca_private_key_pem = ""
-  ca_cert_pem        = "" 
+  ca_cert_pem        = ""
   client = [
     {
       common_name = "Client 1"
@@ -25,7 +25,7 @@ module "certificates" {
 
 ### Required
 
-- `ca_private_key_pem` (String) 
+- `ca_private_key_pem` (String)
 
 - `ca_cert_pem` (String)
 
@@ -52,3 +52,21 @@ Optional
 - `san_ip_addresses` (List of String)
 
 - `ttl` (Number)
+
+### Outputs
+
+- `servers` (List of Object)
+
+- `clients` (List of Object)
+
+### Nested Schema for `servers`
+
+- `cert_pem` (String)
+
+- `key_pem` (String)
+
+### Nested Schema for `clients`
+
+- `cert_pem` (String)
+
+- `key_pem` (String)
