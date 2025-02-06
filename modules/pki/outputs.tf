@@ -8,7 +8,7 @@ data "external" "openssl" {
 output "root_ca" {
   value = {
     cert_pem           = tls_self_signed_cert.root_ca.cert_pem
-    private_key_pem    = tls_private_key.root_ca.private_key_pem
+    key_pem            = tls_private_key.root_ca.private_key_pem
     sha256_fingerprint = data.external.openssl.result.fingerprint
   }
   sensitive = true
@@ -16,8 +16,8 @@ output "root_ca" {
 
 output "intermediate_ca" {
   value = {
-    intermediate_ca_cert = tls_locally_signed_cert.intermediate_ca.cert_pem
-    intermediate_ca_key  = tls_private_key.intermediate_ca.private_key_pem
+    cert_pem = tls_locally_signed_cert.intermediate_ca.cert_pem
+    key_pem  = tls_private_key.intermediate_ca.private_key_pem
   }
   sensitive = true
 }

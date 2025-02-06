@@ -16,7 +16,7 @@ module "pki" {
 
 ### Required
 
-- `root_ca_common_name` (String) 
+- `root_ca_common_name` (String)
 
 - `root_ca_org_name` (String)
 
@@ -33,3 +33,23 @@ module "pki" {
 - `country` (String)
 
 - `locality` (String)
+
+### Outputs
+
+- `root_ca` (Object)
+
+- `intermediate_ca` (Object)
+
+### Nested Schema for `root_ca`
+
+- `cert_pem` (String)
+
+- `key_pem` (String)
+
+- `sha256_fingerprint` (String)
+
+### Nested Schema for `intermediate_ca`
+
+- `cert_pem` (String)
+
+- `key_pem` (String)
