@@ -1,0 +1,58 @@
+consul {
+  address = "${consul_address}"
+
+  retry {
+    # This enabled retries. Retries are enabled by default, so this is
+    # redundant.
+    enabled = true
+
+    # This specifies the number of attempts to make before giving up. Each
+    # attempt adds the exponential backoff sleep time. Setting this to
+    # zero will implement an unlimited number of retries.
+    attempts = 12
+
+    # This is the base amount of time to sleep between retry attempts. Each
+    # retry sleeps for an exponent of 2 longer than this base. For 5 retries,
+    # the sleep times would be: 250ms, 500ms, 1s, 2s, then 4s.
+    backoff = "250ms"
+
+    # This is the maximum amount of time to sleep between retry attempts.
+    # When max_backoff is set to zero, there is no upper limit to the
+    # exponential sleep between retry attempts.
+    # If max_backoff is set to 10s and backoff is set to 1s, sleep times
+    # would be: 1s, 2s, 4s, 8s, 10s, 10s, ...
+    max_backoff = "1m"
+  }
+
+  # This block configures tcp connection options
+  transport {
+    # This controls duration between two keepalive transmissions in idle condition.
+    dial_keep_alive = "10s"
+    
+    # This controls tcp timeout between retiries. If consul is down and retires
+    # are enabled consul-template will retry after dial_timeout.
+    dial_timeout = "10s"
+    
+    # This allows you to disable keep alive connections
+    disable_keep_alives = true
+    
+    # This controls amount of maximum idle connections. 
+    max_idle_conns_per_host = 100
+    
+    # This controls timeout for tls handshakes with consul.
+    tls_handshake_timeout = "30s"
+  }
+
+  ssl {
+    # This enables SSL. Specifying any option for SSL will also enable it.
+    enabled = true
+
+    # This enables SSL peer verification. The default value is "true", which
+    # will check the global CA chain to make sure the given certificates are
+    # valid. If you are using a self-signed certificate that you have not added
+    # to the CA chain, you may want to disable SSL verification. However, please
+    # understand this is a potential security vulnerability.
+    verify = false
+  }
+}
+

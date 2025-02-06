@@ -4,7 +4,12 @@ variable "supplychain" {
 }
 
 variable "consul_auth_token" {
-  type = string
+  type        = string
   description = "Consul ACL token"
-  sensitive = true
+  sensitive   = true
+}
+
+variable "consul_address" {
+  type        = string
+  description = "Consul address"
 }
