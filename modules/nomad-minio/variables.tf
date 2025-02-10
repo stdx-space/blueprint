@@ -13,14 +13,17 @@ variable "namespace" {
 }
 
 variable "job_name" {
+  type    = string
   default = "minio"
 }
 
 variable "minio_hostname" {
+  type    = string
   default = "minio.localhost"
 }
 
 variable "minio_superuser_name" {
+  type    = string
   default = "minio"
 }
 
