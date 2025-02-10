@@ -10,42 +10,48 @@ module "flatcar" {
 }
 ```
 
-### Variables
+## Argument Reference
 
-`name`: Hostname for the Flatcar instance.
+- `name`: `(string: <required>)` - Hostname for the Flatcar instance.
 
-`username`: (optional) Username for logging into the Flatcar instance, defaults to `core`.
+- `username`: `(string: "core")` - Username for logging into the Flatcar instance, defaults to `core`.
 
-`autologin`: (optional) Whether to enable autologin for the Flatcar instance, defaults to `true`.
+- `autologin`: `(bool: false)` - Whether to enable autologin for the Flatcar instance, defaults to `true`.
 
-`disable_ssh`: (optional) Option to disable SSH access to the Flatcar instance, defaults to `false`.
+- `disable_ssh`: `bool: <optional>` - Option to disable SSH access to the Flatcar instance, defaults to `false`.
 
-`timezone`: (optional) Timezone the VM resides in (e.g `Europe/Stockholm`), defaults to `Asia/Hong_Kong`.
+- `timezone`: `(string: <optional>)` - Timezone the VM resides in (e.g `Europe/Stockholm`), defaults to `Asia/Hong_Kong`.
 
-`mounts`: (optional) List of disks to mount onto the Flatcar instance
+- `mounts`: `([]object: <optional>)` -  List of disks to mount onto the Flatcar instance
 
-- `label`: Label for the disk storage device
-- `path`: Filesystem path to mount the disk storage device to
-- `partition`: Path to the disk storage device, e.g /dev/sda1
+  - `label`: Label for the disk storage device
+  - `path`: Filesystem path to mount the disk storage device to
+  - `partition`: Path to the disk storage device, e.g /dev/sda1
 
-`expose_docker_socket`: Whether to enable docker socket to be accessible via a TCP listener, defaults to `false`.
+- `expose_docker_socket`: `(bool: false)` Whether to enable docker socket to be accessible via a TCP listener.
 
-`expose_metrics`: Whether to enable prometheus node-exporter as systemd service container, defaults to `false`.
+- `expose_metrics`: Whether to enable prometheus node-exporter as systemd service container, defaults to `false`.
 
-`network`: (optional) CIDR notation for the network to be used for the Flatcar instance, e.g `10.0.0.0/16`.
+- `network`: `(string: <optional>)` - CIDR notation for the network to be used for the Flatcar instance, e.g `10.0.0.0/16`.
 
-`ip_address`: (optional) Static IP address to assign to the Flatcar instance, e.g `10.0.0.10`.
+- `ip_address`: `(string: <optional>)` - Static IP address to assign to the Flatcar instance, e.g `10.0.0.10`.
 
-`gateway_ip`: (optional) Gateway IP address to assign to the Flatcar instance, e.g `10.0.0.1`.
+- `gateway_ip`: `(string: <optional>)` - Gateway IP address to assign to the Flatcar instance, e.g `10.0.0.1`.
 
-`nameservers`: (optional) List of nameservers to assign to the Flatcar instance, e.g `["8.8.8.8", "1.1.1.1"]`.
+- `nameservers`: `(string: <optional>)` - List of nameservers to assign to the Flatcar instance, e.g `["8.8.8.8", "1.1.1.1"]`.
 
-`ca_certs`: (optional) List of CA certificates to be trusted by the Flatcar instance, either passes base64 encoded content or http url to the certificate.
+- `ca_certs`: `([]string: <optional>)` - List of CA certificates to be trusted by the Flatcar instance, either passes base64 encoded content or http url to the certificate.
 
-`substrates`: List of configurations to be layer on top of Flatcar.
+- `substrates`: `([]object)` List of configurations to be layer on top of Flatcar.
 
-`base64_encode`: (optional) Whether to encode the resulting ignition config file in base64, defaults to `false`.
+- `base64_encode`: `(bool: false)` Whether to encode the resulting ignition config file in base64, defaults to `false`.
 
-`ssh_keys_import`: (optional) List of urls that points to your ssh public keys, support fetching over git hosting provider, e.g `https://github.com/{user}.keys`, defaults to `[]`.
+- `ssh_keys_import`: `([]string)` List of urls that points to your ssh public keys, support fetching over git hosting provider, e.g `https://github.com/{user}.keys`, defaults to `[]`.
 
-`ssh_authorized_keys`: A list of SSH public keys to be added to the Flatcar instance login user.
+- `ssh_authorized_keys`: `([]string)` A list of SSH public keys to be added to the Flatcar instance login user.
+
+## Outputs
+
+- `config`
+
+- 

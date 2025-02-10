@@ -23,31 +23,43 @@ module "debian" {
 }
 ```
 
-### Configuration
+## Argument Reference
 
-`supplychain`: Address pointing to upstream dependency JSON metadata file. This should leave as default unless package
+- `supplychain`: `(string: "https://artifact.narwhl.dev/upstream/current.json")` - Address pointing to upstream dependency JSON metadata file. This should leave as default unless package
 versions need to be customized. Defaults to `https://artifact.narwhl.dev/upstream/current.json`.
 
-`data_dir`: The directory to store Consul data. Defaults to `/opt/consul`.
+- `data_dir`: `(string: "/opt/consul")` - The directory to store Consul data. Defaults to `/opt/consul`.
 
-`datacenter_name`: The name of the Consul datacenter to use.
+- `datacenter_name`: `(string: "dc1")` - The name of the Consul datacenter to use.
 
-`log_level`: The log level to use. Defaults to `INFO`.
+- `log_level`: `(string: "INFO")` - The log level to use. Defaults to `INFO`.
 
-`role`: The role of the Consul node to run, can be `client` or `server`. Defaults to `client`.
+- `role`: `(string: "client")` - The role of the Consul node to run, can be `client` or `server`. Defaults to `client`.
 
-`consul_user`: User running Consul. For setting file permissions in config. Defaults to `consul`.
+- `consul_user`: `(string: "consul")` - User running Consul. For setting file permissions in config. Defaults to `consul`.
 
-`consul_group`: Group of user running Consul. For setting file permissions in config. Defaults to `consul`.
+- `consul_group`: `(string: "consul")` - Group of user running Consul. For setting file permissions in config. Defaults to `consul`.
 
-`bootstrap_expect`: Number of consul instance connection expected to form the cluster. Must be an odd integer.
+- `bootstrap_expect`: `(number: 1)` - Number of consul instance connection expected to form the cluster. Must be an odd integer.
 Defaults to `1`.
 
-`retry_join`: Parameter value for DNS address, IP address or cloud auto-join configuration
+- `retry_join`: `[]string` - Parameter value for DNS address, IP address or cloud auto-join configuration
 
-`gossip_key`: The gossip encryption key. Gossip encryption is not enforced when leaving this empty.
+- `gossip_key`: `(string: <optional>)` - The gossip encryption key. Gossip encryption is not enforced when leaving this empty.
 
-`resolve_consul_domains`: Whether to point DNS records for *.service.consul to the consul servers. Defaults to `false`
+- `connect`: `(bool: true)` - Enable Consul Connect
 
-`tls`: The TLS certificate configuration. TLS is not enforced when leaving this empty.
+- `ui`: `(bool: true)` - Enable Consul UI
 
+- `advertise_addr`: `(string: "{{ GetPrivateIP }}")` - Address to advertise for Consul agent
+
+- `listen_addr`: `(string: "{{ GetPrivateIP }}")` - Address to bind the Consul agent to
+
+- `resolve_consul_domains`: `(bool: false)` Whether to point DNS records for *.service.consul to the consul servers. Defaults to `false`
+
+- `tls`: `(object)` The TLS certificate configuration. TLS is not enforced when leaving this empty.
+
+
+### Outputs
+
+- `manifest`: `(object)`

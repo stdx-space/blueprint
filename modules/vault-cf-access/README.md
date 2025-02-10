@@ -14,18 +14,18 @@ module "vault" {
 }
 ```
 
-`access_key`: S3-compatible bucket access key id
+- `access_key`: S3-compatible bucket access key id
 
-`secret_key`: S3-compatible bucket secret access key
+- `secret_key`: S3-compatible bucket secret access key
 
-`s3_endpoint`: S3-compatible bucket api url
+- `s3_endpoint`: S3-compatible bucket api url
 
-`bucket`: bucket name
+- `bucket`: bucket name
 
-`zone`: domain name
+- `zone`: domain name
 
-`cloudflare_account_id`: cloudflare account id
+- `cloudflare_account_id`: cloudflare account id
 
-`cloudflare_access_service_token_id`: cloudflare access service token id
+- `cloudflare_access_service_token_id`: cloudflare access service token id
 
-`webhook_url`: webhook endpoint for sending unseal/init request to
+- `webhook_url`: webhook endpoint for sending unseal/init request to

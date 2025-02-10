@@ -1,4 +1,4 @@
-# Terraform module for provisioning PKI
+# Terraform module for provisioning certificates signed by supplied CA
 
 ### Usage
 
@@ -25,39 +25,35 @@ module "certificates" {
 
 ### Required
 
-- `ca_private_key_pem` (String)
+- `ca_private_key_pem`: `(string: <required>)`
 
-- `ca_cert_pem` (String)
+- `ca_cert_pem`: `(string: <required>)`
 
-### Optional
+- `bit_length`: `(number: <optional>)`
 
-- `bit_length` (Number)
+- `client`: `(object)`
 
-- `client` (Block List)
-
-- `server` (Block List)
+- `server`: `(object)`
 
 ### Nested Schema for `client`
 
-- `common_name` (String)
+- `common_name`: `(string)`
 
-- `ttl` (Number)
+- `ttl`: `(number)`
 
 ### Nested Schema for `server`
 
-Optional
+- `san_dns_names`: `([]string: )`
 
-- `san_dns_names` (List of String)
+- `san_ip_addresses`: `([]string: )`
 
-- `san_ip_addresses` (List of String)
-
-- `ttl` (Number)
+- `ttl`: `(number)`
 
 ### Outputs
 
-- `servers` (List of Object)
+- `servers`: `([]object)`
 
-- `clients` (List of Object)
+- `clients`: `([]object)`
 
 ### Nested Schema for `servers`
 

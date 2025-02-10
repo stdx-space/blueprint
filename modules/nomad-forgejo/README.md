@@ -69,3 +69,6 @@ replicated to the specified S3 bucket continuously.
 
 The module uses Restic to backup git repositories. Restic backup jobs are
 scheduled to run every 5 minutes (configurable) with cron.
+
+## Argument Reference
+

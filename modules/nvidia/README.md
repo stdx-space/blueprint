@@ -4,11 +4,11 @@
 
 ```hcl
 module "nvidia" {
-  source = "git::https://gitlab.com/narwhl/wip/blueprint.git//modules/nvidia"
+  source = "registry.narwhl.workers.dev/driver/nvidia/gpu"
 }
 
 module "debian" {
-  source = "git::https://gitlab.com/narwhl/wip/blueprint.git//modules/debian"
+  source = "registry.narwhl.workers.dev/os/debian/cloudinit"
   name   = var.name
   substrates = [
     module.nvidia.manifest,
@@ -18,7 +18,7 @@ module "debian" {
 
 
 module "proxmox" {
-  source         = "git::https://gitlab.com/narwhl/wip/blueprint.git//modules/proxmox"
+  source         = "registry.narwhl.workers.dev/hypervisor/vm/proxmox"
   name           = var.name
   node           = var.node
   firmware       = "uefi" // required for gpu passthrough to work
@@ -32,3 +32,11 @@ module "proxmox" {
 }
 
 ```
+
+## Argument Reference
+
+This module does not require any variable input.
+
+## Outputs
+
+- `manifest`: `(object)`

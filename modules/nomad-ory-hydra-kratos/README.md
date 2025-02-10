@@ -21,3 +21,5 @@ module "ory" {
   smtp_connection_uri    = "smtp://{user:password}@{host:port}" # required field, http config for mail gateway tbd
 }
 ```
+
+## Argument Reference

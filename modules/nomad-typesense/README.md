@@ -36,3 +36,24 @@ host_volume "host-volume-name" {
   read_only = false
 }
 ```
+
+## Argument Reference
+
+- `datacenter_name`
+
+- `namespace`
+
+- `job_name`
+
+- `typesense_version`
+
+- `typesense_api_key`
+
+- `host_volume_config`
+
+- `enable_ephemeral_disk`
+
+- `purge_on_destroy`
+
+- `resources`
+

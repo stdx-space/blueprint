@@ -94,7 +94,7 @@ module "nomad" {
 }
 ```
 
-## Configuration
+## Argument Reference
 
 `datacenter_name`: The name of the Nomad datacenter to use.
 

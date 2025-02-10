@@ -20,3 +20,5 @@ module "temporal" {
   temporal_ui_version          = "2.31.2"
 }
 ```
+
+## Argument Reference

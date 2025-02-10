@@ -57,3 +57,5 @@ module "redis" {
   enable_ephemeral_disk = true # Enable Nomad ephemeral disk for the storing redis data temporarily. Cannot be used with host volumes.
 }
 ```
+
+## Argument Reference

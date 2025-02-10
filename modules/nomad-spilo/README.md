@@ -23,3 +23,5 @@ determine which node is writable.
 
 All instances are registered as Consul `postgres-ro` service and the
 leader is registered as `postgres-rw` service.
+
+## Argument Reference
