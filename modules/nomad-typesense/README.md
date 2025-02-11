@@ -39,21 +39,28 @@ host_volume "host-volume-name" {
 
 ## Argument Reference
 
-- `datacenter_name`
+- `datacenter_name`: `(string: <required>)` - The name of the Nomad datacenter to use.
 
-- `namespace`
+- `namespace`: `(string: <optional>)` - The namespace to run the job in. Defaults to `default`.
 
-- `job_name`
+- `job_name`: `(string: <optional>)` - The name of the job. Defaults to `typesense`.
 
-- `typesense_version`
+- `typesense_version`: `(string: <optional>)` - The version of Typesense to run. Defaults to `latest`.
 
-- `typesense_api_key`
+- `typesense_api_key`: `(string: <required>)` - The Typesense API key, Defaults to randomly generated.
 
-- `host_volume_config`
+- `host_volume_config`: `(object: <optional>)` - The host volume configuration.
 
-- `enable_ephemeral_disk`
+- `enable_ephemeral_disk`: `(bool: <optional>)` - Enable Nomad ephemeral disk for the storing typesense data temporarily. Cannot be used with host volumes.
 
-- `purge_on_destroy`
+- `purge_on_destroy`: `(bool: <optional>)` - Whether to purge the job on destroy. Defaults to `false`.
 
-- `resources`
+- `resources`: `(object: <optional>)` - The resources to allocate to the job.
 
+### Nested Schema for `host_volume_config`
+
+- `source`: `(string: <required>)` - The name of the host volume.
+
+- `read_only`: `(bool: <optional>)` - Whether the volume is read-only. Defaults to `false`.
+
+## Outputs

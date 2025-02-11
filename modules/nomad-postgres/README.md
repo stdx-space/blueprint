@@ -96,11 +96,15 @@ module "nomad" {
 
 ## Argument Reference
 
-`datacenter_name`: The name of the Nomad datacenter to use.
+- `datacenter_name`: The name of the Nomad datacenter to use.
 
-`pgbackrest_s3_config`: The configuration for pgbackrest to use. If null, backups will not be enabled.
+- `pgbackrest_s3_config`: The configuration for pgbackrest to use. If null, backups will not be enabled.
 
-`restore_backup`: Configuration for restoring a backup. If not null, creates a one-off restore job to restore with specified config.
+- `restore_backup`: Configuration for restoring a backup. If not null, creates a one-off restore job to restore with specified config.
+
+## Outputs
+
+
 
 ## Backup
 

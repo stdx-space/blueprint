@@ -23,46 +23,47 @@ module "certificates" {
 
 ## Argument Reference
 
-### Required
+- `ca_private_key_pem`: `(string: <required>)` - PEM-encoded CA certificate
 
-- `ca_private_key_pem`: `(string: <required>)`
+- `ca_cert_pem`: `(string: <required>)` - PEM-encoded CA private key
 
-- `ca_cert_pem`: `(string: <required>)`
+- `bit_length`: `(number: <optional>)` - Bit length of the generated certificate, defaults to 2048
 
-- `bit_length`: `(number: <optional>)`
+- `client`: `([]object: <required>)` - List of client certificates
 
-- `client`: `(object)`
+- `server`: `([]object: <required>)` - List of server certificates
 
-- `server`: `(object)`
 
 ### Nested Schema for `client`
 
-- `common_name`: `(string)`
+- `common_name`: `(string: <required>)` - Common name of the client certificate
 
-- `ttl`: `(number)`
+- `ttl`: `(number: <optional>)` - Time to live of the certificate, defaults to 6574 hours (9 months)
 
 ### Nested Schema for `server`
 
-- `san_dns_names`: `([]string: )`
+- `san_dns_names`: `([]string: <optional>)` - List of DNS names to include in the certificate
 
-- `san_ip_addresses`: `([]string: )`
+- `san_ip_addresses`: `([]string: <optional>)` - List of IP addresses to include in the certificate
 
-- `ttl`: `(number)`
+- `ttl`: `(number: <optional>)` - Time to live of the certificate, defaults to 13149 hours (18 months)
+
 
 ### Outputs
 
-- `servers`: `([]object)`
+- `servers`: `([]object)` - List of signed server certificates
 
-- `clients`: `([]object)`
+- `clients`: `([]object)` - List of signed client certificates
+
 
 ### Nested Schema for `servers`
 
-- `cert_pem` (String)
+- `cert_pem`: `(string)` - PEM-encoded server certificate
 
-- `key_pem` (String)
+- `key_pem`: `(string)` - PEM-encoded server private key
 
 ### Nested Schema for `clients`
 
-- `cert_pem` (String)
+- `cert_pem`: `(string)` - PEM-encoded client certificate
 
-- `key_pem` (String)
+- `key_pem`: `(string)` - PEM-encoded client private key

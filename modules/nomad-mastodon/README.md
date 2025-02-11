@@ -27,26 +27,26 @@ module "mastodon" {
 }
 ```
 
-## Configuration
+## Argument Reference
 
-`datacenter_name`: The name of the Nomad datacenter to use.
+`datacenter_name`: `(string: "dc1")` - The name of the Nomad datacenter to use.
 
-`mastodon_version`: The version of Mastodon to use.
+`mastodon_version`: `(string: <optional>)` - The version of Mastodon to use.
 
-`mastodon_hostname`: The hostname of the Mastodon server
+`mastodon_hostname`: `(string: )` - The hostname of the Mastodon server
 
-`s3_hostname`: The hostname of the MinIO server
+`s3_hostname`: `(string: <optional>)` - The hostname of the MinIO server
 
-`oidc_config`: The OIDC configuration.
+`oidc_config`: `(object)` - The OIDC configuration.
 
-`vapid_key`: The VAPID key. Generated with `rake mastodon:webpush:generate_vapid_key` from mastodon image.
+`vapid_key`: `(object)` - The VAPID key. Generated with `rake mastodon:webpush:generate_vapid_key` from mastodon image.
 
-`s3_access_key`: The access key of the MinIO server
+`s3_access_key`: `(string: <optional>)` - The access key of the MinIO server
 
-`s3_secret_key`: The secret key of the MinIO server
+`s3_secret_key`: `(string: <optional>)` - The secret key of the MinIO server
 
-`db_user`: The username of the PostgreSQL database
+`db_user`: `(string: <required>)` - The username of the PostgreSQL database
 
-`db_pass`: The password of the PostgreSQL database
+`db_pass`: `(string: <required>)` - The password of the PostgreSQL database
 
-`db_name`: The name of the PostgreSQL database
+`db_name`: `(string: <optional>)` - The name of the PostgreSQL database

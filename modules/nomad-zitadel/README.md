@@ -35,39 +35,32 @@ directory (e.g. `/alloc`) and upload it to a secret storage (e.g. Vault).
 
 ## Argument Reference
 
-- `datacenter_name`:
+- `datacenter_name`: `(string: <required>)` - The name of the Nomad datacenter to use.
 
-- `namespace`:
+- `namespace`: `(string: <optional>)` - The namespace to run the job in. Defaults to `default`.
 
-- `job_name`:
+- `job_name`: `(string: <optional>)` - The name of the job. Defaults to `zitadel`.
 
-- `zitadel_version`:
+- `zitadel_version`: `(string: <optional>)` - The version of Zitadel to run. Defaults to `latest`.
 
-- `external_domain`:
+- `external_domain`: `(string: <required>)` - The external domain to access Zitadel.
 
-- `traefik_entrypoint`:
+- `traefik_entrypoints`: `(object: <optional>)` - The entrypoints to expose the service.
 
-- `postgres_host`:
+- `organization_name`: `(string: <optional>)` - The name of the organization. Defaults to `Zitadel`.
 
-- `postgres_port`:
+- `root_username`: `(string: <optional>)` - The username of the root user. Defaults to "root".
 
-- `postgres_database`:
+- `root_password`: `(string: <optional>)` - The password of the root user. Defaults to a random password
 
-- `postgres_password`:
+- `masterkey`: `(string: <optional>)` - The masterkey is used to AES256-encrypt other generated encryption keys in Zitadel. It must be 32 character length string. Defaults to a random password
 
-- `postgres_ssl_mode`: 
+- `resources`: `(object: <optional>)` - The resources to allocate to the job.
 
-- `postgres_admin_username`: 
+- `purge_on_destroy`: `(bool: <optional>)` - Whether to purge the job on destroy. Defaults to `false`.
 
-- `organization_name`: `(string: )`
+## Outputs
 
-- `root_username`: `(string: "root")`
+- `root_password`: `string` - The password of the root user.
 
-- `root_password`: `(string: <optional>)`
-
-- `masterkey`: `(string: <optional>)`
-
-- `resources`: 
-
-- `purge_on_destroy`: `(bool)`
-
+- `masterkey`: `string` - The masterkey of zitadel.

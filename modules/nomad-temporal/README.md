@@ -22,3 +22,18 @@ module "temporal" {
 ```
 
 ## Argument Reference
+
+- `datacenter_name`: `(string: <required>)` - The name of the Nomad datacenter to use.
+
+- `namespace`: `(string: <optional>)` - The namespace to run the job in. Defaults to `default`.
+
+- `job_name`: `(string: <optional>)` - The name of the job. Defaults to `temporal`.
+
+- `temporal_version`: `(string: <optional>)` - The version of Temporal to run. Defaults to `latest`.
+
+- `temporal_ui_version`: `(string: <optional>)` - The version of Temporal UI to run. Defaults to `latest`.
+
+
+
+
+## Outputs

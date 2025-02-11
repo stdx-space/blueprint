@@ -59,3 +59,21 @@ module "redis" {
 ```
 
 ## Argument Reference
+
+- `datacenter_name`: `(string: <required>)` - The name of the Nomad datacenter to use.
+
+- `namespace`: `(string: <optional>)` - The namespace to run the job in. Defaults to `default`.
+
+- `job_name`: `(string: <optional>)` - The name of the job. Defaults to `redis`.
+
+- `redis_version`: `(string: <optional>)` - The version of Redis to run. Defaults to `latest`.
+
+- `host_volume_config`: `(object: <optional>)` - The host volume configuration to mount to the container.
+
+- `enable_ephemeral_disk`: `(bool: <optional>)` - Enable Nomad ephemeral disk for the storing redis data temporarily. Cannot be used with host volumes.
+
+- `purge_on_destroy`: `(bool: <optional>)` - Whether to purge the job on destroy. Defaults to `false`.
+
+- `persistent_config`: `(object: <optional>)` - The persistent volume configuration to store redis data.
+
+- `resources`: `(object: <optional>)` - The resources to allocate to the job.

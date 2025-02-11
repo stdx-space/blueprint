@@ -14,3 +14,7 @@ module "vsphere" {
   provisioning_config = module.os_name.config                     # required
 }
 ```
+
+## Argument Reference
+
+## Outputs

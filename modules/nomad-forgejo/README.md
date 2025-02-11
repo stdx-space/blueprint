@@ -72,3 +72,54 @@ scheduled to run every 5 minutes (configurable) with cron.
 
 ## Argument Reference
 
+- `datacenter_name`: `(string: <required>)` - The name of the Nomad datacenter to use.
+
+- `namespace`: `(string: <optional>)` - The namespace to run the job in. Defaults to `default`.
+
+- `job_name`: `(string: <optional>)` - The name of the job. Defaults to `forgejo`.
+
+- `service_discovery_provider`: `(string: <optional>)` - The service discovery provider to use. Defaults to `consul`.
+
+- `resources`: `(object: <optional>)` - The resources to allocate to the job.
+
+- `purge_on_destroy`: `(bool: <optional>)` - Whether to purge the job on destroy. Defaults to `false`.
+
+- `forgejo_version`: `(string: <optional>)` - The version of Forgejo to run. Defaults to `latest`.
+
+- `litestream_version`: `(string: <optional>)` - The version of Litestream to run. Defaults to `latest`.
+
+- `restic_version`: `(string: <optional>)` - The version of Restic to run. Defaults to `latest`.
+
+- `traefik_entrypoint`: `(object: <optional>)` - The entrypoints to expose the service.
+
+- `app_name`: `(string: <optional>)` - The name of the Forgejo instance. Defaults to `forgejo`.
+
+- `domain`: `(string: <required>)` - The domain to access the Forgejo instance.
+
+- `protocol`: `(string: <optional>)` - The protocol to access the Forgejo instance. Defaults to `http`.
+
+- `ssh_domain`: `(string: <required>)` - The domain to access the Forgejo instance via SSH.
+
+- `disable_registration`: `(bool: <optional>)` - Whether to disable registration. Defaults to `false`.
+
+- `require_signin_view`: `(bool: <optional>)` - Whether to require sign in to view the Forgejo instance. Defaults to `false`.
+
+- `minio_endpoint`: `(string: <required>)` - The MinIO endpoint to use.
+
+- `minio_access_key`: `(string: <required>)` - The MinIO access key to use.
+
+- `minio_secret_key`: `(string: <required>)` - The MinIO secret key to use.
+
+- `minio_data_bucket`: `(string: <required>)` - The MinIO bucket to store Forgejo data.
+
+- `minio_replication_bucket`: `(string: <required>)` - The MinIO bucket to store Litestream replication data.
+
+- `minio_backup_bucket`: `(string: <required>)` - The MinIO bucket to store Restic backups.
+
+- `minio_use_ssl`: `(bool: <optional>)` - Whether to use SSL to connect to MinIO. Defaults to `false`.
+
+- `minio_checksum_algorithm`: `(string: <optional>)` - The checksum algorithm to use.
+
+- `restic_password`: `(string: <required>)` - The password to encrypt Restic backups.
+
+- `backup_schedule`: `(string: <optional>)` - The cron schedule to run Restic backups. Defaults to `*/5 * * * *`.

@@ -11,41 +11,44 @@ module "debian" {
 
 ## Argument Reference
 
-- `name`: Hostname for the Debian instance
+- `name`: `(string: <required>)` - Hostname for the Debian instance
 
-- `username`: Username for logging into the Debian instance, defaults to `system`
+- `username`: `(string: "system")` - Username for logging into the Debian instance, defaults to `system`
 
-- `password`: Password in plaintext for logging into the console, ssh login is key only.
+- `password`: `(string: <optional>)` - Password in plaintext for logging into the console, ssh login is key only.
 
-- `autologin`: (optional) Whether to enable autologin for the guest instance, defaults to `true`.
+- `autologin`: `(bool: false)` - Whether to enable autologin for the guest instance, defaults to `true`.
 
-- `disks`: List of disks to mount onto the Debian instance
+- `disks`: `([]object: <optional>)` - List of disks to mount onto the Debian instance
 
   - `label`: Label for the disk storage device
   - `mount_path`: Filesystem path to mount the disk storage device to
   - `device_path`: Path to the disk storage device, e.g /dev/sda1
 
-- `nameservers`: List of nameservers to assign to the guest instance, e.g `["8.8.8.8", "1.1.1.1"]`
+- `nameservers`: `([]string: <optional>)` - List of nameservers to assign to the guest instance, e.g `["8.8.8.8", "1.1.1.1"]`
 
-- `expose_docker_socket`: Whether to enable docker socket to be accessible via a TCP listener, defaults to `false`
+- `expose_docker_socket`: `(bool: false)` - Whether to enable docker socket to be accessible via a TCP listener.
 
-- `expose_metrics`: Whether to install and enable prometheus node-exporter as systemd service, defaults to `false`.
+- `expose_metrics`: `(bool: false)` - Whether to install and enable prometheus node-exporter as systemd service.
 
-- `ssh_keys_import`: (optional) List of urls that points to your ssh public keys, support fetching over git hosting provider, e.g `https://github.com/{user}.keys`, defaults to `[]`.
+- `ssh_keys_import`: `([]string: <optional>)` - List of urls that points to your ssh public keys, support fetching over git hosting provider, e.g `https://github.com/{user}.keys`, defaults to `[]`.
 
-- `ssh_authorized_keys`: A list of SSH public keys to be added to the Debian instance login user.
+- `ssh_authorized_keys`: `([]string: <optional>)` - A list of SSH public keys to be added to the Debian instance login user.
 
-- `network`: CIDR notation for the network to be used for the guest instance, e.g `10.0.0.0/16`
+- `network`: `(string: <optional>)` - CIDR notation for the network to be used for the guest instance, e.g `10.0.0.0/16`
 
-- `ip_address`: Static IP address to assign to the guest instance, e.g `10.0.0.10`
+- `ip_address`: `(string: <optional>)` - Static IP address to assign to the guest instance, e.g `10.0.0.10`
 
-- `gateway_ip`: Gateway IP address to assign to the guest instance, e.g `10.0.0.1`
+- `gateway_ip`: `(string: <optional>)` - Gateway IP address to assign to the guest instance, e.g `10.0.0.1`
 
-- `timezone`: Timezone the VM resides in (e.g `Europe/Stockholm`), defaults to `Asia/Hong_Kong`
+- `timezone`: `(string: <optional>)` - Timezone the VM resides in (e.g `Europe/Stockholm`), defaults to `Asia/Hong_Kong`
 
-- `default_packages`: A list of default packages to be installed on the Debian through apt, e.g `["vim", "htop"]`
+- `default_packages`: `([]string: <optional>)` - A list of default packages to be installed on the Debian through apt, e.g `["vim", "htop"]`
 
-- `base64_encode`: Whether to encode the resulting ignition config file in base64, defaults to `false`
+- `base64_encode`: `(bool: false)` - Whether to encode the resulting ignition config file in base64, defaults to `false`
 
 ## Outputs
 
+- `config`: `(object)`
+
+- `files`: `([]object)`
