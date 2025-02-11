@@ -46,7 +46,7 @@ module "proxmox" {
 
 - `memory`: `(number: 512)` - Size of memory in **_Megabytes_** to allocate to the VM, defaults to `512`.
 
-- disk_size`: `(number: 16)` - Size of disk space in **_Gigabytes_** to allocate to the VM, defaults to `16`.
+- `disk_size`: `(number: 16)` - Size of disk space in **_Gigabytes_** to allocate to the VM, defaults to `16`.
 
 - `disks`: `([]object: <optional>)` - A list of objects that can be optionally set to specify additional disk images to attach to the VM, this option when used is required to set the booting disk image as well and `disk_size` will be ignored if set.
 
