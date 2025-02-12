@@ -48,6 +48,7 @@ variable "postgres_superuser_username" {
 
 variable "postgres_superuser_password" {
   type        = string
+  sensitive   = true
   description = "Password of the postgres superuser"
 }
 

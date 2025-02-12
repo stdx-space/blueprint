@@ -237,3 +237,39 @@ service {
 ```
 
 Configure the DNS record with the same way as the static route example.
+
+## Argument Reference
+
+- `datacenter_name`: `(string: <required>)` - The name of the Nomad datacenter to use.
+
+- `namespace`: `(string: <optional>)` - The namespace to run the job in. Defaults to `default`.
+
+- `traefik_version`: `(string: <optional>)` - The version of Traefik to run. Defaults to `latest`.
+
+- `cloudflared_version`: `(string: <optional>)` - The version of Cloudflared to run. Defaults to `latest`.
+
+- `cloudflare_tunnel_config_source`: `(string: <optional>)` - The source of the cloudflare tunnel configuration. Defaults to `local`.
+
+- `dns_zone_name`: `(string: <required>)` - The DNS zone name to use for the ingress.
+
+- `cloudflare_account_id`: `(string: <optional>)` - The Cloudflare account ID to use for the tunnel. Leave empty to disable cloudflare tunnel component.
+
+- `acme_email`: `(string: <required>)` - The email to use for ACME registration.
+
+- `static_routes`: `(string: <optional>)` - The static routes to add to traefik configuration.
+
+- `use_https`: `(bool: <optional>)` - Whether to use https for communication between cloudflare tunnel and traefik. Defaults to `true`.
+
+- `nomad_provider_config`: `(object: <optional>)` - The configuration for nomad provider.
+
+- `consul_provider_config`: `(object: <optional>)` - The configuration for consul provider.
+
+- `controller_job_name`: `(string: <optional>)` - The name of the traefik controller job. Defaults to `traefik`.
+
+- `gateway_job_name`: `(string: <optional>)` - The name of the cloudflared gateway job. Defaults to `cloudflared`.
+
+## Outputs
+
+- `cloudflare_tunnel_domain`: `(string)` - The domain to use for cloudflare tunnel.
+
+- `cloudflare_tunnel_id`: `(string)` - The ID of the cloudflare tunnel.

@@ -1,0 +1,15 @@
+%{ for template in templates ~}
+template {
+  contents         = <<EOF
+${template.contents}
+  EOF
+  destination      = "${template.destination}"
+  create_dest_dirs = true
+  perms            = ${template.mode}
+  user             = ${template.user}
+  group            = ${template.group}
+  exec {
+    command = ${template.command}
+  }
+}
+%{ endfor ~}

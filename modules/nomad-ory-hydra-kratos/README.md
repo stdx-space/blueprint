@@ -23,3 +23,59 @@ module "ory" {
 ```
 
 ## Argument Reference
+
+- `datacenter_name`: `(string: <required>)` - The name of the Nomad datacenter to use.
+
+- `namespace`: `(string: <optional>)` - The namespace to run the job in. Defaults to `default`.
+
+- `job_name`: `(string: <optional>)` - The name of the job. Defaults to `ory`.
+
+- `database_addr`: `(string: <required>)` - The address of the Postgres database.
+
+- `database_password`: `(string: <required>)` - The password of the Postgres database.
+
+- `database_sslmode`: `(string: <optional>)` - The ssl mode of the Postgres database. Defaults to `disable`.
+
+- `database_user`: `(string: <optional>)` - The username of the Postgres database. Defaults to `ory`.
+
+- `hydra_db_name`: `(string: <optional>)` - The name of the hydra database. Defaults to `hydra`.
+
+- `kratos_db_name`: `(string: <optional>)` - The name of the kratos database. Defaults to `kratos`.
+
+- `hydra_version`: `(string: <required>)` - The version of Ory Hydra to run.
+
+- `kratos_version`: `(string: <required>)` - The version of Ory Kratos to run.
+
+- `application_name`: `(string: <required>)` - The name of the application.
+
+- `root_domain`: `(string: <required>)` - The root domain for the subdomains.
+
+- `hydra_subdomain`: `(string: <required>)` - The subdomain for the hydra service.
+
+- `kratos_ui_subdomain`: `(string: <required>)` - The subdomain for the kratos ui service.
+
+- `kratos_admin_subdomain`: `(string: <required>)` - The subdomain for the kratos admin service.
+
+- `smtp_connection_uri`: `(string: <required>)` - The smtp connection uri for sending emails.
+
+- `kratos_identity_schema`: `(string: <required>)` - The identity schema for kratos.
+
+- `kratos_recovery_enabled`: `(bool: <optional>)` - Whether to enable account recovery. Defaults to `true`.
+
+- `kratos_verification_enabled`: `(bool: <optional>)` - Whether to enable account verification. Defaults to `true`.
+
+- `kratos_webauthn_enabled`: `(bool: <optional>)` - Whether to enable webauthn. Defaults to `false`.
+
+- `kratos_passkey_enabled`: `(bool: <optional>)` - Whether to enable passkey. Defaults to `false`.
+
+- `email_from_name`: `(string: <required>)` - The name of the email sender.
+
+- `registration_webhooks`: `([]object: <optional>)` - The registration webhooks.
+
+- `settings_webhooks`: `([]object: <optional>)` - The settings webhooks.
+
+- `traefik_entrypoints`: `(object: <optional>)` - The entrypoints to expose the service.
+
+## Outputs
+
+- `kratos_cookie_secret`: `string` - The cookie secret for Ory Kratos.

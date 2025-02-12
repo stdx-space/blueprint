@@ -36,3 +36,7 @@ module "hasura" {
 - `resources`: `(object: <optional>)` - The resources to allocate to the job.
 
 - `purge_on_destroy`: `(bool: <optional>)` - Whether to purge the job on destroy. Defaults to `false`.
+
+## Outputs
+
+- `hasura_admin_secret`: `(string)` - The admin secret for Hasura.

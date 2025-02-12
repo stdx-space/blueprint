@@ -3,11 +3,11 @@ resource "terraform_data" "manifest" {
     directories = local.directories
     packages    = keys(local.pkgs)
     users       = []
-    files       = concat(
+    files = concat(
       local.configs,
       [
         for pkg in keys(local.pkgs) : {
-          path    = format(
+          path = format(
             "/etc/extensions/${pkg}-%s-x86-64.raw",
             local.pkgs[pkg].version
           )
@@ -22,7 +22,7 @@ resource "terraform_data" "manifest" {
       ],
       [
         for pkg in keys(local.pkgs) : {
-          path    = "/etc/sysupdate.${pkg}.d/${pkg}.conf"
+          path = "/etc/sysupdate.${pkg}.d/${pkg}.conf"
           content = templatefile(
             "${path.module}/templates/update.conf.tftpl",
             {
@@ -36,7 +36,7 @@ resource "terraform_data" "manifest" {
       ],
     )
     install = {
-      systemd_units = local.systemd_units
+      systemd_units = []
       repositories  = local.repositories
       packages      = local.packages
     }
