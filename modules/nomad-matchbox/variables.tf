@@ -1,16 +1,29 @@
 variable "datacenter_name" {
   type        = string
   description = "The name of the nomad datacenter"
+  default     = "dc1"
 }
 
-variable "dhcp_range_start" {
+variable "job_name" {
   type        = string
-  description = "The start of the DHCP range"
+  description = "The name of the nomad job"
+  default     = "matchbox"
 }
 
-variable "dhcp_range_end" {
+variable "namespace" {
   type        = string
-  description = "The end of the DHCP range"
+  description = "The namespace of the nomad job"
+  default     = "default"
+}
+
+variable "dhcp_range" {
+  type        = list(string)
+  description = "DHCP range to issue IPs from and to"
+
+  validation {
+    condition     = length(var.dhcp_range) == 2
+    error_message = "DHCP range must be a list of two strings"
+  }
 }
 
 variable "grpc_tls_cert" {

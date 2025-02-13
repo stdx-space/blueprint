@@ -2,8 +2,8 @@ resource "nomad_job" "matchbox" {
   jobspec = templatefile("${path.module}/matchbox.nomad.hcl", {
     datacenter_name    = var.datacenter_name
     dnsmasq_version    = var.dnsmasq_version
-    dhcp_range_start   = var.dhcp_range_start
-    dhcp_range_end     = var.dhcp_range_end
+    dhcp_range_start   = var.dhcp_range[0]
+    dhcp_range_end     = var.dhcp_range[1]
     matchbox_version   = var.matchbox_version
     matchbox_ipxe_url  = "${var.matchbox_url}/boot.ipxe"
     flatcar_version    = var.flatcar_version
