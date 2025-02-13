@@ -3,7 +3,18 @@
 ## Usage
 
 ```hcl
-
+module "matchbox" {
+  source             = "registry.narwhl.workers.dev/stack/matchbox/nomad"
+  matchbox_version   = "latest"
+  dnsmasq_version    = "v0.5.0-40-g494d4e0"
+  dhcp_range         = ["192.168.100.5", "192.168.100.15"]
+  grpc_tls_cert      = "..."
+  grpc_tls_key       = "..."
+  ca_cert_pem        = "..."
+  flatcar_version    = "4152.2.0"
+  talos_version      = "v1.9.3"
+  talos_schematic_id = "..."
+}
 ```
 
 ## Argument Reference
@@ -18,9 +29,7 @@
 
 - `dnsmasq_version`: `(string: <required>)` - The version of Dnsmasq to deploy.
 
-- `dhcp_range_start`: `(string: <required>)` - The start of the DHCP range.
-
-- `dhcp_range_end`: `(string: <required>)` - The end of the DHCP range.
+- `dhcp_range`: `([]string: <required>)` - The start and end of the DHCP range.
 
 - `grpc_tls_cert`: `(string: <required>)` - The PEM-encoded gRPC TLS certificate.
 

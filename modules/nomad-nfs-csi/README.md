@@ -2,7 +2,7 @@
 
 ### Usage
 
-```
+```hcl
 module "nfs-csi" {
   source                 = "registry.narwhl.workers.dev/plugins/nfs/nomad"
   datacenter_name        = "dc0"
