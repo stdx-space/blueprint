@@ -1,0 +1,10 @@
+[Unit]
+Description=Create LVM Volume Groups
+
+[Service]
+ExecStart=/opt/bin/lvm.sh
+RemainAfterExit=yes
+Type=oneshot
+
+[Install]
+WantedBy=multi-user.target

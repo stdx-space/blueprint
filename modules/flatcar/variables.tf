@@ -201,6 +201,12 @@ locals {
         )
       },
     ],
+    length(var.lvm_volume_groups) > 0 ? [
+      {
+        name    = "init-lvm-vg.service"
+        content = file("${path.module}/templates/init-lvm-vg.service.tftpl")
+      }
+    ] : [],
     var.expose_metrics ? [
       {
         name    = "node-exporter.service"
