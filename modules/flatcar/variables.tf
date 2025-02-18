@@ -46,6 +46,15 @@ variable "mounts" {
   description = "List of disk configurations"
 }
 
+variable "lvm_volume_groups" {
+  type = list(object({
+    name    = string
+    devices = list(string)
+  }))
+  default     = []
+  description = "List of LVM volume group configurations, e.g [{ name = 'vg0', disks = ['/dev/sda', '/dev/sdb'] }]"
+}
+
 variable "enable_podman" {
   type        = bool
   default     = false
