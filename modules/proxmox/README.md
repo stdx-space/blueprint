@@ -36,6 +36,28 @@ module "proxmox" {
 
 ```
 
+### VM with additional disk images
+
+```hcl
+module "proxmox" {
+  source              = "registry.narwhl.workers.dev/hypervisor/vm/proxmox"
+  name                = var.name
+  vcpus               = 4
+  memory              = 4096
+  disk_size           = 48
+  storage_pool        = "local-lvm"
+  os_template_id      = var.disk_template_id
+  disks               = [
+    {
+      storage_id       = "local-lvm"
+      size             = 64
+      thin_provisioned = true
+    }
+  ]
+  provisioning_config = module.debian.config
+}
+```
+
 ### Variables
 
 - `name`: `(string: <required>)` - Display name for the VM in Proxmox.
