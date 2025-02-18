@@ -10,6 +10,41 @@ module "flatcar" {
 }
 ```
 
+## Examples
+
+### With disk mounts
+
+```hcl
+module "flatcar" {
+  source = "registry.narwhl.workers.dev/os/flatcar/ignition"
+  name = "hostname"
+  ssh_authorized_keys = [tls.private_key.this.public_key_openssh]
+  mounts = [
+    {
+      label     = "data"
+      path      = "/mnt/data"
+      partition = "/dev/sdb"
+    }
+  ]
+}
+```
+
+### With LVM volume groups creation
+
+```hcl
+module "flatcar" {
+  source              = "registry.narwhl.workers.dev/os/flatcar/ignition"
+  name                = "hostname"
+  ssh_authorized_keys = [tls.private_key.this.public_key_openssh]
+  lvm_volume_groups   = [
+    {
+      name = "vg0"
+      disks = ["/dev/sdb"]
+    }
+  ]
+}
+```
+
 ## Argument Reference
 
 - `name`: `(string: <required>)` - Hostname for the Flatcar instance.
@@ -52,6 +87,10 @@ module "flatcar" {
 
 ## Outputs
 
-- `config`
+- `config`: `(object)` - The rendered ignition config file.
 
-- 
+### Nested schema for `config`
+
+- `type`: `(string: "ignition")` - The type of the config file.
+
+- `payload`: `(string)` - Either the base64 encoded content of the ignition config file or in raw.
