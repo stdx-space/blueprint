@@ -3,7 +3,7 @@ resource "random_bytes" "secret" {
 }
 
 resource "nomad_variable" "secrets" {
-  path = "nomad/jobs/${job_name}"
+  path = "nomad/jobs/${var.job_name}"
   items = {
     tsig_secret_key   = random_bytes.secret.base64
     tailscale_authkey = var.tailscale_authkey
