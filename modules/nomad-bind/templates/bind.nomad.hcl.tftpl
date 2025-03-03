@@ -1,0 +1,138 @@
+job "${job_name}" {
+  datacenters = ["${datacenter_name}"]
+  type        = "service"
+  namespace   = "${namespace}"
+
+  group "dns" {
+    task "tailscale" {
+      driver = "docker"
+
+      lifecycle {
+        hook = "poststart"
+        sidecar = true
+      }
+
+      config {
+        image = "tailscale/tailscale:${tailscale_version}"
+      }
+
+      template {
+        data = <<-EOH
+        TS_AUTHKEY={{ with nomadVar "nomad/jobs/${job_name}" }}{{ .tailscale_authkey }}{{ end }}
+        TS_STATE_DIR="mem:"
+        TS_USERSPACE="true"
+        TS_HOSTNAME="{{ env "NOMAD_GROUP_NAME" }}"
+        TS_ROUTES="{{ env "NOMAD_ALLOC_IP_dns" }}/32"
+        EOH
+        destination = "secrets/file.env"
+        env         = true
+      }
+    }
+
+    task "bind" {
+      driver = "docker"
+
+      config {
+        image = "internetsystemsconsortium/bind9:${bind_version}"
+        ports = ["dns"]
+        args = ["-g", "-c", "/etc/bind/named.conf", "-u", "bind"]
+
+        mount {
+          type = "bind"
+          source = "local/config/named.conf"
+          target = "/etc/bind/named.conf"
+        }
+
+        %{ for zone in zones ~}mount {
+          type = "bind"
+          source = "local/config/${zone}.zone"
+          target = "/var/lib/bind/${zone}.zone"
+        }
+
+        %{ endfor ~}
+}
+      %{ for zone in zones ~}template {
+        data = <<EOF
+; base zone file for ${zone}
+
+$TTL 2d    ; default TTL for zone
+
+$ORIGIN ${zone}. ; base domain-name
+
+; Start of Authority RR defining the key characteristics of the zone (domain)
+
+@         IN      SOA   ns.${zone}. hostmaster.${zone}. (
+
+                                ${formatdate("YYYYMMDD",timestamp())}00 ; serial number
+
+                                12h        ; refresh
+
+                                15m        ; update retry
+
+                                4d         ; expiry
+
+                                2h         ; minimum
+
+                                )
+; name server RR for the domain
+
+           IN      NS      ns.${zone}.
+ns         IN      A       {{ env "NOMAD_ALLOC_IP_dns" }}
+EOF
+      destination = "$${NOMAD_TASK_DIR}/config/${zone}.zone"
+      }
+
+      %{ endfor ~}
+
+      template {
+        data = <<EOF
+key "tsig" {
+  algorithm hmac-sha256;
+  secret "{{ with nomadVar "nomad/jobs/${job_name}" }}{{ .tsig_secret_key }}{{ end }}";
+};
+EOF
+        destination = "$${NOMAD_SECRETS_DIR}/named.conf.key"
+      }
+
+      template {
+        data = <<EOF
+include "{{ env "NOMAD_SECRETS_DIR" }}/named.conf.key";
+
+options {
+  directory "/var/cache/bind";
+  recursion yes;
+  allow-query { any; };
+  forwarders {
+    %{ for nameserver in upstream_nameservers ~}${nameserver};
+    %{ endfor }
+  };
+};
+
+%{ for zone in zones ~}
+zone "${zone}." {
+  type primary;
+  file "/var/lib/bind/${zone}.zone";
+  update-policy { grant tsig zonesub any; };
+  notify explicit;
+};
+
+%{ endfor ~}
+EOF
+        destination = "$${NOMAD_TASK_DIR}/config/named.conf"
+      }
+
+      resources {
+        cpu    = ${resources.cpu}
+        memory = ${resources.memory}
+      }
+
+    }
+
+    network {
+      mode = "bridge"
+      port "dns" {
+        to = 53
+      }
+    }
+  }
+}
