@@ -43,7 +43,7 @@ resource "nomad_job" "hydra_kratos" {
       datacenter_name    = var.datacenter_name
       namespace          = var.namespace
       db_user            = var.database_user
-      db_password        = fomrat(local.nomad_var_template, "db_password")
+      db_password        = format(local.nomad_var_template, "db_password")
       db_addr            = var.database_addr
       db_sslmode         = var.database_sslmode
       hydra_db_name      = var.hydra_db_name
