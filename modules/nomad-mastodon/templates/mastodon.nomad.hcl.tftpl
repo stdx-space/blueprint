@@ -120,7 +120,7 @@ job "${job_name}" {
         data        = <<EOF
 ${mastodon_env_file}
         EOF
-        destination = "secrets/.env"
+        destination = "$${NOMAD_SECRETS_DIR}/.env"
         env         = true
       }
     }
@@ -263,7 +263,7 @@ ${mastodon_env_file}
         data        = <<EOF
 ${mastodon_env_file}
         EOF
-        destination = "secrets/.env"
+        destination = "$${NOMAD_SECRETS_DIR}/.env"
         env         = true
       }
     }

@@ -41,12 +41,15 @@ job "${job_name}" {
     task "vaultwarden" {
       driver = "docker"
 
-      env {
-        SIGNUPS_ALLOWED   = false
-        TZ                = "Asia/Hong_Kong"
-        DOMAIN            = "https://${fqdn}"
-        DATA_FOLDER       = "$${NOMAD_ALLOC_DIR}/data/vaultwarden"
-        DATABASE_URL      = "$${NOMAD_ALLOC_DIR}/data/db.sqlite3"
+      template {
+        data = <<-EOT
+          SIGNUPS_ALLOWED = false
+          TZ = "Asia/Hong_Kong"
+          DOMAIN = "https://${fqdn}"
+          DATA_FOLDER = "{{ env "NOMAD_ALLOC_DIR" }}/data/vaultwarden"
+          DATABASE_URL = "{{ env "NOMAD_ALLOC_DIR" }}/data/db.sqlite3"
+        EOT
+        destination = "$${NOMAD_SECRETS_DIR}/.env"
       }
 
       config {
@@ -65,25 +68,25 @@ job "${job_name}" {
       config {
         image = "restic/restic:${restic_version}"
         entrypoint = ["/bin/sh"]
-        args = ["/local/entrypoint.sh"]
+        args = ["$${NOMAD_TASK_DIR}/entrypoint.sh"]
       }
       template {
         data = <<EOH
 ${backup_entrypoint_script}
         EOH
-        destination = "local/entrypoint.sh"
+        destination = "$${NOMAD_TASK_DIR}/entrypoint.sh"
       }
       template {
         data = <<EOH
 ${crontab}
         EOH
-        destination = "local/crontabs/root"
+        destination = "$${NOMAD_TASK_DIR}/crontabs/root"
       }
       template {
         data = <<EOH
 ${restic_env}
         EOH
-        destination = "secrets/.env"
+        destination = "$${NOMAD_SECRETS_DIR}/.env"
         env         = true
       }
     }
@@ -97,19 +100,19 @@ ${restic_env}
       config {
         image = "restic/restic:${restic_version}"
         entrypoint = ["/bin/sh"]
-        args = ["/local/entrypoint.sh"]
+        args = ["$${NOMAD_TASK_DIR}/entrypoint.sh"]
       }
       template {
         data = <<EOH
 ${restore_entrypoint_script}
         EOH
-        destination = "local/entrypoint.sh"
+        destination = "$${NOMAD_TASK_DIR}/entrypoint.sh"
       }
       template {
         data = <<EOH
 ${restic_env}
         EOH
-        destination = "secrets/.env"
+        destination = "$${NOMAD_SECRETS_DIR}/.env"
         env         = true
       }
     }
@@ -125,7 +128,7 @@ ${restic_env}
         args = [
           "restore",
           "-config",
-          "/secrets/litestream.yml",
+          "$${NOMAD_SECRETS_DIR}/litestream.yml",
           "-if-replica-exists",
           "$${NOMAD_ALLOC_DIR}/data/db.sqlite3",
         ]
@@ -134,7 +137,7 @@ ${restic_env}
         data = <<EOH
 ${litestream_config}
         EOH
-        destination = "secrets/litestream.yml"
+        destination = "$${NOMAD_SECRETS_DIR}/litestream.yml"
       }
     }
 
@@ -145,14 +148,14 @@ ${litestream_config}
         args = [
           "replicate",
           "-config",
-          "/secrets/litestream.yml",
+          "$${NOMAD_SECRETS_DIR}/litestream.yml",
         ]
       }
       template {
         data = <<EOH
 ${litestream_config}
         EOH
-        destination = "secrets/litestream.yml"
+        destination = "$${NOMAD_SECRETS_DIR}/litestream.yml"
       }
     }
   }

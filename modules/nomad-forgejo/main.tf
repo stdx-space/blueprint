@@ -1,4 +1,5 @@
 locals {
+  nomad_var_template = "{{ with nomadVar \"nomad/jobs/${var.job_name}\" }}{{ .%s }}{{ end }}"
   # default docker configuration for forgejo can be found here:
   # https://codeberg.org/forgejo/forgejo/src/branch/forgejo/docker/root/etc/templates/app.ini
   forgejo_env = {
@@ -15,8 +16,8 @@ locals {
     REQUIRE_SIGNIN_VIEW                        = var.require_signin_view
     FORGEJO__storage__STORAGE_TYPE             = "minio"
     FORGEJO__storage__MINIO_ENDPOINT           = var.minio_endpoint
-    FORGEJO__storage__MINIO_ACCESS_KEY_ID      = var.minio_access_key
-    FORGEJO__storage__MINIO_SECRET_ACCESS_KEY  = var.minio_secret_key
+    FORGEJO__storage__MINIO_ACCESS_KEY_ID      = format(local.nomad_var_template, "minio_access_key")
+    FORGEJO__storage__MINIO_SECRET_ACCESS_KEY  = format(local.nomad_var_template, "minio_secret_key")
     FORGEJO__storage__MINIO_BUCKET             = var.minio_data_bucket
     FORGEJO__storage__MINIO_USE_SSL            = var.minio_use_ssl
     FORGEJO__storage__MINIO_CHECKSUM_ALGORITHM = var.minio_checksum_algorithm
@@ -24,8 +25,8 @@ locals {
     FORGEJO__security__INSTALL_LOCK            = true # for skipping intall wizard, https://forum.gitea.com/t/unattended-gitea-installation-from-the-cli/3373/22
   }
   litestream_config = {
-    access-key-id     = var.minio_access_key
-    secret-access-key = var.minio_secret_key
+    access-key-id     = format(local.nomad_var_template, "minio_access_key")
+    secret-access-key = format(local.nomad_var_template, "minio_secret_key")
     dbs = [
       {
         path = "/alloc/forgejo.db"
@@ -42,9 +43,9 @@ locals {
   }
   restic_env = {
     RESTIC_REPOSITORY     = "s3:${var.minio_use_ssl ? "https" : "http"}://${var.minio_endpoint}/${var.minio_backup_bucket}"
-    RESTIC_PASSWORD       = var.restic_password
-    AWS_ACCESS_KEY_ID     = var.minio_access_key
-    AWS_SECRET_ACCESS_KEY = var.minio_secret_key
+    RESTIC_PASSWORD       = format(local.nomad_var_template, "restic_password")
+    AWS_ACCESS_KEY_ID     = format(local.nomad_var_template, "minio_access_key")
+    AWS_SECRET_ACCESS_KEY = format(local.nomad_var_template, "minio_secret_key")
   }
   backup_entrypoint_script  = file("${path.module}/templates/backup.entrypoint.sh")
   restore_entrypoint_script = file("${path.module}/templates/restore.entrypoint.sh")
@@ -70,6 +71,16 @@ locals {
     restic_env                 = join("\n", [for k, v in local.restic_env : "${k}=${v}"])
     crontab                    = local.crontab
   })
+}
+
+resource "nomad_variable" "forgejo" {
+  path      = "nomad/jobs/${var.job_name}"
+  namespace = var.namespace
+  items = {
+    restic_password  = var.restic_password
+    minio_access_key = var.minio_access_key
+    minio_secret_key = var.minio_secret_key
+  }
 }
 
 resource "nomad_job" "forgejo" {

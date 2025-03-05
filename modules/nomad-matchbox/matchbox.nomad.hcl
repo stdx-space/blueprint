@@ -1,6 +1,7 @@
-job "matchbox" {
+job "${job_name}" {
   datacenters = ["${datacenter_name}"]
   type        = "service"
+  namespace   = "${namespace}"
 
   group "matchbox" {
 

@@ -42,14 +42,14 @@ job "${job_name}" {
         data = <<EOH
 ${c.ingress_config}
 EOH
-        destination = "local/config.yaml"
+        destination = "$${NOMAD_TASK_DIR}/config.yaml"
       }
 
       template {
         data = <<EOH
 ${c.tunnel_credentials}
 EOH
-        destination = "secrets/tunnel-credentials.json"
+        destination = "$${NOMAD_SECRETS_DIR}/tunnel-credentials.json"
       }
 %{ endfor ~}
     }

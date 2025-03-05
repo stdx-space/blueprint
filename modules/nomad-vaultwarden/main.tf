@@ -1,18 +1,19 @@
 locals {
+  nomad_var_template        = "{{ with nomadVar \"nomad/jobs/${var.job_name}\" }}{{ .%s }}{{ end }}"
   backup_entrypoint_script  = file("${path.module}/templates/backup.entrypoint.sh")
   restore_entrypoint_script = file("${path.module}/templates/restore.entrypoint.sh")
   restic_env = {
     RESTIC_REPOSITORY     = "s3:${var.s3_use_ssl ? "https" : "http"}://${var.s3_endpoint}/${var.s3_backup_bucket}"
-    RESTIC_PASSWORD       = var.restic_password
-    AWS_ACCESS_KEY_ID     = var.s3_access_key
-    AWS_SECRET_ACCESS_KEY = var.s3_secret_key
+    RESTIC_PASSWORD       = format(local.nomad_var_template, "restic_password")
+    AWS_ACCESS_KEY_ID     = format(local.nomad_var_template, "s3_access_key")
+    AWS_SECRET_ACCESS_KEY = format(local.nomad_var_template, "s3_secret_key")
   }
   crontab = <<-EOF
   ${var.backup_schedule} restic backup /alloc/data/vaultwarden > /proc/1/fd/1 2> /proc/1/fd/2
   EOF
   litestream_config = {
-    access-key-id     = var.s3_access_key
-    secret-access-key = var.s3_secret_key
+    access-key-id     = format(local.nomad_var_template, "s3_access_key")
+    secret-access-key = format(local.nomad_var_template, "s3_secret_key")
     dbs = [
       {
         path = "/alloc/data/db.sqlite3"
@@ -26,6 +27,15 @@ locals {
         ]
       }
     ]
+  }
+}
+
+resource "nomad_variable" "vaultwarden" {
+  path = "nomad/jobs/${var.job_name}"
+  items = {
+    restic_password = var.restic_password
+    s3_access_key   = var.s3_access_key
+    s3_secret_key   = var.s3_secret_key
   }
 }
 
