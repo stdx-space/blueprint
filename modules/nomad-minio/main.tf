@@ -4,7 +4,8 @@ locals {
 }
 
 resource "nomad_variable" "minio" {
-  path = "nomad/jobs/${var.job_name}"
+  path      = "nomad/jobs/${var.job_name}"
+  namespace = var.namespace
   items = {
     minio_superuser_password = local.minio_superuser_password
   }
