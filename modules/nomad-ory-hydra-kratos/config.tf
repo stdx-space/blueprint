@@ -185,16 +185,16 @@ locals {
 
     secrets = {
       cipher = [
-        random_bytes.kratos_secret_cipher.hex
+        format(local.nomad_var_template, "kratos_secret_cipher")
       ]
       cookie = [
-        random_bytes.kratos_cookie_secret.hex
+        format(local.nomad_var_template, "kratos_cookie_secret")
       ]
     }
 
     courier = {
       smtp = {
-        connection_uri = var.smtp_connection_uri
+        connection_uri = format(local.nomad_var_template, "smtp_connection_uri")
         from_address   = var.email_from_address
         from_name      = var.email_from_name
       }
@@ -231,10 +231,10 @@ locals {
 
     secrets = {
       cookie = [
-        random_bytes.hydra_cookie_secret.hex
+        format(local.nomad_var_template, "hydra_cookie_secret")
       ]
       system = [
-        random_bytes.hydra_system_secret.hex
+        format(local.nomad_var_template, "hydra_system_secret")
       ]
     }
 
@@ -245,7 +245,7 @@ locals {
           "pairwise"
         ]
         pairwise = {
-          salt = random_bytes.hydra_oidc_pairwise_salt.hex
+          salt = format(local.nomad_var_template, "hydra_oidc_pairwise_salt")
         }
       }
     }

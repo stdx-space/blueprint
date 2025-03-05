@@ -1,5 +1,14 @@
 locals {
+  nomad_var_template       = "{{ with nomadVar \"nomad/jobs/${var.job_name}\" }}{{ .%s }}{{ end }}"
   minio_superuser_password = var.minio_superuser_password == "" ? random_password.superuser_password[0].result : var.minio_superuser_password
+}
+
+resource "nomad_variable" "minio" {
+  path      = "nomad/jobs/${var.job_name}"
+  namespace = var.namespace
+  items = {
+    minio_superuser_password = local.minio_superuser_password
+  }
 }
 
 resource "nomad_job" "minio" {
@@ -9,7 +18,7 @@ resource "nomad_job" "minio" {
     namespace       = var.namespace
     minio_hostname  = var.minio_hostname
     minio_user      = var.minio_superuser_name
-    minio_password  = local.minio_superuser_password
+    minio_password  = format(local.nomad_var_template, "minio_superuser_password")
     host_volume_configs = var.host_volume_config != null ? [
       {
         source    = var.host_volume_config.source
@@ -25,7 +34,7 @@ resource "nomad_job" "minio" {
     initialize_buckets_playbook    = file("${path.module}/templates/initialize-buckets.yaml")
     initialize_buckets_vars = yamlencode({
       aws_access_key   = var.minio_superuser_name
-      aws_secret_key   = local.minio_superuser_password
+      aws_secret_key   = format(local.nomad_var_template, "minio_superuser_password")
       aws_endpoint_url = "http://localhost:9000"
       s3_buckets       = var.create_buckets
     })

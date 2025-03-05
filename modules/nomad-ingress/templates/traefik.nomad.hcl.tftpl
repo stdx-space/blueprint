@@ -86,14 +86,14 @@ job "${job_name}" {
     address = "${c.address}"
 %{ endfor ~}
 EOF
-        destination = "local/traefik.toml"
+        destination = "$${NOMAD_TASK_DIR}/traefik.toml"
       }
 
       template {
         data        = <<EOF
 ${static_routes}
 EOF
-        destination = "local/dynamic.yml"
+        destination = "$${NOMAD_TASK_DIR}/dynamic.yml"
         change_mode = "restart"
       }
 
@@ -104,7 +104,7 @@ EOF
 %{ endfor ~}
 
         EOF
-        destination = "local/.env"
+        destination = "$${NOMAD_SECRETS_DIR}/.env"
         env = true
       }
 

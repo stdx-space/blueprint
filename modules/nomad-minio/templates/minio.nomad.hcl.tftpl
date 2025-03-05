@@ -88,9 +88,13 @@ job "${job_name}" {
         args  = ["server", "/data", "--console-address", ":9001"]
       }
 
-      env {
-        MINIO_ROOT_USER     = "${minio_user}"
+      template {
+        data = <<-EOT
+        MINIO_ROOT_USER = "${minio_user}"
         MINIO_ROOT_PASSWORD = "${minio_password}"
+        EOT
+        destination = "$${NOMAD_SECRETS_DIR}/.env"
+        env = true
       }
 
       resources {

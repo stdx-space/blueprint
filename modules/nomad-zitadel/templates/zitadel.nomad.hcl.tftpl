@@ -73,7 +73,7 @@ job "${job_name}" {
           ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD = "${root_password}"
           ZITADEL_MASTERKEY = "${masterkey}"
         EOH
-        destination = "local/config.env"
+        destination = "$${NOMAD_SECRETS_DIR}/.env"
         env         = true
       }
 

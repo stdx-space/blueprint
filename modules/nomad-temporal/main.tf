@@ -1,3 +1,14 @@
+locals {
+  nomad_var_template = "{{ with nomadVar \"nomad/jobs/${var.job_name}\" }}{{ .%s }}{{ end }}"
+}
+
+resource "nomad_variable" "temporal" {
+  path = "nomad/jobs/${var.job_name}"
+  items = {
+    db_password = var.postgres_password
+  }
+}
+
 resource "nomad_job" "temporal" {
   jobspec = templatefile(
     "${path.module}/templates/temporal.nomad.hcl.tftpl",
@@ -8,7 +19,7 @@ resource "nomad_job" "temporal" {
       namespace           = var.namespace
       temporal_version    = var.temporal_version
       temporal_ui_version = var.temporal_ui_version
-      db_password         = var.postgres_password
+      db_password         = format(local.nomad_var_template, "db_password")
       db_user             = var.postgres_username
       db_host             = var.postgres_host
       db_port             = var.postgres_port
