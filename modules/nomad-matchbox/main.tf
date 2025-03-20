@@ -59,8 +59,8 @@ resource "nomad_job" "matchbox" {
       for url in flatten([
         for prefix, value in local.artifacts : [
           for file in value.files : "${prefix}/${file}"
-        ] 
-      ]): <<-EOT
+        ]
+      ]) : <<-EOT
       artifact {
         source = "${url}"
         options {
