@@ -19,7 +19,7 @@ locals {
       ]
       mount_path = "/var/lib/matchbox/assets/flatcar/${var.flatcar_version}"
     }
-    "https://factory.talos.dev/image/${talos_schematic_id}/${talos_version}" = {
+    "https://factory.talos.dev/image/${var.talos_schematic_id}/${var.talos_version}" = {
       files = [
         "kernel-amd64",
         "initramfs.xz"
