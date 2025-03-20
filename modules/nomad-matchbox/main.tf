@@ -1,5 +1,32 @@
 locals {
   nomad_var_template = "{{ with nomadVar \"nomad/jobs/${var.job_name}\" }}{{ .%s }}{{ end }}"
+  artifacts = {
+    "https://www.flatcar.org/security/image-signing-key" = {
+      files = [
+        "Flatcar_Image_Signing_Key.asc"
+      ]
+      mount_path = "/var/lib/matchbox/assets/flatcar/${var.flatcar_version}"
+    }
+    "https://stable.release.flatcar-linux.net/amd64-usr/${var.flatcar_version}" = {
+      files = [
+        "flatcar_production_image.bin.bz2",
+        "flatcar_production_image.bin.bz2.sig",
+        "flatcar_production_pxe_image.cpio.gz",
+        "flatcar_production_pxe_image.cpio.gz.sig",
+        "flatcar_production_pxe.vmlinuz",
+        "flatcar_production_pxe.vmlinuz.sig",
+        "version.txt"
+      ]
+      mount_path = "/var/lib/matchbox/assets/flatcar/${var.flatcar_version}"
+    }
+    "https://factory.talos.dev/image/${talos_schematic_id}/${talos_version}" = {
+      files = [
+        "kernel-amd64",
+        "initramfs.xz"
+      ]
+      mount_path = "/var/lib/matchbox/assets/talos/${var.talos_version}"
+    }
+  }
 }
 
 resource "nomad_variable" "matchbox" {
@@ -28,6 +55,36 @@ resource "nomad_job" "matchbox" {
     server_cert_pem    = format(local.nomad_var_template, "grpc_tls_cert")
     server_key_pem     = format(local.nomad_var_template, "grpc_tls_key")
     root_ca_cert_pem   = format(local.nomad_var_template, "ca_cert_pem")
+    artifacts = join("\n", [
+      for url in flatten([
+        for prefix, value in local.artifacts : [
+          for file in value.files : "${prefix}/${file}"
+        ] 
+      ]): <<-EOT
+      artifact {
+        source = "${url}"
+        options {
+          archive = false
+        }
+      }
+      EOT
+    ])
+    mounts = join("\n", [
+      for config in flatten([
+        for prefix, value in local.artifacts : [
+          for file in value.files : {
+            source = "local/${file}"
+            target = "${value.mount_path}/${file}"
+          }
+        ]
+      ]) : <<-EOT
+      mount {
+        type   = "bind"
+        source = "${config.source}"
+        target = "${config.target}"
+      }
+      EOT
+    ])
   })
   purge_on_destroy = true
 }

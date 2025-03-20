@@ -91,65 +91,7 @@ job "${job_name}" {
           "-log-level=debug",
         ]
 
-        mount {
-          type   = "bind"
-          source = "local/Flatcar_Image_Signing_Key.asc"
-          target = "/var/lib/matchbox/assets/flatcar/${flatcar_version}/Flatcar_Image_Signing_Key.asc"
-        }
-
-        mount {
-          type   = "bind"
-          source = "local/flatcar_production_image.bin.bz2"
-          target = "/var/lib/matchbox/assets/flatcar/${flatcar_version}/flatcar_production_image.bin.bz2"
-        }
-
-        mount {
-          type   = "bind"
-          source = "local/flatcar_production_image.bin.bz2.sig"
-          target = "/var/lib/matchbox/assets/flatcar/${flatcar_version}/flatcar_production_image.bin.bz2.sig"
-        }
-
-        mount {
-          type   = "bind"
-          source = "local/flatcar_production_pxe_image.cpio.gz"
-          target = "/var/lib/matchbox/assets/flatcar/${flatcar_version}/flatcar_production_pxe_image.cpio.gz"
-        }
-
-        mount {
-          type   = "bind"
-          source = "local/flatcar_production_pxe_image.cpio.gz.sig"
-          target = "/var/lib/matchbox/assets/flatcar/${flatcar_version}/flatcar_production_pxe_image.cpio.gz.sig"
-        }
-
-        mount {
-          type   = "bind"
-          source = "local/flatcar_production_pxe.vmlinuz"
-          target = "/var/lib/matchbox/assets/flatcar/${flatcar_version}/flatcar_production_pxe.vmlinuz"
-        }
-
-        mount {
-          type   = "bind"
-          source = "local/flatcar_production_pxe.vmlinuz.sig"
-          target = "/var/lib/matchbox/assets/flatcar/${flatcar_version}/flatcar_production_pxe.vmlinuz.sig"
-        }
-
-        mount {
-          type   = "bind"
-          source = "local/version.txt"
-          target = "/var/lib/matchbox/assets/flatcar/${flatcar_version}/version.txt"
-        }
-
-        mount {
-          type   = "bind"
-          source = "local/kernel-amd64"
-          target = "/var/lib/matchbox/assets/talos/${talos_version}/vmlinuz"
-        }
-
-        mount {
-          type = "bind"
-          source = "local/initramfs-amd64.xz"
-          target = "/var/lib/matchbox/assets/talos/${talos_version}/initramfs.xz"
-        }
+        ${mounts}
 
         mount {
           type   = "bind"
@@ -168,6 +110,13 @@ job "${job_name}" {
           source = "local/ca.crt"
           target = "/etc/matchbox/ca.crt"
         }
+      }
+
+      update {
+        max_parallel     = 1
+        min_healthy_time = "30s"
+        healthy_deadline = "15m"
+        auto_revert = true
       }
 
       template {
@@ -194,54 +143,7 @@ ${root_ca_cert_pem}
         change_mode = "restart"
       }
 
-      artifact {
-        source = "https://www.flatcar.org/security/image-signing-key/Flatcar_Image_Signing_Key.asc"
-      }
-
-      artifact {
-        source = "https://stable.release.flatcar-linux.net/amd64-usr/${flatcar_version}/flatcar_production_image.bin.bz2"
-        options {
-          archive = false
-        }
-      }
-
-      artifact {
-        source = "https://stable.release.flatcar-linux.net/amd64-usr/${flatcar_version}/flatcar_production_image.bin.bz2.sig"
-      }
-
-      artifact {
-        source = "https://stable.release.flatcar-linux.net/amd64-usr/${flatcar_version}/flatcar_production_pxe_image.cpio.gz"
-        options {
-          archive = false
-        }
-      }
-
-      artifact {
-        source = "https://stable.release.flatcar-linux.net/amd64-usr/${flatcar_version}/flatcar_production_pxe_image.cpio.gz.sig"
-      }
-
-      artifact {
-        source = "https://stable.release.flatcar-linux.net/amd64-usr/${flatcar_version}/flatcar_production_pxe.vmlinuz"
-      }
-
-      artifact {
-        source = "https://stable.release.flatcar-linux.net/amd64-usr/${flatcar_version}/flatcar_production_pxe.vmlinuz.sig"
-      }
-
-      artifact {
-        source = "https://stable.release.flatcar-linux.net/amd64-usr/${flatcar_version}/version.txt"
-      }
-
-      artifact {
-        source = "https://factory.talos.dev/image/${talos_schematic_id}/${talos_version}/kernel-amd64"
-      }
-
-      artifact {
-        source = "https://factory.talos.dev/image/${talos_schematic_id}/${talos_version}/initramfs-amd64.xz"
-        options {
-          archive = false
-        }
-      }
+      ${artifacts}
     }
   }
 }
