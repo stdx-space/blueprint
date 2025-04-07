@@ -1,0 +1,25 @@
+; base zone file for ${zone}
+
+$TTL 2d    ; default TTL for zone
+
+$ORIGIN ${zone}. ; base domain-name
+
+; Start of Authority RR defining the key characteristics of the zone (domain)
+
+@         IN      SOA   ns.${zone}. hostmaster.${zone}. (
+
+                                ${formatdate("YYYYMMDD",timestamp())}00 ; serial number
+
+                                12h        ; refresh
+
+                                15m        ; update retry
+
+                                4d         ; expiry
+
+                                2h         ; minimum
+
+                                )
+; name server RR for the domain
+
+           IN      NS      ns.${zone}.
+ns         IN      A       {{ env "NOMAD_ALLOC_IP_dns" }}

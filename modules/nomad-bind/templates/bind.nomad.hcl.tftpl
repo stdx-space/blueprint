@@ -51,33 +51,9 @@ job "${job_name}" {
 
         %{ endfor ~}
 }
-      %{ for zone in zones ~}template {
+      %{ for zone in zone_files ~}template {
         data = <<EOF
-; base zone file for ${zone}
-
-$TTL 2d    ; default TTL for zone
-
-$ORIGIN ${zone}. ; base domain-name
-
-; Start of Authority RR defining the key characteristics of the zone (domain)
-
-@         IN      SOA   ns.${zone}. hostmaster.${zone}. (
-
-                                ${formatdate("YYYYMMDD",timestamp())}00 ; serial number
-
-                                12h        ; refresh
-
-                                15m        ; update retry
-
-                                4d         ; expiry
-
-                                2h         ; minimum
-
-                                )
-; name server RR for the domain
-
-           IN      NS      ns.${zone}.
-ns         IN      A       {{ env "NOMAD_ALLOC_IP_dns" }}
+${zone}
 EOF
       destination = "$${NOMAD_TASK_DIR}/config/${zone}.zone"
       }
@@ -96,27 +72,7 @@ EOF
 
       template {
         data = <<EOF
-include "{{ env "NOMAD_SECRETS_DIR" }}/named.conf.key";
-
-options {
-  directory "/var/cache/bind";
-  recursion yes;
-  allow-query { any; };
-  forwarders {
-    %{ for nameserver in upstream_nameservers ~}${nameserver};
-    %{ endfor }
-  };
-};
-
-%{ for zone in zones ~}
-zone "${zone}." {
-  type primary;
-  file "/var/lib/bind/${zone}.zone";
-  update-policy { grant tsig zonesub any; };
-  notify explicit;
-};
-
-%{ endfor ~}
+${config}
 EOF
         destination = "$${NOMAD_TASK_DIR}/config/named.conf"
       }
