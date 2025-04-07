@@ -20,14 +20,14 @@ resource "nomad_job" "bind" {
     zones                = var.zones
     upstream_nameservers = var.upstream_nameservers
     resources            = var.resources
-    zone_files = [for z in var.zones: templatefile(
+    zone_files = [for z in var.zones : templatefile(
       "${path.module}/templates/zonefile.tftpl",
       {
         zone = z
       }
     )]
-    config               = templatefile("${path.module}/templates/named.conf.tftpl", {
-      zones = var.zones
+    config = templatefile("${path.module}/templates/named.conf.tftpl", {
+      zones                = var.zones
       upstream_nameservers = var.upstream_nameservers
     })
   })
