@@ -4,6 +4,13 @@ job "${job_name}" {
   namespace   = "${namespace}"
 
   group "dns" {
+
+    ephemeral_disk {
+      migrate = true
+      size    = 64
+      sticky  = true
+    }
+
     task "tailscale" {
       driver = "docker"
 
@@ -19,7 +26,7 @@ job "${job_name}" {
       template {
         data = <<-EOH
         TS_AUTHKEY={{ with nomadVar "nomad/jobs/${job_name}" }}{{ .tailscale_authkey }}{{ end }}
-        TS_STATE_DIR="mem:"
+        TS_STATE_DIR={{ env "NOMAD_ALLOC_DIR" }}/tailscale
         TS_USERSPACE="true"
         TS_HOSTNAME="{{ env "NOMAD_GROUP_NAME" }}"
         TS_ROUTES="{{ env "NOMAD_ALLOC_IP_dns" }}/32"
