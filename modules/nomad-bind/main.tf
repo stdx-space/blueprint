@@ -21,6 +21,7 @@ resource "nomad_job" "bind" {
     upstream_nameservers = var.upstream_nameservers
     resources            = var.resources
     secret_key = templatefile("${path.module}/templates/named.conf.key.tftpl", {
+      job_name  = var.job_name
       name      = var.tsig_key_name
       algorithm = var.tsig_algorithm
     })
