@@ -53,9 +53,9 @@ job "${job_name}" {
 }
       %{ for zone in zone_files ~}template {
         data = <<EOF
-${zone}
+${zone.content}
 EOF
-      destination = "$${NOMAD_TASK_DIR}/config/${zone}.zone"
+      destination = "$${NOMAD_TASK_DIR}/config/${zone.name}.zone"
       }
 
       %{ endfor ~}
