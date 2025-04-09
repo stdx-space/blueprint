@@ -127,7 +127,7 @@ registry.post(`/:namespace/:name/:provider/versions`, bearerAuth({ verifyToken }
 		])
 		return context.json({
 			status: 'ok',
-			module: `registry.narwhl.dev/${selector}`,
+			module: `registry.narwhl.workers.dev/${selector}`,
 			version: nextVersion,
 		}, 201);
 	} else {
