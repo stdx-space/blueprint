@@ -26,6 +26,10 @@ module "dns" {
 
 - `zones`: `(list(string): <required>)` - List of zones to configure.
 
+- `tsig_algorithm`: `(string: "hmac-sha256")` - Algorithm to use for TSIG.
+
+- `tsig_key_name`: `(string: "tsig")` - Name of the TSIG key to use for zone updates.
+
 - `tailscale_version`: `(string: "stable")` - Version of Tailscale to deploy.
 
 - `tailscale_auth_key`: `(string: <required>)` - Tailscale authentication key.

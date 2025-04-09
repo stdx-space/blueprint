@@ -69,10 +69,7 @@ EOF
 
       template {
         data = <<EOF
-key "tsig" {
-  algorithm hmac-sha256;
-  secret "{{ with nomadVar "nomad/jobs/${job_name}" }}{{ .tsig_secret_key }}{{ end }}";
-};
+${secret_key}
 EOF
         destination = "$${NOMAD_SECRETS_DIR}/named.conf.key"
       }

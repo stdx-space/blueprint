@@ -20,6 +20,10 @@ resource "nomad_job" "bind" {
     zones                = var.zones
     upstream_nameservers = var.upstream_nameservers
     resources            = var.resources
+    secret_key = templatefile("${path.module}/templates/named.conf.key.tftpl", {
+      name      = var.tsig_key_name
+      algorithm = var.tsig_algorithm
+    })
     zone_files = [for z in var.zones : {
       name = z
       content = templatefile(

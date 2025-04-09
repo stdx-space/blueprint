@@ -31,6 +31,22 @@ variable "upstream_nameservers" {
   }
 }
 
+variable "tsig_algorithm" {
+  type        = string
+  default     = "hmac-sha256"
+  description = "The TSIG algorithm to use"
+  validation {
+    condition     = contains(["hmac-sha1", "hmac-sha224", "hmac-sha256", "hmac-sha384", "hmac-sha512"], var.tsig_algorithm)
+    error_message = "Invalid TSIG algorithm"
+  }
+}
+
+variable "tsig_key_name" {
+  type        = string
+  default     = "tsig"
+  description = "The name of the TSIG key"
+}
+
 variable "zones" {
   description = "The list of zones"
   type        = list(string)
