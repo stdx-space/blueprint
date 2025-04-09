@@ -20,6 +20,19 @@ resource "nomad_job" "bind" {
     zones                = var.zones
     upstream_nameservers = var.upstream_nameservers
     resources            = var.resources
+    zone_files = [for z in var.zones : {
+      name = z
+      content = templatefile(
+        "${path.module}/templates/zonefile.tftpl",
+        {
+          zone = z
+        }
+      )
+    }]
+    config = templatefile("${path.module}/templates/named.conf.tftpl", {
+      zones                = var.zones
+      upstream_nameservers = var.upstream_nameservers
+    })
   })
   purge_on_destroy = var.purge_on_destroy
 }
