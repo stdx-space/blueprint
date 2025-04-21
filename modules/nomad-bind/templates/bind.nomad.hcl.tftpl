@@ -26,6 +26,7 @@ job "${job_name}" {
       template {
         data = <<-EOH
         TS_AUTHKEY={{ with nomadVar "nomad/jobs/${job_name}" }}{{ .tailscale_authkey }}{{ end }}
+        TS_AUTH_ONCE="true"
         TS_STATE_DIR={{ env "NOMAD_ALLOC_DIR" }}/tailscale
         TS_USERSPACE="true"
         TS_HOSTNAME="{{ env "NOMAD_GROUP_NAME" }}"
