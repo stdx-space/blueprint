@@ -22,15 +22,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        type:
+        include:
           - name: ami
             description: Generate digest file for AMI
             precursor: AMI Manufacturing
-            prefixes: "raw"
+            prefixes: "{qcow2,ova}"
           - name: sysext
             description: Generate digest file for systemd-sysext images
             precursor: Sysext Image Manufacturing
-            prefixes: "{qcow2,ova}"
+            prefixes: "raw"
     steps:
       - name: Authenticate to Security Token Service
         uses: narwhl/imprint@v1
@@ -42,10 +42,10 @@ jobs:
           echo "RCLONE_CONFIG_R2_SECRET_ACCESS_KEY=$CF_R2_SECRET_ACCESS_KEY" >> $GITHUB_ENV
           echo "RCLONE_CONFIG_R2_ENDPOINT=$CF_R2_ENDPOINT_URL" >> $GITHUB_ENV
           sudo apt-get update && sudo apt-get install -yqq rclone
-      - name: ${{ matrix.type.description }}
-        if: github.event.workflow_run.name == '${{ matrix.type.precursor }}' || github.event_name == 'workflow_dispatch'
+      - name: ${{ matrix.description }}
+        if: github.event.workflow_run.name == '${{ matrix.precursor }}' || github.event_name == 'workflow_dispatch'
         run: |
-          rclone copy r2:artifact/${{ matrix.type.name }} . --include "*.${{ matrix.type.prefixes }}"
+          rclone copy r2:artifact/${{ matrix.name }} . --include "*.${{ matrix.prefixes }}"
           sha256sum *.raw | tee SHA256SUMS
-          rclone copy SHA256SUMS r2:artifact/${{ matrix.type.name }}/
+          rclone copy SHA256SUMS r2:artifact/${{ matrix.name }}/
 
