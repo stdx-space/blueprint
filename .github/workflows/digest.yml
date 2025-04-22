@@ -19,6 +19,18 @@ jobs:
       RCLONE_S3_NO_CHECK_BUCKET: true
     if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        type:
+          - name: ami
+            description: Generate digest file for AMI
+            precursor: AMI Manufacturing
+            prefixes: "raw"
+          - name: sysext
+            description: Generate digest file for systemd-sysext images
+            precursor: Sysext Image Manufacturing
+            prefixes: "{qcow2,ova}"
     steps:
       - name: Authenticate to Security Token Service
         uses: narwhl/imprint@v1
@@ -30,15 +42,10 @@ jobs:
           echo "RCLONE_CONFIG_R2_SECRET_ACCESS_KEY=$CF_R2_SECRET_ACCESS_KEY" >> $GITHUB_ENV
           echo "RCLONE_CONFIG_R2_ENDPOINT=$CF_R2_ENDPOINT_URL" >> $GITHUB_ENV
           sudo apt-get update && sudo apt-get install -yqq rclone
-      - name: Generate digest file for systemd-sysext images
-        if: github.event.workflow_run.name == 'Sysext Image Manufacturing' || github.event_name == 'workflow_dispatch'
+      - name: ${{ matrix.type.description }}
+        if: github.event.workflow_run.name == '${{ matrix.type.precursor }}' || github.event_name == 'workflow_dispatch'
         run: |
-          rclone copy r2:artifact/sysext . --include "*.raw"
+          rclone copy r2:artifact/${{ matrix.type.name }} . --include "*.${{ matrix.type.prefixes }}"
           sha256sum *.raw | tee SHA256SUMS
-          rclone copy SHA256SUMS r2:artifact/sysext/
-      - name: Generate digest file for AMI
-        if: github.event.workflow_run.name == 'AMI Manufacturing' || github.event_name == 'workflow_dispatch'
-        run: |
-          rclone copy r2:artifact/ami . --include "*.{qcow2,ova}"
-          sha256sum *.raw | tee SHA256SUMS
-          rclone copy SHA256SUMS r2:artifact/ami/
+          rclone copy SHA256SUMS r2:artifact/${{ matrix.type.name }}/
+
