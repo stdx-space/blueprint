@@ -81,6 +81,12 @@ variable "kratos_verification_enabled" {
   default = true
 }
 
+variable "kratos_login_require_verified" {
+  type        = bool
+  default     = false
+  description = "If true, verified email address is required for login"
+}
+
 variable "kratos_registration_enabled" {
   type    = bool
   default = true

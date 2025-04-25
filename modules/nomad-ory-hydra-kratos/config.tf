@@ -134,6 +134,11 @@ locals {
         login = {
           ui_url   = "${local.kratos_ui_url}/login"
           lifespan = "10m"
+          after = {
+            hooks = var.kratos_login_require_verified ? [{
+              hook = "require_verified_address"
+            }] : []
+          }
         }
 
         registration = {
