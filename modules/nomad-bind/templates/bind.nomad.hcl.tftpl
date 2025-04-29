@@ -81,9 +81,10 @@ EOF
         }
 
         %{ for zone in zones ~}mount {
-          type = "bind"
-          source = "local/config/${zone}.zone"
-          target = "/var/lib/bind/${zone}.zone"
+          type     = "bind"
+          source   = "local/config/${zone}.zone"
+          target   = "/var/lib/bind/${zone}.zone"
+          readonly = false
         }
 
         %{ endfor ~}
