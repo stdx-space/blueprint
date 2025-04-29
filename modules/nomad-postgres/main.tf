@@ -4,6 +4,7 @@ locals {
     {
       postgres_version      = var.postgres_version
       postgres_cluster_name = var.postgres_cluster_name
+      postgres_port         = var.postgres_port
       s3_endpoint           = var.pgbackrest_s3_config.endpoint
       s3_bucket             = var.pgbackrest_s3_config.bucket
       s3_access_key         = var.pgbackrest_s3_config.access_key
@@ -66,6 +67,7 @@ resource "nomad_job" "postgres" {
       datacenter_name       = var.datacenter_name
       postgres_version      = var.postgres_version
       postgres_cluster_name = var.postgres_cluster_name
+      postgres_port         = var.postgres_port
       consul_config = var.consul_job_name != "" && !var.consul_connect ? [
         {
           consul_job_name = var.consul_job_name
@@ -97,6 +99,7 @@ resource "nomad_job" "postgres_init" {
     {
       job_name                         = var.postgres_init_job_name
       datacenter_name                  = var.datacenter_name
+      postgres_port                    = var.postgres_port
       postgres_socket_host_volume_name = var.postgres_host_volumes_name.socket
       init_script                      = local.postgres_init_script
     }

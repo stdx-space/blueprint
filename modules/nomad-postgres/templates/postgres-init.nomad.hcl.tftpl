@@ -30,6 +30,8 @@ EOH
       config {
         command = "/usr/bin/psql"
         args = [
+          "-p",
+          "${postgres_port}",
           "-f",
           "$${NOMAD_TASK_DIR}/init.sql"
         ]

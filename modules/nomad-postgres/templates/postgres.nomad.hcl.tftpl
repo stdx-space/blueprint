@@ -10,7 +10,7 @@ job "${job_name}" {
     network {
       mode = "bridge"
       port "postgres" {
-        static = 5432
+        static = ${postgres_port}
       }
     }
 
@@ -24,7 +24,7 @@ job "${job_name}" {
 %{ for c in consul_connect_config ~}
     service {
       name = "${c.consul_job_name}"
-      port = 5432
+      port = ${postgres_port}
       connect {
         sidecar_service {}
       }

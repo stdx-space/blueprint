@@ -86,6 +86,12 @@ variable "postgres_init" {
   sensitive   = true
 }
 
+variable "postgres_port" {
+  type        = number
+  default     = 5432
+  description = "The port of the PostgreSQL instance binded to the host"
+}
+
 variable "postgres_init_script" {
   type        = string
   default     = ""
