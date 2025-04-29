@@ -27,7 +27,7 @@ job "${job_name}" {
     }
 
     service {
-      name = "redis"
+      name = "${job_name}"
       port = "redis"
       provider = "nomad"
     }
