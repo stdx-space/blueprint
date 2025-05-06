@@ -7,7 +7,7 @@ import { createRemoteJWKSet, jwtVerify, type JWTPayload } from 'jose';
 import { discoveryRequest, processDiscoveryResponse } from 'oauth4webapi';
 import semver from 'semver';
 
-interface Env {
+interface Bindings {
 	modules: KVNamespace;
 	artifact: R2Bucket;
 }
@@ -31,7 +31,7 @@ interface Module extends CreateModuleRequest {
 
 const basePath = '/v1/modules';
 
-const app = new Hono<{ Bindings: Env }>();
+const app = new Hono<{ Bindings: Bindings }>();
 const registry = new Hono().basePath(basePath);
 
 app.use(logger());
@@ -68,27 +68,33 @@ async function verifyToken(token: string, context: Context) {
 
 registry.post(`/`, bearerAuth({ verifyToken }), async (context: Context) => {
 	const payload: CreateModuleRequest = await context.req.json();
-	const value = await context.env.modules.get('metadata');
+	const { modules } = context.env as Bindings;
+	const metadata = await modules.get<{[key: string]: string}>('metadata', 'json');
 	const id = crypto.randomUUID();
-	const metadata = JSON.parse(value || '{}');
-	metadata[payload.source] = `${payload.namespace}/${payload.name}/${payload.provider}`;
-	await Promise.all([
-		context.env.modules.put(
-			`modules:${payload.namespace}/${payload.name}/${payload.provider}`,
-			JSON.stringify({
-				...payload,
-				id,
-				verified: true,
-				downloads: 0,
-				published_at: new Date().toISOString(),
-			}),
-		),
-		context.env.modules.put('metadata', JSON.stringify(metadata)),
-	]);
-	return context.json({
-		id,
-		published_at: new Date().toISOString(),
-	}, 201);
+	if (metadata) {
+		metadata[payload.source] = `${payload.namespace}/${payload.name}/${payload.provider}`;
+		await Promise.all([
+			modules.put(
+				`modules:${payload.namespace}/${payload.name}/${payload.provider}`,
+				JSON.stringify({
+					...payload,
+					id,
+					verified: true,
+					downloads: 0,
+					published_at: new Date().toISOString(),
+				}),
+			),
+			modules.put('metadata', JSON.stringify(metadata)),
+		]);
+		return context.json({
+			id,
+			published_at: new Date().toISOString(),
+		}, 201);
+	} else {
+		throw new HTTPException(500, {
+			message: 'metadata not found',
+		});
+	}
 });
 
 async function getVersions(context: Context, selector: string) {
@@ -105,18 +111,18 @@ async function getVersions(context: Context, selector: string) {
 
 registry.post(`/:namespace/:name/:provider/versions`, bearerAuth({ verifyToken }), async (context: Context) => {
 	const { namespace, name, provider } = context.req.param();
+	const { modules, artifact } = context.env as Bindings;
 	const body = await context.req.parseBody();
 	const selector = `${namespace}/${name}/${provider}`;
-	const value = await context.env.modules.get(`modules:${selector}`);
-	const module = JSON.parse(value) as Module;
+	const module = await modules.get<Module>(`modules:${selector}`, 'json');
 	if (module) {
 		var nextVersion = '1.0.0';
 		if (module.versions.length > 0) {
 			nextVersion = semver.inc(module.versions[0], body['increment'] as semver.ReleaseType)!;
 		}
 		await Promise.all([
-			context.env.artifact.put(`modules/${selector}/${nextVersion}.tar.gz`, body['module']),
-			context.env.modules.put(
+			artifact.put(`modules/${selector}/${nextVersion}.tar.gz`, body['module']),
+			modules.put(
 				`modules:${selector}`,
 				JSON.stringify({
 					...module,
@@ -169,38 +175,44 @@ registry.get(`/:namespace/:name/:provider/versions`, async (context: Context) =>
 registry.get(`/:namespace/:name/:provider/download`, async (context: Context) => {
 	try {
 		const { ...params } = context.req.param();
+		const { modules } = context.env as Bindings;
 		const selector = Object.values(params).join('/');
-		const value = await context.env.modules.get(`modules:${selector}`);
-		const module = JSON.parse(value) as Module;
-		await context.env.modules.put(`modules:${selector}`, JSON.stringify({
-			...module,
-			downloads: module.downloads + 1,
-		}));
-		context.header('X-Terraform-Get', `https://artifact.narwhl.dev/modules/${selector}/${module.versions[0]}.tar.gz`);
-		return context.body(null, 204);
+		const module = await modules.get<Module>(`modules:${selector}`, 'json');
+		if (module) {
+			await modules.put(`modules:${selector}`, JSON.stringify({
+				...module,
+				downloads: module.downloads + 1,
+			}));
+			context.header('X-Terraform-Get', `https://artifact.narwhl.dev/modules/${selector}/${module.versions[0]}.tar.gz`);
+			return context.body(null, 204);
+		} else {
+			return context.json(
+				{
+					status: 'error',
+					message: 'module not found',
+				},
+				404,
+			);
+		}
 	} catch (error) {
-		return context.json(
-			{
-				status: 'error',
-				message: 'module not found',
-			},
-			404,
-		);
+		throw new HTTPException(500, {
+			message: `internal server error ${JSON.stringify(error)}`,
+		});
 	}
 });
 
 registry.get(`/:namespace/:name/:provider/:version/download`, async (context: Context) => {
 	const { version, ...params } = context.req.param();
+	const { artifact, modules } = context.env as Bindings;
 	const selector = Object.values(params).join('/');
-	const result: R2Objects = await context.env.artifact.list({
+	const result = await artifact.list({
 		prefix: `modules/${selector}/${version}`,
 	});
 	if (result.objects.length > 0) {
-		const value = await context.env.modules.get(`modules:${selector}`);
-		const module = JSON.parse(value) as Module;
+		const module = await modules.get<Module>(`modules:${selector}`, 'json');
 		await context.env.modules.put(`modules:${selector}`, JSON.stringify({
 			...module,
-			downloads: module.downloads + 1,
+			downloads: module!.downloads + 1,
 		}));
 		context.header('X-Terraform-Get', `https://artifact.narwhl.dev/${result.objects[0].key}`);
 		return context.body(null, 204);
