@@ -42,7 +42,7 @@ locals {
         mode    = "755"
         owner   = "root"
         group   = "root"
-        enabled = true
+        enabled = anytrue([for file in flatten(var.substrates.*.files) : strcontains(file.path, "/etc/extensions")])
         tags    = "ignition"
         content = <<-EOF
           #!/bin/bash
@@ -118,17 +118,17 @@ locals {
         content = null
         dropins = merge(
           {
-            "sysext.conf" = <<-EOF
-              [Service]
-              ExecStartPost=/opt/bin/update-restarter.sh
-            EOF
-          },
-          {
             for package in flatten(var.substrates.*.packages) : "${package}.conf" => <<-EOF
               [Service]
               ExecStartPre=/usr/lib/systemd/systemd-sysupdate -C ${package} update
             EOF
-          }
+          },
+          anytrue([for file in flatten(var.substrates.*.files) : strcontains(file.path, "/etc/extensions")]) ? {
+            "sysext.conf" = <<-EOF
+              [Service]
+              ExecStartPost=/opt/bin/update-restarter.sh
+            EOF
+          } : {}
         )
       },
       {
