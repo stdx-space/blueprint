@@ -10,11 +10,12 @@
         url: https://api.tailscale.com/api/v2/oauth/token
         method: POST
         headers:
-          'Authorization': "Basic {{ digest }}"
           'Content-Type': application/x-www-form-urlencoded
         body_format: form-urlencoded
         body:
           grant_type: client_credentials
+          client_id: "{{ tailscale_client_id }}"
+          client_secret: "{{ tailscale_client_secret }}"
         return_content: true
         status_code: [200, 201]
       register: token_response
