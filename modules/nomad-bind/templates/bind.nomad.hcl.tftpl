@@ -48,21 +48,21 @@ job "${job_name}" {
       config {
         image = "alpine/ansible:latest"
         command = "ansible-playbook"
-        args  = ["local/playbook.yaml"]
+        args  = ["secrets/playbook.yaml"]
       }
 
       template {
         data        = <<-EOF
 ${split_dns_vars}
 EOF
-        destination = "local/vars.yaml"
+        destination = "secrets/vars.yaml"
       }
 
       template {
         data            = <<-EOF
 ${split_dns_provisioner}
 EOF
-        destination     = "local/playbook.yaml"
+        destination     = "secrets/playbook.yaml"
         left_delimiter  = "<<"
         right_delimiter = ">>"
       }
