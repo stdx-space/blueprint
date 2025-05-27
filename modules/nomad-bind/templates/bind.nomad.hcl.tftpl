@@ -59,10 +59,12 @@ EOF
       }
 
       template {
-        data        = <<-EOF
+        data            = <<-EOF
 ${split_dns_provisioner}
 EOF
-        destination = "local/playbook.yaml"
+        destination     = "local/playbook.yaml"
+        left_delimiter  = "<<"
+        right_delimiter = ">>"
       }
     }
 
