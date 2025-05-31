@@ -85,26 +85,28 @@ locals {
     },
     {
       path    = "/etc/nomad.d/tls.hcl"
-      enabled = 0 < sum([for value in values(var.tls).*.content : length(value)])
+      enabled = var.tls.enable
       tags    = "cloud-init,ignition"
       owner   = local.nomad_user
       group   = local.nomad_group
-      content = templatefile(
+      content = var.tls.enable ? templatefile(
         "${path.module}/templates/tls.hcl.tftpl",
         {
           tls_credentials = {
-            for key, item in var.tls : key => item.path
+            ca_file   = var.tls.ca_file.path
+            cert_file = var.tls.cert_file.path
+            key_file  = var.tls.key_file.path
           }
         }
-      )
+      ) : ""
     },
     {
       path    = "/etc/profile.d/nomad.sh"
       enabled = true
       tags    = "cloud-init,ignition"
       content = templatefile("${path.module}/templates/nomad.sh.tftpl", {
-        protocol = 0 < sum([for value in values(var.tls).*.content : length(value)]) ? "https" : "http"
-        tls_configs = 0 < sum([for value in values(var.tls).*.content : length(value)]) ? [{
+        protocol = var.tls.enable ? "https" : "http"
+        tls_configs = var.tls.enable ? [{
           ca_file_path   = var.tls.ca_file.path
           cert_file_path = var.tls.cert_file.path
           key_file_path  = var.tls.key_file.path

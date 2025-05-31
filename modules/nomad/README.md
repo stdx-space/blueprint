@@ -40,7 +40,25 @@ versions need to be customized.
 
 - `gossip_key`: `(string: <optional>)` The gossip encryption key. Gossip encryption is not enforced when leaving this empty.
 
-- `tls`: `(object: <optional>)` The TLS certificate configuration. TLS is not enforced when leaving this empty.
+- `tls`: `(object: <optional>)` The TLS certificate configuration. Set `enable = true` to activate TLS and provide `ca_file`, `cert_file`, and `key_file` objects. Example:
+
+```hcl
+  tls = {
+    enable = true
+    ca_file = {
+      path    = "/opt/nomad/tls/ca.pem"
+      content = file("/path/to/ca.pem")
+    }
+    cert_file = {
+      path    = "/opt/nomad/tls/agent.pem"
+      content = file("/path/to/agent.pem")
+    }
+    key_file = {
+      path    = "/opt/nomad/tls/agent.key"
+      content = file("/path/to/agent.key")
+    }
+  }
+```
 
 - `host_volume`: `([]string: <optional>)` A map of host volume configurations. The key is the host volume name and the value is an object with
 the `path` and `read_only` fields. The `path` field is the path on the host where the volume is mounted and the

@@ -31,11 +31,15 @@ resource "terraform_data" "manifest" {
         }
       ],
       [
-        for key, item in var.tls : {
+        for key, item in var.tls.enable ? {
+          ca_file   = var.tls.ca_file
+          cert_file = var.tls.cert_file
+          key_file  = var.tls.key_file
+          } : {} : {
           path    = item.path
           content = item.content
           tags    = "cloud-init,ignition"
-          enabled = length(item.content) > 0
+          enabled = var.tls.enable && length(item.content) > 0
         }
       ]
     )

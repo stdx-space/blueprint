@@ -91,11 +91,9 @@ variable "gossip_key" {
   sensitive   = true
 }
 
-// For agent cert and key, it differs from server role to client role,
-// server role will have its certificate's CN contain domain format as {role}.{region}.nomad. e.g server.global.nomad
-// vice versa client's certificate's CN should be client.global.nomad
 variable "tls" {
   type = object({
+    enable = bool
     ca_file = optional(object({
       path    = string
       content = string
@@ -110,20 +108,13 @@ variable "tls" {
     }))
   })
   default = {
-    ca_file = {
-      path    = "/opt/nomad/tls/ca.pem"
-      content = ""
-    }
-    cert_file = {
-      path    = "/opt/nomad/tls/agent.pem"
-      content = ""
-    }
-    key_file = {
-      path    = "/opt/nomad/tls/agent.key"
-      content = ""
-    }
+    enable = false
   }
-  description = "TLS configuration for Nomad"
+  description = "TLS configuration for Nomad. Set enable=true to activate TLS and provide cert/key/ca objects."
+  validation {
+    condition     = !var.tls.enable || (var.tls.ca_file != null && var.tls.cert_file != null && var.tls.key_file != null)
+    error_message = "When TLS is enabled, ca_file, cert_file, and key_file must be set."
+  }
 }
 
 variable "host_volume" {

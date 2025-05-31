@@ -57,7 +57,25 @@ Defaults to `1`.
 
 - `resolve_consul_domains`: `(bool: false)` Whether to point DNS records for *.service.consul to the consul servers. Defaults to `false`
 
-- `tls`: `(object)` The TLS certificate configuration. TLS is not enforced when leaving this empty.
+- `tls`: `(object)` The TLS certificate configuration. Set `enable = true` to activate TLS and provide `ca_cert`, `server_cert`, and `server_key` objects. Example:
+
+```hcl
+  tls = {
+    enable = true
+    ca_cert = {
+      path    = "/opt/consul/tls/ca.pem"
+      content = file("/path/to/ca.pem")
+    }
+    server_cert = {
+      path    = "/opt/consul/tls/server.pem"
+      content = file("/path/to/server.pem")
+    }
+    server_key = {
+      path    = "/opt/consul/tls/server.key"
+      content = file("/path/to/server.key")
+    }
+  }
+```
 
 
 ### Outputs
