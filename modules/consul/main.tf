@@ -32,10 +32,10 @@ resource "terraform_data" "manifest" {
       ],
       [
         for key, item in var.tls.enable ? {
-          ca_cert = var.tls.ca_cert
+          ca_cert     = var.tls.ca_cert
           server_cert = var.tls.server_cert
-          server_key = var.tls.server_key
-        } : {} : {
+          server_key  = var.tls.server_key
+          } : {} : {
           path    = item.path
           content = item.content
           enabled = var.tls.enable && length(item.content) > 0

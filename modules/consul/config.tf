@@ -81,9 +81,9 @@ locals {
         "${path.module}/templates/encryption.hcl.tftpl",
         {
           tls_credentials = {
-            ca_file    = var.tls.ca_cert.path
-            cert_file  = var.tls.server_cert.path
-            key_file   = var.tls.server_key.path
+            ca_file   = var.tls.ca_cert.path
+            cert_file = var.tls.server_cert.path
+            key_file  = var.tls.server_key.path
           }
           tls_config_key = strcontains(var.role, "server") ? "allow_tls" : "tls"
         }
