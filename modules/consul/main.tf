@@ -31,12 +31,16 @@ resource "terraform_data" "manifest" {
         }
       ],
       [
-        for key, item in var.tls : {
+        for key, item in var.tls.enable && var.tls.ca_cert != null && var.tls.server_cert != null && var.tls.server_key != null ? {
+          ca_cert = var.tls.ca_cert
+          server_cert = var.tls.server_cert
+          server_key = var.tls.server_key
+        } : {} : {
           path    = item.path
           content = item.content
-          enabled = length(item.content) > 0
+          enabled = var.tls.enable && length(item.content) > 0
           tags    = "cloud-init,ignition"
-        } if item != null
+        }
       ]
     )
     install = {

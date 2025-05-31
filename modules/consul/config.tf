@@ -77,19 +77,18 @@ locals {
     {
       path = "/etc/consul.d/encryption.hcl"
       tags = "cloud-init,ignition"
-      content = templatefile(
+      content = var.tls.enable ? templatefile(
         "${path.module}/templates/encryption.hcl.tftpl",
         {
-          tls_credentials = merge(
-            {
-              ca_file = var.tls.ca_cert.path
-            },
-            local.server_tls_keypair
-          )
+          tls_credentials = {
+            ca_file    = var.tls.ca_cert.path
+            cert_file  = var.tls.server_cert.path
+            key_file   = var.tls.server_key.path
+          }
           tls_config_key = strcontains(var.role, "server") ? "allow_tls" : "tls"
         }
-      ),
-      enabled = 0 < sum([for value in values(var.tls) : length(value.content) if value != null])
+      ) : ""
+      enabled = var.tls.enable
       owner   = var.consul_user
       group   = var.consul_group
     },

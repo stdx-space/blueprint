@@ -117,6 +117,7 @@ variable "resolve_consul_domains" {
 
 variable "tls" {
   type = object({
+    enable = bool
     ca_cert = optional(object({
       path    = string
       content = string
@@ -131,20 +132,13 @@ variable "tls" {
     }))
   })
   default = {
-    ca_cert = {
-      path    = "/opt/consul/tls/ca.pem"
-      content = ""
-    }
-    server_cert = {
-      path    = "/opt/consul/tls/server.pem"
-      content = ""
-    }
-    server_key = {
-      path    = "/opt/consul/tls/server.key"
-      content = ""
-    }
+    enable = false
   }
-  description = "TLS configuration for Consul"
+  description = "TLS configuration for Consul. Set enable=true to activate TLS and provide ca_cert, server_cert, and server_key objects."
+  validation {
+    condition     = !var.tls.enable || (var.tls.ca_cert != null && var.tls.server_cert != null && var.tls.server_key != null)
+    error_message = "When TLS is enabled, ca_cert, server_cert, and server_key must be set."
+  }
 }
 
 resource "random_id" "gossip_key" {
