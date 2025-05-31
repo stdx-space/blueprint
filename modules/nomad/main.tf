@@ -31,7 +31,7 @@ resource "terraform_data" "manifest" {
         }
       ],
       [
-        for key, item in var.tls.enable && var.tls.ca_file != null && var.tls.cert_file != null && var.tls.key_file != null ? {
+        for key, item in var.tls.enable ? {
           ca_file = var.tls.ca_file
           cert_file = var.tls.cert_file
           key_file = var.tls.key_file
