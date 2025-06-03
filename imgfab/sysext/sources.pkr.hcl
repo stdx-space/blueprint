@@ -34,7 +34,7 @@ source "null" "node-exporter" {
   communicator = "none"
 }
 
-source "null" "promtail" {
+source "null" "alloy" {
   communicator = "none"
 }
 

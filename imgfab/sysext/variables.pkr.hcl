@@ -40,7 +40,7 @@ locals {
         "lego",
         "nomad",
         "node-exporter",
-        "promtail",
+        "alloy",
         "step-ca",
         "tailscale",
         "vault",

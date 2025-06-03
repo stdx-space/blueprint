@@ -8,7 +8,7 @@ build {
     "source.null.lego",
     "source.null.nomad",
     "source.null.node-exporter",
-    "source.null.promtail",
+    "source.null.alloy",
     "source.null.step-ca",
     "source.null.tailscale",
     "source.null.vault",
@@ -152,16 +152,16 @@ build {
   }
 
   provisioner "shell-local" {
-    only = ["null.promtail"]
+    only = ["null.alloy"]
     inline = concat(
-      local.templates.promtail,
+      local.templates.alloy,
       [
-        "curl -LO ${local.syspkgs.promtail.pkg_url}",
-        "unzip ${local.syspkgs.promtail.filename} -d promtail-${local.syspkgs.promtail.version}-amd64/usr/bin",
+        "curl -LO ${local.syspkgs.alloy.pkg_url}",
+        "unzip ${local.syspkgs.alloy.filename} -d alloy-${local.syspkgs.alloy.version}-amd64/usr/bin",
       ],
       [
-        "mksquashfs promtail-${local.syspkgs.promtail.version}-amd64 promtail-${local.syspkgs.promtail.version}-x86-64.raw",
-        "rm -rf promtail-${local.syspkgs.promtail.version}-amd64 ${local.syspkgs.promtail.filename}",
+        "mksquashfs alloy-${local.syspkgs.alloy.version}-amd64 alloy-${local.syspkgs.alloy.version}-x86-64.raw",
+        "rm -rf alloy-${local.syspkgs.alloy.version}-amd64 ${local.syspkgs.alloy.filename}",
       ]
     )
   }
