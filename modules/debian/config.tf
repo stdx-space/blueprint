@@ -142,7 +142,6 @@ locals {
           flatten(var.substrates.*.install.repositories)
         )
         ) : "${repository}.list" => {
-        keyserver = "hkp://keyserver.ubuntu.com:80"
         keyid     = jsondecode(data.http.upstream.response_body).repositories[repository].apt.keyid
         source = format(
           "deb [arch=amd64 signed-by=$KEY_FILE] %s",
