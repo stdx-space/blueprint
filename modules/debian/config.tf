@@ -2,6 +2,20 @@ data "http" "upstream" {
   url = var.supplychain
 }
 
+data "http" "gpg_keys" {
+  for_each = {
+    for repository in distinct(
+      concat(
+        [
+          "docker",
+        ],
+        flatten(var.substrates.*.install.repositories)
+      )
+    ) : repository => jsondecode(data.http.upstream.response_body).repositories[repository].apt.signing_key_url
+  }
+  url = each.value
+}
+
 data "http" "ca_certs" {
   for_each = {
     for cert in var.ca_certs : cert => cert if startswith(cert, "http")
@@ -142,7 +156,7 @@ locals {
           flatten(var.substrates.*.install.repositories)
         )
         ) : "${repository}.list" => {
-        keyid     = jsondecode(data.http.upstream.response_body).repositories[repository].apt.keyid
+        key = data.http.gpg_keys[repository].response_body
         source = format(
           "deb [arch=amd64 signed-by=$KEY_FILE] %s",
           jsondecode(data.http.upstream.response_body).repositories[repository].apt.source
