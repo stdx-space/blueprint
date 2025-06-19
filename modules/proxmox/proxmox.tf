@@ -23,8 +23,6 @@ resource "proxmox_virtual_environment_vm" "this" {
   bios    = local.boot_mode
   machine = local.machine
 
-  kvm_arguments = local.kvm_arguments
-
   cpu {
     architecture = "x86_64"
     cores        = var.vcpus
