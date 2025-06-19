@@ -167,16 +167,6 @@ locals {
     }
   ]
 
-  kvm_arguments = {
-    "ignition" = format(
-      "-fw_cfg name=opt/org.flatcar-linux/config,file=%s/%s.ign",
-      var.snippet_stored_path,
-      sha256(var.provisioning_config.payload)
-    )
-    "cloud-init" = ""
-    "talos"      = ""
-  }[var.provisioning_config.type]
-
   provisioning_config_file_format = {
     "ignition"   = "ign"
     "cloud-init" = "yaml"
@@ -193,7 +183,7 @@ locals {
   }[var.firmware]
 
   initialization = {
-    "ignition"   = {}
+    "ignition"   = { "${var.provisioning_config.type}" = "" }
     "cloud-init" = { "${var.provisioning_config.type}" = "" }
     "talos"      = { "${var.provisioning_config.type}" = "" }
   }[var.provisioning_config.type]
