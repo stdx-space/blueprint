@@ -64,7 +64,7 @@ data "cloudinit_config" "user_data" {
               [
                 "export RELEASE=$(grep 'VERSION_CODENAME=' /etc/os-release |awk -F= {' print $2'})"
               ],
-              
+
               [for dir in local.directories : "mkdir -m ${dir.mode} -p ${dir.path}"],
               [for dir in local.directories : "chown -R ${dir.owner}:${dir.group} ${dir.path}"],
               var.startup_script.override_default ? [] : [

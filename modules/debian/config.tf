@@ -136,9 +136,11 @@ locals {
         }
       ],
       [
-        for repository in data.http.gpg_keys : {
-          path    = "/usr/share/keyrings/${repository.key}.gpg"
+        for key, repository in data.http.gpg_keys : {
+          path    = "/usr/share/keyrings/${key}.gpg"
           content = repository.response_body
+          enabled = true
+          tags    = "cloud-init"
           owner   = "root"
           group   = "root"
           mode    = "0644"
@@ -153,7 +155,9 @@ locals {
             ],
             flatten(var.substrates.*.install.repositories)
           )) : {
-          path = "/etc/apt/sources.list.d/${repository}.sources"
+          enabled = true
+          tags    = "cloud-init"
+          path    = "/etc/apt/sources.list.d/${repository}.sources"
           content = templatefile("${path.module}/templates/deb822.sources.tftpl", {
             source = merge(
               {
