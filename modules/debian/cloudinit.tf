@@ -27,7 +27,6 @@ data "cloudinit_config" "user_data" {
             users = local.users
             bootcmd = [
               "echo 'blacklist rfkill\nblacklist cfg80211' | tee -a /etc/modprobe.d/blacklist.conf",
-              "systemctl restart networking",
             ]
             cloud_init_modules = concat(
               [
@@ -69,12 +68,15 @@ data "cloudinit_config" "user_data" {
                       "docker",
                     ],
                     flatten(var.substrates.*.install.repositories)
-                  )) :
+                )) :
                 [
                   "sed -i 's/$RELEASE/'$(. /etc/os-release && echo \"$VERSION_CODENAME\")/g /etc/apt/sources.list.d/${repository}.sources.tmp",
                   "mv /etc/apt/sources.list.d/${repository}.sources.tmp /etc/apt/sources.list.d/${repository}.sources"
                 ]
               ]),
+              [
+                "apt-get update && apt-get install -y --no-install-recommends ${join(" ", local.additional_packages)}",
+              ],
               [for dir in local.directories : "mkdir -m ${dir.mode} -p ${dir.path}"],
               [for dir in local.directories : "chown -R ${dir.owner}:${dir.group} ${dir.path}"],
               var.startup_script.override_default ? [] : [

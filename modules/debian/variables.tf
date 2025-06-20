@@ -29,13 +29,7 @@ variable "default_packages" {
     "unzip",
     "zip",
     "zstd",
-    # "containerd.io",
-    # "docker-ce",
-    # "docker-ce-cli",
-    # "docker-buildx-plugin",
-    # "docker-compose-plugin",
     "jq",
-    # "podman",
   ]
 }
 
@@ -195,3 +189,15 @@ variable "base64_encode" {
   description = "Whether to base64 encode the configuration"
 }
 
+locals {
+  additional_packages = concat(
+    var.additional_packages,
+    [
+      "containerd.io",
+      "docker-ce",
+      "docker-ce-cli",
+      "docker-buildx-plugin",
+      "docker-compose-plugin",
+    ]
+  )
+}
