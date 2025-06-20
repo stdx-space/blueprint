@@ -11,13 +11,25 @@ variable "name" {
 variable "default_packages" {
   type = list(string)
   default = [
-    "containerd.io",
-    "docker-ce",
-    "docker-ce-cli",
-    "docker-buildx-plugin",
-    "docker-compose-plugin",
+    "apt-transport-https",
+    "ca-certificates",
+    "curl",
+    "dnsutils",
+    "gnupg",
+    "git",
+    "gzip",
+    "lsb-release",
+    "net-tools",
+    "qemu-guest-agent",
+    "rsync",
+    "software-properties-common",
+    "sudo",
+    "tar",
+    "vim",
+    "unzip",
+    "zip",
+    "zstd",
     "jq",
-    "podman",
   ]
 }
 
@@ -177,3 +189,15 @@ variable "base64_encode" {
   description = "Whether to base64 encode the configuration"
 }
 
+locals {
+  additional_packages = concat(
+    var.additional_packages,
+    [
+      "containerd.io",
+      "docker-ce",
+      "docker-ce-cli",
+      "docker-buildx-plugin",
+      "docker-compose-plugin",
+    ]
+  )
+}
