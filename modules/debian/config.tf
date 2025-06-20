@@ -145,7 +145,7 @@ locals {
           )) : {
           enabled = true
           tags    = "cloud-init"
-          path    = "/etc/apt/sources.list.d/${repository}.sources"
+          path    = "/etc/apt/sources.list.d/${repository}.sources.tmp"
           content = templatefile("${path.module}/templates/deb822.sources.tftpl", {
             source = merge(
               {

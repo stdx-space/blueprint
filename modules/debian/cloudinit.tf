@@ -61,7 +61,7 @@ data "cloudinit_config" "user_data" {
             fs_setup         = local.filesystems
             write_files      = local.files
             runcmd = concat(
-              [
+              flatten([
                 for repository in distinct(
                   concat(
                     [
@@ -69,8 +69,11 @@ data "cloudinit_config" "user_data" {
                     ],
                     flatten(var.substrates.*.install.repositories)
                   )) :
-                "sed -i 's/$RELEASE/'$(. /etc/os-release && echo \"$VERSION_CODENAME\")/g ${repository}.sources"
-              ],
+                [
+                  "sed -i 's/$RELEASE/'$(. /etc/os-release && echo \"$VERSION_CODENAME\")/g /etc/apt/sources.list.d/${repository}.sources.tmp",
+                  "mv /etc/apt/sources.list.d/${repository}.sources.tmp /etc/apt/sources.list.d/${repository}.sources"
+                ]
+              ]),
               [for dir in local.directories : "mkdir -m ${dir.mode} -p ${dir.path}"],
               [for dir in local.directories : "chown -R ${dir.owner}:${dir.group} ${dir.path}"],
               var.startup_script.override_default ? [] : [
