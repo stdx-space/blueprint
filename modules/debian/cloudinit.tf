@@ -27,6 +27,7 @@ data "cloudinit_config" "user_data" {
             users = local.users
             bootcmd = [
               "echo 'blacklist rfkill\nblacklist cfg80211' | tee -a /etc/modprobe.d/blacklist.conf",
+              "systemctl restart networking",
             ]
             cloud_init_modules = concat(
               [
