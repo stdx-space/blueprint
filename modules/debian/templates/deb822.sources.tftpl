@@ -1,7 +1,8 @@
 Enabled: yes
 Types: deb
 Architectures: amd64
-Signed-By: ${source.key_file}
 URIs: ${source.uris}
 Suites: ${source.suites}
-%{ if contains(keys(source), "components") }Components: ${source.components}%{ endif }
+%{ if contains(keys(source), "components") }Components: ${source.components}%{ endif ~}
+Signed-By:
+${source.key_file}

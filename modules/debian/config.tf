@@ -136,18 +136,6 @@ locals {
         }
       ],
       [
-        for key, repository in data.http.gpg_keys : {
-          path    = "/usr/share/keyrings/${key}.gpg"
-          content = repository.response_body
-          enabled = true
-          tags    = "cloud-init"
-          owner   = "root"
-          group   = "root"
-          mode    = "0644"
-          defer   = false
-        }
-      ],
-      [
         for repository in distinct(
           concat(
             [
@@ -164,7 +152,7 @@ locals {
                 for attr, val in jsondecode(data.http.upstream.response_body).repositories[repository].apt : attr => val if attr != "signing_key_url"
               },
               {
-                key_file = format("/usr/share/keyrings/%s.gpg", repository)
+                key_file = indent(2, data.http.gpg_keys[repository].response_body)
               }
             )
           })

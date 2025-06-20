@@ -29,13 +29,13 @@ variable "default_packages" {
     "unzip",
     "zip",
     "zstd",
-    "containerd.io",
-    "docker-ce",
-    "docker-ce-cli",
-    "docker-buildx-plugin",
-    "docker-compose-plugin",
+    # "containerd.io",
+    # "docker-ce",
+    # "docker-ce-cli",
+    # "docker-buildx-plugin",
+    # "docker-compose-plugin",
     "jq",
-    "podman",
+    # "podman",
   ]
 }
 

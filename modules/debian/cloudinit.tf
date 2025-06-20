@@ -62,9 +62,15 @@ data "cloudinit_config" "user_data" {
             write_files      = local.files
             runcmd = concat(
               [
-                "export RELEASE=$(grep 'VERSION_CODENAME=' /etc/os-release |awk -F= {' print $2'})"
+                for repository in distinct(
+                  concat(
+                    [
+                      "docker",
+                    ],
+                    flatten(var.substrates.*.install.repositories)
+                  )) :
+                "sed -i 's/$RELEASE/'$(. /etc/os-release && echo \"$VERSION_CODENAME\")/g ${repository}.sources"
               ],
-
               [for dir in local.directories : "mkdir -m ${dir.mode} -p ${dir.path}"],
               [for dir in local.directories : "chown -R ${dir.owner}:${dir.group} ${dir.path}"],
               var.startup_script.override_default ? [] : [
