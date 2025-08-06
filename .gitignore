@@ -259,3 +259,6 @@ dist
 
 .dev.vars
 .wrangler/
+
+# Anthropic
+CLAUDE.md
