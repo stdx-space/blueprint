@@ -1,9 +1,5 @@
 packer {
   required_plugins {
-    vsphere = {
-      version = ">= 1.0.0"
-      source  = "github.com/hashicorp/vsphere"
-    }
     qemu = {
       version = "~> 1"
       source  = "github.com/hashicorp/qemu"
@@ -14,15 +10,13 @@ packer {
 build {
   sources = [
     // "source.qemu.nixos",
-    // "source.vsphere-iso.debian",
-    // "source.vsphere-iso.alma",
-    // "source.vsphere-iso.nixos"
     "source.null.debian",
     "source.null.flatcar",
-    "source.null.alma"
+    "source.null.alma",
+    "source.null.talos"
   ]
   provisioner "shell-local" {
-    only = ["null.debian", "null.flatcar", "null.alma"]
+    only = ["null.debian", "null.flatcar", "null.alma", "null.talos"]
     inline = [
       "mkdir -p mirror",
       "cd mirror",
@@ -39,9 +33,14 @@ build {
     ]
   }
 
-  post-processor "shell-local" {
-    inline = ["rclone copy build/${source.name}.qcow2 r2:artifact/ami/"]
-    only   = ["source.qemu.nixos"]
+  provisioner "shell-local" {
+    only = ["null.flatcar"]
+    inline = [
+      "mkdir -p mirror",
+      "cd mirror",
+      "curl -Lo ${source.name}.proxmox.img ${local.distros[source.name].proxmox.url}",
+      "rclone copy ${source.name}.proxmox.img r2:artifact/ami/"
+    ]
     environment_vars = [
       "RCLONE_CONFIG_R2_TYPE=s3",
       "RCLONE_CONFIG_R2_PROVIDER=Cloudflare",
@@ -51,26 +50,19 @@ build {
       "RCLONE_S3_NO_CHECK_BUCKET=true"
     ]
   }
-  post-processor "shell-local" {
-    inline = ["tar -cvf ./build/${source.name}.ova ./build/${source.name}.ovf ./build/${source.name}-disk-0.vmdk ./build/${source.name}.mf"]
-    only = [
-      for os in ["debian", "nixos", "alma"] : "source.vsphere-iso.${os}"
-    ]
-  }
-  // post-processor "shell-local" {
-  //   inline = ["rclone copyto build/${source.name}.ova r2:artifact/ami/${source.name}.ova"]
-  //   only = [
-  //     for os in ["debian", "nixos", "alma"] : "source.vsphere-iso.${os}"
-  //   ]
-  //   environment_vars = [
-  //     "RCLONE_CONFIG_R2_TYPE=s3",
-  //     "RCLONE_CONFIG_R2_PROVIDER=Cloudflare",
-  //     "RCLONE_CONFIG_R2_ENDPOINT=${var.cf_r2_endpoint}",
-  //     "RCLONE_CONFIG_R2_ACCESS_KEY_ID=${var.cf_r2_access_key_id}",
-  //     "RCLONE_CONFIG_R2_SECRET_ACCESS_KEY=${var.cf_r2_secret_access_key}",
-  //     "RCLONE_S3_NO_CHECK_BUCKET=true"
-  //   ]
-  // }
+
+  # post-processor "shell-local" {
+  #   inline = ["rclone copy build/${source.name}.qcow2 r2:artifact/ami/"]
+  #   only   = ["source.qemu.nixos"]
+  #   environment_vars = [
+  #     "RCLONE_CONFIG_R2_TYPE=s3",
+  #     "RCLONE_CONFIG_R2_PROVIDER=Cloudflare",
+  #     "RCLONE_CONFIG_R2_ENDPOINT=${var.cf_r2_endpoint}",
+  #     "RCLONE_CONFIG_R2_ACCESS_KEY_ID=${var.cf_r2_access_key_id}",
+  #     "RCLONE_CONFIG_R2_SECRET_ACCESS_KEY=${var.cf_r2_secret_access_key}",
+  #     "RCLONE_S3_NO_CHECK_BUCKET=true"
+  #   ]
+  # }
 }
 
 data "http" "supplychain" {
@@ -79,11 +71,6 @@ data "http" "supplychain" {
 
 locals {
   distros = jsondecode(data.http.supplychain.body).distros
-  vm_guest_os_types = {
-    "debian" = "debian${split(".", jsondecode(data.http.supplychain.body).distros.debian.version)[0]}_64Guest"
-    "alma"   = "centos${split(".", jsondecode(data.http.supplychain.body).distros.alma.version)[0]}_64Guest"
-    "nixos"  = "other6xLinux64Guest"
-  }
   nixos_boot_command = [
     "sudo -i<enter><wait>",
     "parted /dev/sda -- mklabel gpt<enter><wait>",
