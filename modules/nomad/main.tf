@@ -52,7 +52,7 @@ resource "terraform_data" "manifest" {
 
   lifecycle {
     precondition {
-      condition     = var.disable_client || var.role == "server"
+      condition     = !(var.disable_client && var.role == "client")
       error_message = "Predicate failed due to nomad role cannot be client when disable_client is true"
     }
   }
