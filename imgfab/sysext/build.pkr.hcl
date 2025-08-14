@@ -238,4 +238,20 @@ build {
       "RCLONE_S3_NO_CHECK_BUCKET=true",
     ]
   }
+
+  post-processor "shell-local" {
+    only = ["null.debian", "null.flatcar", "null.alma", "null.talos"]
+    inline = [
+      "sha256sum *.raw | tee SHA256SUMS",
+      "rclone copy SHA256SUMS r2:artifact/sysext/",
+    ]
+    environment_vars = [
+      "RCLONE_CONFIG_R2_TYPE=s3",
+      "RCLONE_CONFIG_R2_PROVIDER=Cloudflare",
+      "RCLONE_CONFIG_R2_ENDPOINT=${var.cf_r2_endpoint}",
+      "RCLONE_CONFIG_R2_ACCESS_KEY_ID=${var.cf_r2_access_key_id}",
+      "RCLONE_CONFIG_R2_SECRET_ACCESS_KEY=${var.cf_r2_secret_access_key}",
+      "RCLONE_S3_NO_CHECK_BUCKET=true"
+    ]
+  }
 }
