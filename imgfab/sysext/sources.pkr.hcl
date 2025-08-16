@@ -49,3 +49,7 @@ source "null" "tailscale" {
 source "null" "vault" {
   communicator = "none"
 }
+
+source "null" "finalizer" {
+  communicator = "none"
+}

@@ -28,4 +28,5 @@ jobs:
           sudo apt-get update && sudo apt-get install -yqq squashfs-tools rclone
       - name: Packer build
         run: |
-          packer build .
+          packer build -except "null.finalizer"
+          packer build -only "null.finalizer"
