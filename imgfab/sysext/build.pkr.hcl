@@ -234,7 +234,7 @@ build {
   }
 
   post-processor "shell-local" {
-    only = ["finalizer"]
+    only = ["null.finalizer"]
     inline = [
       "rclone copy r2:artifact/sysext . --include '*.raw'",
       "sha256sum *.raw | tee SHA256SUMS",
