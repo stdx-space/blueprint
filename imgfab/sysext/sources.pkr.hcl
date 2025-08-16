@@ -50,6 +50,6 @@ source "null" "vault" {
   communicator = "none"
 }
 
-source "null" "finalizer" {
+source "null" "checksum" {
   communicator = "none"
 }

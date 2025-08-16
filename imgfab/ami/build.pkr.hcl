@@ -8,14 +8,16 @@ packer {
 }
 
 build {
+  name = "distro"
+
   sources = [
     // "source.qemu.nixos",
     "source.null.debian",
     "source.null.flatcar",
     "source.null.alma",
     "source.null.talos",
-    "source.null.finalizer"
   ]
+
   provisioner "shell-local" {
     only = ["null.debian", "null.flatcar", "null.alma", "null.talos"]
     inline = [
@@ -39,18 +41,25 @@ build {
   }
 
   post-processor "shell-local" {
-    only = ["null.finalizer"]
+    inline = ["rclone copy build/${source.name}.qcow2 r2:artifact/ami/"]
+    only   = ["source.qemu.nixos"]
+    environment_vars = local.rclone_s3_config
+  }
+}
+
+build {
+  name = "checksum"
+
+  sources = [
+    "source.null.checksum",
+  ]
+
+  post-processor "shell-local" {
     inline = [
       "cd mirror",
       "sha256sum *.img | tee SHA256SUMS",
       "rclone copy SHA256SUMS r2:artifact/ami/",
     ]
-    environment_vars = local.rclone_s3_config
-  }
-
-  post-processor "shell-local" {
-    inline = ["rclone copy build/${source.name}.qcow2 r2:artifact/ami/"]
-    only   = ["source.qemu.nixos"]
     environment_vars = local.rclone_s3_config
   }
 }

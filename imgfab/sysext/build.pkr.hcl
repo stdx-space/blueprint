@@ -1,4 +1,5 @@
 build {
+  name = "package"
   sources = [
     "source.null.cloudflared",
     "source.null.cni-plugins",
@@ -12,7 +13,6 @@ build {
     "source.null.step-ca",
     "source.null.tailscale",
     "source.null.vault",
-    "source.null.finalizer",
   ]
 
   provisioner "shell-local" {
@@ -227,14 +227,20 @@ build {
   }
 
   post-processor "shell-local" {
+    except = []
     inline = [
       "rclone copy -v ${source.name}-${local.syspkgs[source.name].version}-x86-64.raw r2:artifact/sysext/",
     ]
     environment_vars = local.rclone_s3_config
   }
+}
+
+build {
+  sources = [
+    "source.null.checksum",
+  ]
 
   post-processor "shell-local" {
-    only = ["null.finalizer"]
     inline = [
       "rclone copy r2:artifact/sysext . --include '*.raw'",
       "sha256sum *.raw | tee SHA256SUMS",

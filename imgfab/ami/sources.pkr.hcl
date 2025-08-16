@@ -52,6 +52,6 @@ source "null" "talos" {
   communicator = "none"
 }
 
-source "null" "finalizer" {
+source "null" "checksum" {
   communicator = "none"
 }
