@@ -51,3 +51,7 @@ source "null" "flatcar" {
 source "null" "talos" {
   communicator = "none"
 }
+
+source "null" "finalizer" {
+  communicator = "none"
+}

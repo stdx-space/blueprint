@@ -13,7 +13,8 @@ build {
     "source.null.debian",
     "source.null.flatcar",
     "source.null.alma",
-    "source.null.talos"
+    "source.null.talos",
+    "source.null.finalizer"
   ]
   provisioner "shell-local" {
     only = ["null.debian", "null.flatcar", "null.alma", "null.talos"]
@@ -38,9 +39,10 @@ build {
   }
 
   post-processor "shell-local" {
-    only = ["null.debian", "null.flatcar", "null.alma", "null.talos"]
+    only = ["null.finalizer"]
     inline = [
-      "sha256sum mirror/*.img | tee SHA256SUMS",
+      "cd mirror",
+      "sha256sum *.img | tee SHA256SUMS",
       "rclone copy SHA256SUMS r2:artifact/ami/",
     ]
     environment_vars = local.rclone_s3_config
