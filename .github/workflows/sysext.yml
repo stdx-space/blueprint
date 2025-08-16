@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - imgfab/sysext/**/*
+      - .github/workflows/sysext.yml
   workflow_dispatch:
 
 permissions:

@@ -236,6 +236,7 @@ build {
 }
 
 build {
+  name = "checksum"
   sources = [
     "source.null.checksum",
   ]

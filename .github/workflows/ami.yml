@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - imgfab/ami/**/*
+      - .github/workflows/ami.yml
   workflow_dispatch:
 
 
