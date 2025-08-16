@@ -28,4 +28,4 @@ jobs:
           sudo apt-get update && sudo apt-get install -yqq squashfs-tools rclone
       - name: Packer build
         run: |
-          packer build . -parallel-builds=1
+          packer build -parallel-builds=1 .

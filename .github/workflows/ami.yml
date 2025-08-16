@@ -30,4 +30,4 @@ jobs:
           packer init .
       - name: Packer build
         run: |
-          packer build . -parallel-builds=1
+          packer build -parallel-builds=1 .
