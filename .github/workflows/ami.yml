@@ -31,5 +31,3 @@ jobs:
       - name: Packer build
         run: |
           packer build .
-      - name: List files
-        run: ls -la
