@@ -30,4 +30,5 @@ jobs:
           packer init .
       - name: Packer build
         run: |
-          packer build .
+          packer build . -except 'null.finalizer'
+          packer build . -only 'null.finalizer'
