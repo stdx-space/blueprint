@@ -10,16 +10,6 @@ data "cloudinit_config" "user_data" {
       yamlencode(
         merge(
           {
-            system_info = {
-              apt_get_command = [
-                "apt-get",
-                "--option=Dpkg::Options::=--force-confold",
-                "--option=Dpkg::options::=--force-unsafe-io",
-                "--assume-yes",
-                "--quiet",
-                "--no-install-recommends",
-              ]
-            }
             apt = {
               preserve_sources_list = true
               sources               = local.repositories
