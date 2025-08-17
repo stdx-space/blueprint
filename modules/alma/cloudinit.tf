@@ -11,16 +11,22 @@ data "cloudinit_config" "user_data" {
         merge(
           {
             users = local.users
-            bootcmd = [
-              "hostnamectl set-hostname ${var.name}",
-              "sed -i -e 's/BOOTPROTO=dhcp/BOOTPROTO=static/g' /etc/sysconfig/network-scripts/ifcfg-eth0",
-              "echo 'IPADDR=${var.ip_address}' >> /etc/sysconfig/network-scripts/ifcfg-eth0",
-              "echo 'GATEWAY=${var.gateway_ip}' >> /etc/sysconfig/network-scripts/ifcfg-eth0",
-              "echo 'NETMASK=${cidrnetmask(var.network)}' >> /etc/sysconfig/network-scripts/ifcfg-eth0",
-              "echo '${local.dns_servers}' >> /etc/sysconfig/network-scripts/ifcfg-eth0",
-              "systemctl restart NetworkManager",
-              "dnf install -y gnupg ${contains(flatten(var.substrates.*.install.repositories), "nvidia-container-toolkit") ? "linux-headers-$(uname -r)" : ""}"
-            ]
+            bootcmd = concat(
+              [
+                "hostnamectl set-hostname ${var.name}",
+              ],
+              length(var.network) > 0 ? [
+                "sed -i -e 's/BOOTPROTO=dhcp/BOOTPROTO=static/g' /etc/sysconfig/network-scripts/ifcfg-eth0",
+                "echo 'IPADDR=${var.ip_address}' >> /etc/sysconfig/network-scripts/ifcfg-eth0",
+                "echo 'GATEWAY=${var.gateway_ip}' >> /etc/sysconfig/network-scripts/ifcfg-eth0",
+                "echo 'NETMASK=${cidrnetmask(var.network)}' >> /etc/sysconfig/network-scripts/ifcfg-eth0",
+                "echo '${local.dns_servers}' >> /etc/sysconfig/network-scripts/ifcfg-eth0",
+                "systemctl restart NetworkManager",
+              ] : [],
+              [
+                "dnf install -y gnupg ${contains(flatten(var.substrates.*.install.repositories), "nvidia-container-toolkit") ? "linux-headers-$(uname -r)" : ""}"
+              ]
+            )
             cloud_init_modules = concat(
               [
                 "bootcmd",
