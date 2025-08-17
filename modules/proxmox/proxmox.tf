@@ -60,7 +60,7 @@ resource "proxmox_virtual_environment_vm" "this" {
       datastore_id = disk.value.storage_id
       size         = disk.value.size
       interface    = disk.key
-      file_id      = endswith(disk.key, "0") ? (var.use_iso ? "" : var.os_template_id) : ""
+      import_from  = endswith(disk.key, "0") ? (var.use_iso ? "" : var.os_template_id) : ""
       file_format  = "raw"
       discard      = disk.value.thin_provisioned
     }
