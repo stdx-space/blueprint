@@ -25,7 +25,7 @@ locals {
         tags    = "ignition"
       },
       {
-        path = "/etc/systemd/network/static.network"
+        path = "/etc/systemd/network/00-static.network"
         content = templatefile("${path.module}/templates/static.network.tftpl", {
           ip_address  = "${var.ip_address}/${local.subnet_bits}"
           gateway_ip  = var.gateway_ip
