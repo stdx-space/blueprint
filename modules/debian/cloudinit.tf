@@ -46,7 +46,6 @@ data "cloudinit_config" "user_data" {
             hostname         = var.name
             manage_etc_hosts = true
             timezone         = var.timezone
-            packages         = local.packages
             disk_setup       = local.disks
             fs_setup         = local.filesystems
             write_files      = local.files
@@ -65,7 +64,7 @@ data "cloudinit_config" "user_data" {
                 ]
               ]),
               [
-                "apt-get update && apt-get install -y --no-install-recommends ${join(" ", local.additional_packages)}",
+                "apt-get update && apt-get install -y --no-install-recommends ${join(" ", local.packages)}",
               ],
               [for dir in local.directories : "mkdir -m ${dir.mode} -p ${dir.path}"],
               [for dir in local.directories : "chown -R ${dir.owner}:${dir.group} ${dir.path}"],
