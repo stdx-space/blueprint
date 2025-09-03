@@ -25,8 +25,38 @@ module "valkey" {
 }
 ```
 
-The data will be persisted to `/data`. One may mount host volumes to `/data`
-for persisting valkey data.
+The data will be persisted to `/data`. You can use either static host volumes or dynamic host volumes for persistence.
+
+### Dynamic Host Volumes (Recommended)
+
+With the updated Nomad provider (2.4+), you can use dynamic host volumes that are automatically created and managed by Terraform:
+
+```hcl
+module "valkey" {
+  source                = "registry.narwhl.workers.dev/stack/valkey/nomad"
+  datacenter_name       = local.datacenter_name
+  valkey_version        = "8"
+
+  dynamic_host_volume_config = {
+    name       = "valkey-data"
+    plugin_id  = "hostpath"  # or your CSI plugin ID
+    capacity_min = "1Gi"
+    capacity_max = "10Gi"
+    capability = {
+      access_mode     = "single-node-writer"
+      attachment_mode = "file-system"
+    }
+  }
+
+  persistent_config = {
+    save_options = "60 1000"
+  }
+}
+```
+
+### Static Host Volumes (Legacy)
+
+For backwards compatibility, you can still use static host volumes:
 
 ```hcl
 module "valkey" {
@@ -48,6 +78,8 @@ host_volume "host-volume-name" {
 }
 ```
 
+### Ephemeral Storage
+
 Alternatively, you may use the `enable_ephemeral_disk` to enable ephemeral disk
 for storing valkey snapshots temporarily.
 
@@ -57,3 +89,11 @@ module "valkey" {
   enable_ephemeral_disk = true # Enable Nomad ephemeral disk for the storing valkey data temporarily. Cannot be used with host volumes.
 }
 ```
+
+## Migration from Static to Dynamic Host Volumes
+
+To migrate from static host volumes to dynamic host volumes:
+
+1. Remove the `host_volume_config` variable
+2. Add the `dynamic_host_volume_config` variable with appropriate settings
+3. The dynamic volume will be automatically created and attached to your Valkey instance
