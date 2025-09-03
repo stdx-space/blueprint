@@ -13,6 +13,13 @@ job "${job_name}" {
     }
 %{ endfor ~}
 
+%{ for config in dynamic_host_volume_configs ~}
+    volume "valkey-data" {
+      type   = "csi"
+      source = "${config.name}"
+    }
+%{ endfor ~}
+
 %{ for config in ephemeral_disk_configs ~}
     ephemeral_disk {
       size = 500
@@ -55,6 +62,12 @@ job "${job_name}" {
         volume      = "valkey-data"
         destination = "/data"
         read_only   = ${config.read_only}
+      }
+%{ endfor ~}
+%{ for config in dynamic_host_volume_configs ~}
+      volume_mount {
+        volume      = "valkey-data"
+        destination = "/data"
       }
 %{ endfor ~}
       resources {
