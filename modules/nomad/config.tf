@@ -80,6 +80,7 @@ locals {
           advertise_addr  = var.advertise_addr
           listen_addr     = var.listen_addr
           enabled         = !var.disable_client
+          client_meta     = var.client_meta
         }
       )
     },

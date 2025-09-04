@@ -126,6 +126,12 @@ variable "host_volume" {
   default     = {}
   description = "Host volume configuration for Nomad"
 }
+ 
+ variable "client_meta" {
+   type        = map(string)
+   default     = {}
+   description = "Custom meta block for Nomad client. Keys and values will be rendered in the client.hcl meta block if provided."
+ }
 
 resource "random_id" "gossip_key" {
   byte_length = 32
