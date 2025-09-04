@@ -16,4 +16,11 @@ client = {
     read_only = ${host_volume.read_only}
   }
 %{ endfor ~}
+%{ if length(client_meta) > 0 }
+  meta = {
+%{ for k, v in client_meta ~}
+    ${k} = "${v}"
+%{ endfor ~}
+  }
+%{ endif }
 }
