@@ -98,21 +98,23 @@ locals {
         EOF
       },
       {
-        path = format(
-          "/etc/extensions/${pkg}-%s-x86-64.raw",
-          local.pkgs[pkg].version
-        )
-        content = format("https://artifact.narwhl.dev/sysext/%s-%s-x86-64.raw", pkg, local.pkgs[pkg].version)
-        enabled = true
-        tags    = "ignition"
-      },
-      {
         path    = "/etc/sysconfig/node_exporter"
         content = "OPTIONS=\"--collector.textfile.directory /var/lib/node_exporter/textfile_collector\""
         enabled = var.expose_metrics
         mode    = "644"
         owner   = "root"
         group   = "root"
+        tags    = "ignition"
+      }
+    ],
+    [
+      for pkg in local.pkgs : {
+        path = format(
+          "/etc/extensions/${pkg}-%s-x86-64.raw",
+          local.pkgs[pkg].version
+        )
+        content = format("https://artifact.narwhl.dev/sysext/%s-%s-x86-64.raw", pkg, local.pkgs[pkg].version)
+        enabled = true
         tags    = "ignition"
       }
     ],

@@ -74,7 +74,7 @@ variable "expose_metrics" {
 }
 
 variable "supplychain" {
-  type = string
+  type    = string
   default = "https://artifact.narwhl.dev/upstream/current.json"
 }
 
