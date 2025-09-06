@@ -100,7 +100,7 @@ locals {
         }
         static_configs = [
           {
-            targets = [format(nomad_service_template, "nomad")]
+            targets = [format(local.nomad_service_template, "nomad")]
           }
         ]
       }
