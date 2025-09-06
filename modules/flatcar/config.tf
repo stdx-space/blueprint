@@ -1,3 +1,7 @@
+data "http" "upstream" {
+  url = var.supplychain
+}
+
 data "http" "ssh_keys_import" {
   count = length(var.ssh_keys_import)
   url   = var.ssh_keys_import[count.index]
@@ -92,6 +96,24 @@ locals {
 
           echo "Volume groups created successfully."
         EOF
+      },
+      {
+        path = format(
+          "/etc/extensions/${pkg}-%s-x86-64.raw",
+          local.pkgs[pkg].version
+        )
+        content = format("https://artifact.narwhl.dev/sysext/%s-%s-x86-64.raw", pkg, local.pkgs[pkg].version)
+        enabled = true
+        tags    = "ignition"
+      },
+      {
+        path    = "/etc/sysconfig/node_exporter"
+        content = "OPTIONS=\"--collector.textfile.directory /var/lib/node_exporter/textfile_collector\""
+        enabled = var.expose_metrics
+        mode    = "644"
+        owner   = "root"
+        group   = "root"
+        tags    = "ignition"
       }
     ],
     flatten(var.substrates.*.files),

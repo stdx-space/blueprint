@@ -73,6 +73,11 @@ variable "expose_metrics" {
   description = "Whether to enable prometheus node-exporter as system service container"
 }
 
+variable "supplychain" {
+  type = string
+  default = "https://artifact.narwhl.dev/upstream/current.json"
+}
+
 variable "network" {
   type        = string
   default     = ""
@@ -172,6 +177,9 @@ variable "ssh_keys_import" {
 }
 
 locals {
+  pkgs = {
+    for pkg in concat(["alloy"], var.expose_metrics ? ["node-exporter"] : []) : pkg => jsondecode(data.http.upstream.response_body).syspkgs[pkg]
+  }
   users = {
     for index, user in flatten(var.substrates.*.users) : user.name => {
       home_dir = user.home_dir
@@ -207,12 +215,6 @@ locals {
         content = file("${path.module}/templates/init-lvm-vg.service.tftpl")
       }
     ] : [],
-    var.expose_metrics ? [
-      {
-        name    = "node-exporter.service"
-        content = file("${path.module}/templates/node-exporter.service.tftpl")
-      }
-    ] : []
   )
   mount_units = [
     for mount in var.mounts : {
