@@ -147,6 +147,16 @@ locals {
     flatten(var.substrates.*.install.systemd_units),
     [
       {
+        name    = "sshd.service"
+        content = null
+        dropins = {
+          "override.conf" = <<-EOF
+            [Service]
+            ExecStart=/usr/bin/sshd -D -e
+          EOF
+        }
+      },
+      {
         name    = "systemd-sysupdate.timer"
         content = null
       },
