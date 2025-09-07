@@ -159,7 +159,7 @@ build {
       [
         "curl -LO ${local.syspkgs.alloy.pkg_url}",
         "unzip ${local.syspkgs.alloy.filename} -d alloy-${local.syspkgs.alloy.version}-amd64/usr/bin",
-        "mv alloy-${local.syspkgs.alloy.version}-amd64/usr/bin/${trimsuffix(local.syspkgs["alloy"].filename, "zip")} alloy-${local.syspkgs.alloy.version}-amd64/usr/bin/alloy"
+        "mv alloy-${local.syspkgs.alloy.version}-amd64/usr/bin/${trimsuffix(local.syspkgs["alloy"].filename, ".zip")} alloy-${local.syspkgs.alloy.version}-amd64/usr/bin/alloy"
       ],
       [
         "mksquashfs alloy-${local.syspkgs.alloy.version}-amd64 alloy-${local.syspkgs.alloy.version}-x86-64.raw",
