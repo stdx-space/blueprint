@@ -111,7 +111,7 @@ variable "consul_group" {
 
 variable "resolve_consul_domains" {
   type        = bool
-  default     = false
+  default     = true
   description = "Whether to point DNS records for *.service.consul to the consul servers"
 }
 
