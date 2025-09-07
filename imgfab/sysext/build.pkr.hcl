@@ -140,7 +140,7 @@ build {
       [
         "curl -LO ${local.syspkgs["node-exporter"].pkg_url}",
         "tar -C node-exporter-${local.syspkgs["node-exporter"].version}-amd64/usr/local/sbin -xzf ${local.syspkgs["node-exporter"].filename} --strip-components=1 ${trimsuffix(local.syspkgs["node-exporter"].filename, ".tar.gz")}/node_exporter",
-        "cp templates/node-exporter.socket node-exporter-${local.syspkgs["node-exporter"].version}-amd64/usr/lib/systemd/system/node_exporter.socket"
+        "cp templates/node-exporter.socket node-exporter-${local.syspkgs["node-exporter"].version}-amd64/usr/lib/systemd/system/node-exporter.socket"
       ],
       [
         for step in local.copy_service_unit_steps : format(step, "node-exporter", local.syspkgs["node-exporter"].version)
