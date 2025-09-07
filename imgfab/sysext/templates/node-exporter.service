@@ -1,6 +1,6 @@
 [Unit]
 Description=Node Exporter
-Requires=node_exporter.socket
+Requires=node-exporter.socket
 
 [Service]
 User=node_exporter
