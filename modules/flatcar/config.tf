@@ -108,7 +108,7 @@ locals {
       }
     ],
     [
-      for pkg in local.pkgs : {
+      for pkg in keys(local.pkgs) : {
         path = format(
           "/etc/extensions/${pkg}-%s-x86-64.raw",
           local.pkgs[pkg].version
