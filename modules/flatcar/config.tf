@@ -33,7 +33,7 @@ locals {
         content = templatefile("${path.module}/templates/resolved.conf.tftpl", {
           nameservers = var.nameservers
         })
-        enabled = true
+        enabled = !contains(flatten(var.substrates.*.packages), "consul")
         mode    = "644"
         owner   = "root"
         group   = "root"
@@ -42,9 +42,8 @@ locals {
       {
         path = "/etc/systemd/network/00-static.network"
         content = templatefile("${path.module}/templates/static.network.tftpl", {
-          ip_address  = "${var.ip_address}/${local.subnet_bits}"
-          gateway_ip  = var.gateway_ip
-          nameservers = var.nameservers
+          ip_address = "${var.ip_address}/${local.subnet_bits}"
+          gateway_ip = var.gateway_ip
         })
         enabled = 0 < length(var.ip_address) && 0 < length(var.gateway_ip)
         mode    = "644"
