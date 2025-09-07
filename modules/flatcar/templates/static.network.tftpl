@@ -4,6 +4,4 @@ Name=e*
 [Network]
 Address=${ip_address}
 Gateway=${gateway_ip}
-%{ for nameserver in nameservers ~}
-DNS=${nameserver}
-%{ endfor ~}
+DNS=127.0.0.53

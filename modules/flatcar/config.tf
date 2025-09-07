@@ -29,6 +29,17 @@ locals {
         tags    = "ignition"
       },
       {
+        path = "/etc/systemd/resolved.conf"
+        content = templatefile("${path.module}/templates/resolved.conf.tftpl", {
+          nameservers = var.nameservers
+        })
+        enabled = true
+        mode    = "644"
+        owner   = "root"
+        group   = "root"
+        tags    = "ignition"
+      },
+      {
         path = "/etc/systemd/network/00-static.network"
         content = templatefile("${path.module}/templates/static.network.tftpl", {
           ip_address  = "${var.ip_address}/${local.subnet_bits}"
