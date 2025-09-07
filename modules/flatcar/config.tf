@@ -115,6 +115,9 @@ locals {
         )
         content = format("https://artifact.narwhl.dev/sysext/%s-%s-x86-64.raw", pkg, local.pkgs[pkg].version)
         enabled = true
+        mode    = "644"
+        owner   = "root"
+        group   = "root"
         tags    = "ignition"
       }
     ],
