@@ -96,12 +96,12 @@ data "ignition_systemd_unit" "services" {
 
 data "ignition_systemd_unit" "disable_ssh" {
   name    = "sshd.service"
-  enabled = false
+  enabled = var.disable_ssh
 }
 
 data "ignition_systemd_unit" "disable_ssh_socket" {
   name = "sshd.socket"
-  mask = true
+  mask = var.disable_ssh
 }
 
 data "ignition_config" "config" {

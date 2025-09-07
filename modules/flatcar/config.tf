@@ -152,6 +152,7 @@ locals {
         dropins = {
           "override.conf" = <<-EOF
             [Service]
+            ExecStart=
             ExecStart=/usr/bin/sshd -D -e
           EOF
         }
