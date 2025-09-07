@@ -184,7 +184,10 @@ locals {
     for pkg in concat(["alloy"], var.expose_metrics ? ["node-exporter"] : []) : pkg => jsondecode(data.http.upstream.response_body).syspkgs[pkg]
   }
   users = {
-    for index, user in flatten(var.substrates.*.users) : user.name => {
+    for index, user in concat(
+      flatten(var.substrates.*.users),
+      var.expose_metrics ? [{ name : "node_exporter", home_dir : "/var/lib/node_exporter" }] : []
+      ) : user.name => {
       home_dir = user.home_dir
       uid      = 499 - index
     }
