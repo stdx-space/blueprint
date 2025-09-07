@@ -139,7 +139,7 @@ build {
       local.templates["node-exporter"],
       [
         "curl -LO ${local.syspkgs["node-exporter"].pkg_url}",
-        "tar -C node-exporter-${local.syspkgs["node-exporter"].version}-amd64/usr/sbin -xzf ${local.syspkgs["node-exporter"].filename} --strip-components=1 ${trimsuffix(local.syspkgs["node-exporter"].filename, ".tar.gz")}/node_exporter",
+        "tar -C node-exporter-${local.syspkgs["node-exporter"].version}-amd64/usr/local/sbin -xzf ${local.syspkgs["node-exporter"].filename} --strip-components=1 ${trimsuffix(local.syspkgs["node-exporter"].filename, ".tar.gz")}/node_exporter",
         "cp templates/node-exporter.socket node-exporter-${local.syspkgs["node-exporter"].version}-amd64/usr/lib/systemd/system/node_exporter.socket"
       ],
       [
@@ -159,6 +159,7 @@ build {
       [
         "curl -LO ${local.syspkgs.alloy.pkg_url}",
         "unzip ${local.syspkgs.alloy.filename} -d alloy-${local.syspkgs.alloy.version}-amd64/usr/bin",
+        "mv alloy-${local.syspkgs.alloy.version}-amd64/usr/bin/${trimsuffix(local.syspkgs["alloy"].filename, "zip")} alloy-${local.syspkgs.alloy.version}-amd64/usr/bin/alloy"
       ],
       [
         "mksquashfs alloy-${local.syspkgs.alloy.version}-amd64 alloy-${local.syspkgs.alloy.version}-x86-64.raw",
