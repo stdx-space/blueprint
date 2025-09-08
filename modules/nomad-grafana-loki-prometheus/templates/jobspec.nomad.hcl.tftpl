@@ -1,0 +1,222 @@
+job "${job_name}" {
+  datacenters = ["${datacenter_name}"]
+  namespace   = "${namespace}"
+  type        = "service"
+
+  update {
+    max_parallel = 1
+    min_healthy_time = "10s"
+    healthy_deadline = "3m"
+    auto_revert = true
+  }
+
+  group "grafana" {
+    network {
+      mode = "bridge"
+      port "http" {
+        to = 3000
+      }
+    }
+
+    service {
+      name = "grafana"
+      port = "http"
+      check {
+        type = "http"
+        path = "/api/health"
+        interval = "10s"
+        timeout = "2s"
+      }
+    }
+
+    task "grafana" {
+      driver = "docker"
+
+      config {
+        image = "grafana/grafana:${grafana_version}"
+        ports = ["grafana"]
+      }
+
+      template {
+        data        = <<-EOF
+${grafana_config}
+        EOF
+        destination = "local/datasources/default.yaml"
+      }
+
+      template {
+        data = <<-EOF
+        GF_SECURITY_ADMIN_PASSWORD = "admin"
+        GF_PATHS_PROVISIONING = "/local"
+        EOF
+        destination = "local/grafana.env"
+        env         = true
+      }
+
+      resources {
+        cpu    = ${resources.grafana.cpu}
+        memory = ${resources.grafana.memory}
+      }
+    }
+  }
+  group "loki" {
+    network {
+      port "http" {
+        to = 3100
+      }
+    }
+
+    volume "loki" {
+      type      = "host"
+      read_only = false
+      source    = "loki"
+    }
+
+    service {
+      name = "loki"
+      port = "http"
+      check {
+        type = "http"
+        path = "/ready"
+        interval = "10s"
+        timeout = "2s"
+      }
+    }
+
+    task "set-perm" {
+      lifecycle {
+        hook = "prestart"
+        sidecar = false
+      }
+
+      driver = "docker"
+
+      volume_mount {
+        volume = "loki"
+        destination = "/loki"
+      }
+
+      config {
+        image   = "busybox:latest"
+        command = "sh"
+        args    = ["-c", "chown -R 10001:10001 /loki"]
+      }
+    }
+
+    task "loki" {
+      driver = "docker"
+
+      volume_mount {
+        volume = "loki"
+        destination = "/loki"
+      }
+
+      config {
+        image = "grafana/loki:${loki_version}"
+        ports = ["http"]
+        args = ["-config.file=/etc/loki/local-config.yaml"]
+
+        mount {
+          type = "bind"
+          source = "local/loki-config.yaml"
+          target = "/etc/loki/local-config.yaml"
+        }
+      }
+
+      template {
+        data        = <<-EOF
+${loki_config}
+        EOF
+        destination = "local/loki-config.yaml"
+      }
+
+      resources {
+        cpu    = ${resources.loki.cpu}
+        memory = ${resources.loki.memory}
+      }
+    }
+  }
+  group "prometheus" {
+
+    volume "prometheus" {
+      type      = "host"
+      read_only = false
+      source    = "prometheus"
+    }
+
+    network {
+      port "http" {
+        to = 9090
+      }
+    }
+
+    service {
+      name = "prometheus"
+      port = "http"
+      check {
+        type = "http"
+        path = "/-/healthy"
+        interval = "10s"
+        timeout = "2s"
+      }
+    }
+
+    task "set-perm" {
+      lifecycle {
+        hook = "prestart"
+        sidecar = false
+      }
+
+      driver = "docker"
+
+      volume_mount {
+        volume = "prometheus"
+        destination = "/prometheus"
+      }
+
+      config {
+        image   = "busybox:latest"
+        command = "sh"
+        args    = ["-c", "chown -R nobody:nobody /prometheus"]
+      }
+    }
+
+    task "prometheus" {
+      driver = "docker"
+
+      volume_mount {
+        volume = "prometheus"
+        destination = "/prometheus"
+      }
+
+      config {
+        image = "prom/prometheus:${prometheus_version}"
+        ports = ["http"]
+        args = [
+          "--config.file=/etc/prometheus/prometheus.yml",
+          "--storage.tsdb.path=/prometheus",
+          "--web.enable-lifecycle",
+          "--web.enable-remote-write-receiver"
+        ]
+
+        mount {
+          type = "bind"
+          source = "local/prometheus.yml"
+          target = "/etc/prometheus/prometheus.yml"
+        }
+      }
+
+      template {
+        data        = <<-EOF
+${prometheus_config}
+        EOF
+        destination = "local/prometheus.yml"
+      }
+
+      resources {
+        cpu    = ${resources.prometheus.cpu}
+        memory = ${resources.prometheus.memory}
+      }
+    }
+  }
+}
