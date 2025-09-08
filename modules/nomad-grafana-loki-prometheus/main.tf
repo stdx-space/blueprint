@@ -27,6 +27,9 @@ locals {
       http_listen_port = 3100
     }
     ingester = {
+      wal = {
+        dir = "/loki/wal"
+      }
       lifecycler = {
         address = "127.0.0.1"
         ring = {
@@ -66,7 +69,6 @@ locals {
     }
     compactor = {
       working_directory = "/loki/compactor"
-      shared_store      = "filesystem"
     }
     limits_config = {
       reject_old_samples : true
