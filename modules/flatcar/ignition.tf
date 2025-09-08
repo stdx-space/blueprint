@@ -94,6 +94,11 @@ data "ignition_systemd_unit" "services" {
   }
 }
 
+data "ignition_systemd_unit" "alloy" {
+  name    = "alloy.service"
+  enabled = var.telemetry.enabled
+}
+
 data "ignition_systemd_unit" "disable_ssh" {
   name    = "sshd.service"
   enabled = false

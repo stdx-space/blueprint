@@ -73,6 +73,20 @@ variable "expose_metrics" {
   description = "Whether to enable prometheus node-exporter as system service container"
 }
 
+variable "telemetry" {
+  type = object({
+    enabled         = bool
+    loki_addr       = string
+    prometheus_addr = string
+  })
+  description = "Whether to enable alloy logging to Loki endpoint, e.g. { enabled = true, loki_endpoint = 'https://loki.example.com/loki/api/v1/push' }"
+  default = {
+    enabled         = false
+    loki_addr       = ""
+    prometheus_addr = ""
+  }
+}
+
 variable "supplychain" {
   type    = string
   default = "https://artifact.narwhl.dev/upstream/current.json"
@@ -181,12 +195,12 @@ variable "ssh_keys_import" {
 
 locals {
   pkgs = {
-    for pkg in concat(["alloy"], var.expose_metrics ? ["node-exporter"] : []) : pkg => jsondecode(data.http.upstream.response_body).syspkgs[pkg]
+    for pkg in ["alloy"] : pkg => jsondecode(data.http.upstream.response_body).syspkgs[pkg]
   }
   users = {
     for index, user in concat(
       flatten(var.substrates.*.users),
-      var.expose_metrics ? [{ name : "node_exporter", home_dir : "/var/lib/node_exporter" }] : []
+      var.logging.enabled ? [{ name : "alloy", home_dir : "/var/lib/alloy" }] : []
       ) : user.name => {
       home_dir = user.home_dir
       uid      = 499 - index
