@@ -80,7 +80,7 @@ locals {
           # Command line options for alloy
           #
           # The configuration file holding the Grafana Alloy configuration.
-          CONFIG_FILE="/etc/alloy/config.alloy"
+          CONFIG_FILE="/etc/alloy"
 
           # User-defined arguments to pass to the run command.
           CUSTOM_ARGS=""

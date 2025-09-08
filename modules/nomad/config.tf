@@ -114,6 +114,13 @@ locals {
         }] : []
       })
       mode = "755"
+    },
+    {
+      path    = "/etc/alloy/nomad.alloy"
+      enabled = true
+      tags    = "ignition"
+      content = file("${path.module}/templates/nomad.alloy.tftpl")
+      mode    = "644"
     }
   ]
 

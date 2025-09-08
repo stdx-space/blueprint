@@ -1,0 +1,10 @@
+local.file_match "nomad_logs" {
+  path_targets = [
+    {__path__ = "/var/lib/nomad/alloc/*/alloc/logs/*.stdout.*", __path_exclude__="/var/lib/nomad/alloc/**/*.fifo"},
+    {__path__ = "/var/lib/nomad/alloc/*/alloc/logs/*.stderr.*", __path_exclude__="/var/lib/nomad/alloc/**/*.fifo"},
+  ]
+}
+loki.source.file "nomad_logs" {
+  targets = local.file_match.nomad_logs.targets
+  forward_to = [loki.write.default.receiver]
+}

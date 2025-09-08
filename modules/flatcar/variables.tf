@@ -79,6 +79,10 @@ variable "telemetry" {
     loki_addr       = ""
     prometheus_addr = ""
   }
+  validation {
+    condition     = var.telemetry.enabled ? (length(var.telemetry.loki_addr) > 0 && length(var.telemetry.prometheus_addr) > 0) : true
+    error_message = "Loki and Prometheus addresses must be set if telemetry is enabled"
+  }
 }
 
 variable "supplychain" {

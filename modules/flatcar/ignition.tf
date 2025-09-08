@@ -130,10 +130,11 @@ data "ignition_config" "config" {
   ]
   systemd = concat([
     for name, unit in data.ignition_systemd_unit.services : unit.rendered
-    ], var.disable_ssh ? [
-    data.ignition_systemd_unit.disable_ssh.rendered,
-    data.ignition_systemd_unit.disable_ssh_socket.rendered,
-    data.ignition_systemd_unit.alloy.rendered
+    ],
+    [data.ignition_systemd_unit.alloy.rendered],
+    var.disable_ssh ? [
+      data.ignition_systemd_unit.disable_ssh.rendered,
+      data.ignition_systemd_unit.disable_ssh_socket.rendered,
   ] : [])
   users = concat([for key, value in data.ignition_user.external : value.rendered], [data.ignition_user.operator.rendered], )
 }

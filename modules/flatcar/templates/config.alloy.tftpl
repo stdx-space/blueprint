@@ -54,7 +54,7 @@ scrape_interval = "15s"
 
 
 // Define where to send the metrics for storage
-prometheus.remote_write "local" {
+prometheus.remote_write "default" {
   endpoint {
     // Send metrics to a locally running Prometheus instance
     url = "http://${prometheus_addr}/api/v1/write"
@@ -123,7 +123,7 @@ loki.source.file "logs_integrations_integrations_node_exporter_direct_scrape" {
 }
 
 // Define where to send logs for storage
-loki.write "local" {
+loki.write "default" {
     endpoint {
         // Send logs to a locally running Loki instance
         url ="http://${loki_addr}/loki/api/v1/push"
