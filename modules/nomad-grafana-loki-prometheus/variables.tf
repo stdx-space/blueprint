@@ -13,7 +13,7 @@ variable "namespace" {
 }
 
 variable "job_name" {
-  default     = "hasura"
+  default     = "monitoring"
   description = "Nomad job name"
 }
 

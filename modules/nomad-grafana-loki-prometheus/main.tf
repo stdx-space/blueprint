@@ -1,6 +1,8 @@
 locals {
   nomad_var_template     = "{{ with nomadVar \"nomad/jobs/${var.job_name}\" }}{{ .%s }}{{ end }}"
-  nomad_service_template = "{{ with service \"%s\" }}{{ .Address }}:{{ .Port }}{{ end }}"
+  nomad_service_template = <<-EOH
+  {{ with service "%s" }}{{ with index . 0 }}{{ .Address }}:{{ .Port }}{{ end }}{{ end }}"
+  EOH
   grafana_config = yamlencode({
     apiVersion = 1
     datasources = [
@@ -70,9 +72,6 @@ locals {
       reject_old_samples : true
       reject_old_samples_max_age : "168h"
     }
-    chunk_store_config = {
-      max_look_back_period = "0s"
-    }
     table_manager = {
       retention_deletes_enabled = false
       retention_period          = "0s"
@@ -108,12 +107,12 @@ locals {
   })
 }
 
-resource "nomad_variable" "grafana_loki_prometheus" {
-  path      = "nomad/jobs/${var.job_name}"
-  namespace = var.namespace
-  items = {
-  }
-}
+# resource "nomad_variable" "grafana_loki_prometheus" {
+#   path      = "nomad/jobs/${var.job_name}"
+#   namespace = var.namespace
+#   items = {
+#   }
+# }
 
 resource "nomad_job" "grafana_loki_prometheus" {
   jobspec = templatefile("${path.module}/templates/jobspec.nomad.hcl.tftpl", {
@@ -130,7 +129,7 @@ resource "nomad_job" "grafana_loki_prometheus" {
   })
   purge_on_destroy = var.purge_on_destroy
   depends_on = [
-    nomad_variable.grafana_loki_prometheus,
+    # nomad_variable.grafana_loki_prometheus,
     nomad_dynamic_host_volume.prometheus,
     nomad_dynamic_host_volume.loki,
   ]
@@ -149,6 +148,12 @@ resource "nomad_dynamic_host_volume" "prometheus" {
 resource "nomad_dynamic_host_volume" "loki" {
   name      = "loki"
   plugin_id = "mkdir"
+
+  parameters = {
+    mode = "0755"
+    uid  = 10001
+    gid  = 10001
+  }
 
   capability {
     access_mode     = "single-node-writer"

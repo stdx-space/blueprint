@@ -21,7 +21,6 @@ job "${job_name}" {
     service {
       name = "grafana"
       port = "http"
-      tags = ["dashboard"]
       check {
         type = "http"
         path = "/api/health"
@@ -42,7 +41,7 @@ job "${job_name}" {
         data        = <<-EOF
 ${grafana_config}
         EOF
-        destination = "local/datasources.yaml"
+        destination = "local/datasources/default.yaml"
       }
 
       template {
@@ -62,8 +61,8 @@ ${grafana_config}
   }
   group "loki" {
     network {
-      port "loki" {
-        to = 8080
+      port "http" {
+        to = 3100
       }
     }
 
@@ -76,12 +75,31 @@ ${grafana_config}
     service {
       name = "loki"
       port = "http"
-      tags = ["logging"]
       check {
         type = "http"
         path = "/ready"
         interval = "10s"
         timeout = "2s"
+      }
+    }
+
+    task "set-perm" {
+      lifecycle {
+        hook = "prestart"
+        sidecar = false
+      }
+
+      driver = "docker"
+
+      volume_mount {
+        volume = "loki"
+        destination = "/loki"
+      }
+
+      config {
+        image   = "busybox:latest"
+        command = "sh"
+        args    = ["-c", "chown -R 10001:10001 /loki"]
       }
     }
 
@@ -95,7 +113,7 @@ ${grafana_config}
 
       config {
         image = "grafana/loki:${loki_version}"
-        ports = ["loki"]
+        ports = ["http"]
         args = ["-config.file=/etc/loki/local-config.yaml"]
 
         mount {
@@ -135,12 +153,31 @@ ${loki_config}
     service {
       name = "prometheus"
       port = "http"
-      tags = ["monitoring"]
       check {
         type = "http"
         path = "/-/healthy"
         interval = "10s"
         timeout = "2s"
+      }
+    }
+
+    task "set-perm" {
+      lifecycle {
+        hook = "prestart"
+        sidecar = false
+      }
+
+      driver = "docker"
+
+      volume_mount {
+        volume = "prometheus"
+        destination = "/prometheus"
+      }
+
+      config {
+        image   = "busybox:latest"
+        command = "sh"
+        args    = ["-c", "chown -R nobody:nobody /prometheus"]
       }
     }
 
@@ -156,10 +193,17 @@ ${loki_config}
         image = "prom/prometheus:${prometheus_version}"
         ports = ["http"]
         args = [
-          "--config.file=/local/prometheus.yml",
+          "--config.file=/etc/prometheus/prometheus.yml",
           "--storage.tsdb.path=/prometheus",
-          "--web.enable-lifecycle"
+          "--web.enable-lifecycle",
+          "--web.enable-remote-write-receiver"
         ]
+
+        mount {
+          type = "bind"
+          source = "local/prometheus.yml"
+          target = "/etc/prometheus/prometheus.yml"
+        }
       }
 
       template {
