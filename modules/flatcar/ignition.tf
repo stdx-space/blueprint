@@ -133,6 +133,7 @@ data "ignition_config" "config" {
     ], var.disable_ssh ? [
     data.ignition_systemd_unit.disable_ssh.rendered,
     data.ignition_systemd_unit.disable_ssh_socket.rendered,
+    data.ignition_systemd_unit.alloy.rendered
   ] : [])
   users = concat([for key, value in data.ignition_user.external : value.rendered], [data.ignition_user.operator.rendered], )
 }

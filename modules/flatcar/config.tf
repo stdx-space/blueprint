@@ -52,6 +52,44 @@ locals {
         tags    = "ignition"
       },
       {
+        path    = "/etc/alloy/config.alloy"
+        mode    = "644"
+        owner   = "alloy"
+        group   = "alloy"
+        enabled = true
+        tags    = "ignition"
+        content = var.telemetry.enabled ? templatefile("${path.module}/templates/config.alloy.tftpl", {
+          loki_addr       = var.telemetry.loki_addr
+          prometheus_addr = var.telemetry.prometheus_addr
+        }) : ""
+      },
+      {
+        path    = "/etc/default/alloy"
+        mode    = "644"
+        owner   = "alloy"
+        group   = "alloy"
+        enabled = true
+        tags    = "ignition"
+        content = <<-EOF
+          ## Path:
+          ## Description: Grafana Alloy settings
+          ## Type:        string
+          ## Default:     ""
+          ## ServiceRestart: alloy
+          #
+          # Command line options for alloy
+          #
+          # The configuration file holding the Grafana Alloy configuration.
+          CONFIG_FILE="/etc/alloy/config.alloy"
+
+          # User-defined arguments to pass to the run command.
+          CUSTOM_ARGS=""
+
+          # Restart on system upgrade. Defaults to true.
+          RESTART_ON_UPGRADE=true
+        EOF
+      },
+      {
         path    = "/opt/bin/update-restarter.sh"
         mode    = "755"
         owner   = "root"
@@ -107,15 +145,6 @@ locals {
           echo "Volume groups created successfully."
         EOF
       },
-      {
-        path    = "/etc/sysconfig/node_exporter"
-        content = "OPTIONS=\"--collector.textfile.directory /var/lib/node_exporter/textfile_collector\""
-        enabled = var.expose_metrics
-        mode    = "644"
-        owner   = "root"
-        group   = "root"
-        tags    = "ignition"
-      }
     ],
     [
       for pkg in keys(local.pkgs) : {
@@ -131,46 +160,6 @@ locals {
         tags    = "ignition"
       }
     ],
-    var.telemetry.enabled ? [
-      {
-        path    = "/etc/alloy/config.alloy"
-        mode    = "644"
-        owner   = "alloy"
-        group   = "alloy"
-        enabled = true
-        tags    = "ignition"
-        content = templatefile("${path.module}/templates/config.alloy.tftpl", {
-          loki_addr       = var.telemetry.loki_addr
-          prometheus_addr = var.telemetry.prometheus_addr
-        })
-      },
-      {
-        path    = "/etc/default/alloy"
-        mode    = "644"
-        owner   = "alloy"
-        group   = "alloy"
-        enabled = true
-        tags    = "ignition"
-        content = <<-EOF
-          ## Path:
-          ## Description: Grafana Alloy settings
-          ## Type:        string
-          ## Default:     ""
-          ## ServiceRestart: alloy
-          #
-          # Command line options for alloy
-          #
-          # The configuration file holding the Grafana Alloy configuration.
-          CONFIG_FILE="/etc/alloy/config.alloy"
-
-          # User-defined arguments to pass to the run command.
-          CUSTOM_ARGS=""
-
-          # Restart on system upgrade. Defaults to true.
-          RESTART_ON_UPGRADE=true
-        EOF
-      }
-    ] : [],
     flatten(var.substrates.*.files),
   )
   ssh_authorized_keys = distinct(concat(

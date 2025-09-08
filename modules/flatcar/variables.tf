@@ -67,12 +67,6 @@ variable "expose_docker_socket" {
   description = "Whether to expose the Docker socket to the VM"
 }
 
-variable "expose_metrics" {
-  type        = bool
-  default     = false
-  description = "Whether to enable prometheus node-exporter as system service container"
-}
-
 variable "telemetry" {
   type = object({
     enabled         = bool
@@ -200,7 +194,7 @@ locals {
   users = {
     for index, user in concat(
       flatten(var.substrates.*.users),
-      var.telemetry.enabled ? [{ name : "alloy", home_dir : "/var/lib/alloy" }] : []
+      [{ name : "alloy", home_dir : "/var/lib/alloy" }]
       ) : user.name => {
       home_dir = user.home_dir
       uid      = 499 - index
