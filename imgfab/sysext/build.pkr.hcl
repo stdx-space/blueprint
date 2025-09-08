@@ -162,6 +162,9 @@ build {
         "mv alloy-${local.syspkgs.alloy.version}-amd64/usr/bin/${trimsuffix(local.syspkgs["alloy"].filename, ".zip")} alloy-${local.syspkgs.alloy.version}-amd64/usr/bin/alloy"
       ],
       [
+        for step in local.copy_service_unit_steps : format(step, "alloy", local.syspkgs["alloy"].version)
+      ],
+      [
         "mksquashfs alloy-${local.syspkgs.alloy.version}-amd64 alloy-${local.syspkgs.alloy.version}-x86-64.raw",
         "rm -rf alloy-${local.syspkgs.alloy.version}-amd64 ${local.syspkgs.alloy.filename}",
       ]
