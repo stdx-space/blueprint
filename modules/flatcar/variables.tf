@@ -200,7 +200,7 @@ locals {
   users = {
     for index, user in concat(
       flatten(var.substrates.*.users),
-      var.logging.enabled ? [{ name : "alloy", home_dir : "/var/lib/alloy" }] : []
+      var.telemetry.enabled ? [{ name : "alloy", home_dir : "/var/lib/alloy" }] : []
       ) : user.name => {
       home_dir = user.home_dir
       uid      = 499 - index
