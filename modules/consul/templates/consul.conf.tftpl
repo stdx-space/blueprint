@@ -1,4 +1,8 @@
 [Resolve]
+%{ if role == "server" }%
 DNS=127.0.0.1:8600
+%{ else }%
+DNS=${resolvers}
+%{ endif }%
 DNSSEC=false
 Domains=~consul

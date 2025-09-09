@@ -40,12 +40,12 @@ locals {
         tags    = "ignition"
       },
       {
-        path = "/etc/systemd/network/00-static.network"
-        content = templatefile("${path.module}/templates/static.network.tftpl", {
+        path = "/etc/systemd/network/00-default.network"
+        content = templatefile("${path.module}/templates/default.network.tftpl", {
           ip_address = "${var.ip_address}/${local.subnet_bits}"
           gateway_ip = var.gateway_ip
         })
-        enabled = 0 < length(var.ip_address) && 0 < length(var.gateway_ip)
+        enabled = true
         mode    = "644"
         owner   = "root"
         group   = "root"
