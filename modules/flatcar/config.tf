@@ -160,7 +160,7 @@ locals {
         tags    = "ignition"
       }
     ],
-    flatten(var.substrates.*.files),
+    [ for file in flatten(var.substrates.*.files) : file if !strcontains(file.path, ".alloy") || var.telemetry.enabled],
   )
   ssh_authorized_keys = distinct(concat(
     [
