@@ -99,8 +99,8 @@ locals {
       enabled = true
     },
     {
-      path    = "/etc/systemd/resolved.conf.d/consul.conf"
-      tags    = "cloud-init,ignition"
+      path = "/etc/systemd/resolved.conf.d/consul.conf"
+      tags = "cloud-init,ignition"
       content = templatefile("${path.module}/templates/consul.conf.tftpl", {
         role      = var.role
         resolvers = join(" ", [for ip in var.retry_join : format("%s:8600", ip)])
