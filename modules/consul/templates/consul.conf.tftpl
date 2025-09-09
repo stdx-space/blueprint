@@ -1,8 +1,8 @@
 [Resolve]
-%{ if role == "server" }%
+%{ if role == "server" ~}
 DNS=127.0.0.1:8600
-%{ else }%
+%{ else }
 DNS=${resolvers}
-%{ endif }%
+%{ endif ~}
 DNSSEC=false
 Domains=~consul
