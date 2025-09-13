@@ -80,3 +80,10 @@ variable "service_name_prometheus" {
   default     = "prometheus"
   description = "The name of the Prometheus service"
 }
+
+variable "grafana_admin_password" {
+  type        = string
+  sensitive   = true
+  description = "Grafana admin password. Leave blank to generate a new one with Terraform random resource."
+  default     = ""
+}

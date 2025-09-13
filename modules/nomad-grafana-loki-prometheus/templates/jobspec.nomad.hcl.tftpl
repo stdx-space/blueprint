@@ -46,7 +46,7 @@ ${grafana_config}
 
       template {
         data = <<-EOF
-        GF_SECURITY_ADMIN_PASSWORD = "admin"
+        GF_SECURITY_ADMIN_PASSWORD = "${grafana_admin_password}"
         GF_PATHS_PROVISIONING = "/local"
         EOF
         destination = "local/grafana.env"

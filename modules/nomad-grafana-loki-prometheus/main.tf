@@ -108,12 +108,18 @@ locals {
   })
 }
 
-# resource "nomad_variable" "grafana_loki_prometheus" {
-#   path      = "nomad/jobs/${var.job_name}"
-#   namespace = var.namespace
-#   items = {
-#   }
-# }
+resource "random_password" "grafana_admin" {
+  length  = 16
+  special = true
+}
+
+resource "nomad_variable" "grafana_loki_prometheus" {
+  path      = "nomad/jobs/${var.job_name}"
+  namespace = var.namespace
+  items = {
+    grafana_admin_password = coalesce(var.grafana_admin_password, random_password.grafana_admin.result)
+  }
+}
 
 resource "nomad_job" "grafana_loki_prometheus" {
   jobspec = templatefile("${path.module}/templates/jobspec.nomad.hcl.tftpl", {
@@ -122,6 +128,7 @@ resource "nomad_job" "grafana_loki_prometheus" {
     namespace               = var.namespace
     grafana_version         = var.grafana_version
     grafana_config          = local.grafana_config
+    grafana_admin_password  = format(local.nomad_var_template, "grafana_admin_password")
     loki_version            = var.loki_version
     loki_config             = local.loki_config
     prometheus_version      = var.prometheus_version
@@ -133,7 +140,7 @@ resource "nomad_job" "grafana_loki_prometheus" {
   })
   purge_on_destroy = var.purge_on_destroy
   depends_on = [
-    # nomad_variable.grafana_loki_prometheus,
+    nomad_variable.grafana_loki_prometheus,
     nomad_dynamic_host_volume.prometheus,
     nomad_dynamic_host_volume.loki,
   ]
