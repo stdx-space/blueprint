@@ -20,7 +20,7 @@ variable "job_name" {
 variable "purge_on_destroy" {
   type        = bool
   default     = false
-  description = "Purge the Typesense Nomad job on destroy"
+  description = "Purge the Nomad job on destroy"
 }
 
 variable "grafana_version" {
@@ -61,4 +61,22 @@ variable "resources" {
     }
   }
   description = "Resources to run the job with"
+}
+
+variable "service_name_grafana" {
+  type        = string
+  default     = "grafana"
+  description = "The name of the Grafana service"
+}
+
+variable "service_name_loki" {
+  type        = string
+  default     = "loki"
+  description = "The name of the Loki service"
+}
+
+variable "service_name_prometheus" {
+  type        = string
+  default     = "prometheus"
+  description = "The name of the Prometheus service"
 }
