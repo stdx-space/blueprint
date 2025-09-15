@@ -145,6 +145,12 @@ variable "substrates" {
         group = optional(string, "root")
         })
     ), [])
+    links = optional(
+      list(object({
+        path   = string
+        target = string
+        })
+    ), [])
     install = optional(object({
       systemd_units = list(object({
         name    = string
@@ -188,6 +194,16 @@ variable "ssh_keys_import" {
   validation {
     condition     = length(var.ssh_keys_import) == 0 || alltrue([for item in var.ssh_keys_import : startswith(item, "http")])
     error_message = "SSH key import ID must be a valid URL"
+  }
+}
+
+variable "resolved_mode" {
+  type        = string
+  description = "The operation mode systemd-resolved is working"
+  default     = "uplink"
+  validation {
+    condition     = !contains(flatten(var.substrates.*.packages), "consul") || var.resolved_mode == "stub"
+    error_message = "stub resolver must be used to configure systemd-resolved to use Consul DNS"
   }
 }
 

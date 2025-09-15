@@ -60,6 +60,15 @@ data "ignition_file" "files" {
   }
 }
 
+data "ignition_link" "links" {
+  for_each = {
+    for link in local.links : link.path => link.target if link.enabled == true
+  }
+  path      = each.key
+  target    = each.value
+  overwrite = true
+}
+
 data "ignition_disk" "disks" {
   for_each   = local.disks
   device     = each.key
