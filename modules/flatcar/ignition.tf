@@ -137,6 +137,9 @@ data "ignition_config" "config" {
   files = [
     for path, file in data.ignition_file.files : file.rendered
   ]
+  links = [
+    for path, link in data.ignition_link.links : link.rendered
+  ]
   systemd = concat([
     for name, unit in data.ignition_systemd_unit.services : unit.rendered
     ],
