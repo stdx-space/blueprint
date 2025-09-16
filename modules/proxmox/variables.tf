@@ -124,10 +124,10 @@ variable "storage_pool" {
   }
 }
 
-variable "snippet_stored_path" {
+variable "snippet_datastore_id" {
   type        = string
-  default     = "/var/lib/vz/snippets"
-  description = "Filesystem path to store the snippets in Proxmox"
+  default     = "local"
+  description = "Storage used to store the snippets in Proxmox"
 }
 
 variable "qemu_agent_enabled" {
