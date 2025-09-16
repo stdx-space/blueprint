@@ -17,8 +17,8 @@ variable "tags" {
 
 variable "provisioning_config" {
   type = object({
-    type    = optional(string)
-    payload = optional(string)
+    type    = optional(string, "none")
+    payload = optional(string, "")
   })
   default     = {}
   description = "Either be cloud-init user-data or ignition config"
@@ -168,10 +168,14 @@ locals {
     }
   ]
 
-  provisioning_config_file_format = length(keys(var.provisioning_config)) > 0 ? {
-    "ignition"   = "ign"
-    "cloud-init" = "yaml"
-  }[var.provisioning_config.type] : ""
+  provisioning_config_file_format = lookup(
+    {
+      "ignition"   = "ign"
+      "cloud-init" = "yaml"
+    },
+    var.provisioning_config.type,
+    ""
+  )
 
   cdrom = var.use_iso ? {
     file_id = var.os_template_id
@@ -182,10 +186,14 @@ locals {
     "uefi" = { "firmware" = "uefi" }
   }[var.firmware]
 
-  initialization = length(keys(var.provisioning_config)) > 0 ? {
-    "ignition"   = { "${var.provisioning_config.type}" = "" }
-    "cloud-init" = { "${var.provisioning_config.type}" = "" }
-  }[var.provisioning_config.type] : {}
+  initialization = lookup(
+    {
+      "ignition"   = { "${var.provisioning_config.type}" = "" }
+      "cloud-init" = { "${var.provisioning_config.type}" = "" }
+    },
+    var.provisioning_config.type,
+    {}
+  )
 
   cloudinit_drive_interface = {
     "bios" = "ide2"
