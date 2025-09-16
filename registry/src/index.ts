@@ -161,7 +161,7 @@ registry.get(`/:namespace/:name/:provider/versions`, async (context: Context) =>
 			source: `${namespace}/${name}/${provider}`,
 			modules: [
 				{
-					versions: versions.map((version: string) => ({
+					versions: versions.reverse().map((version: string) => ({
 						version,
 					})),
 				},
