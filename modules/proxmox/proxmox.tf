@@ -17,6 +17,10 @@ resource "proxmox_virtual_environment_file" "provisioning_config" {
   }
 }
 
+resource "terraform_data" "digest" {
+  input = md5(var.provisioning_config.payload)
+}
+
 resource "proxmox_virtual_environment_vm" "this" {
   name      = var.name
   node_name = var.node
@@ -107,5 +111,9 @@ resource "proxmox_virtual_environment_vm" "this" {
       interface         = local.cloudinit_drive_interface[var.firmware]
       user_data_file_id = proxmox_virtual_environment_file.provisioning_config[initialization.key].id
     }
+  }
+
+  lifecycle {
+    replace_triggered_by = [terraform_data.digest]
   }
 }
