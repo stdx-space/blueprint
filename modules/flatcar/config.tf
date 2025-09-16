@@ -44,7 +44,7 @@ locals {
         content = templatefile("${path.module}/templates/default.network.tftpl", {
           ip_address = "${var.ip_address}/${local.subnet_bits}"
           gateway_ip = var.gateway_ip
-        })
+        }) # note that per-link DNS is not enabled, and DNS is configured in global resolved config
         enabled = true
         mode    = "644"
         owner   = "root"
@@ -161,6 +161,16 @@ locals {
       }
     ],
     [for file in flatten(var.substrates.*.files) : file if !endswith(file.path, ".alloy") || var.telemetry.enabled],
+  )
+  links = concat(
+    flatten(var.substrates.*.links),
+    [
+      {
+        path    = "/etc/resolv.conf"
+        target  = "/run/systemd/resolve/stub-resolv.conf"
+        enabled = var.resolved_mode == "stub"
+      }
+    ],
   )
   ssh_authorized_keys = distinct(concat(
     [
