@@ -17,9 +17,10 @@ variable "tags" {
 
 variable "provisioning_config" {
   type = object({
-    type    = string
-    payload = string
+    type    = optional(string, "none")
+    payload = optional(string, "")
   })
+  default     = {}
   description = "Either be cloud-init user-data or ignition config"
 }
 
@@ -123,10 +124,10 @@ variable "storage_pool" {
   }
 }
 
-variable "snippet_stored_path" {
+variable "snippet_datastore_id" {
   type        = string
-  default     = "/var/lib/vz/snippets"
-  description = "Filesystem path to store the snippets in Proxmox"
+  default     = "local"
+  description = "Storage used to store the snippets in Proxmox"
 }
 
 variable "qemu_agent_enabled" {
@@ -167,11 +168,14 @@ locals {
     }
   ]
 
-  provisioning_config_file_format = {
-    "ignition"   = "ign"
-    "cloud-init" = "yaml"
-    "talos"      = "yml"
-  }[var.provisioning_config.type]
+  provisioning_config_file_format = lookup(
+    {
+      "ignition"   = "ign"
+      "cloud-init" = "yaml"
+    },
+    var.provisioning_config.type,
+    ""
+  )
 
   cdrom = var.use_iso ? {
     file_id = var.os_template_id
@@ -182,11 +186,14 @@ locals {
     "uefi" = { "firmware" = "uefi" }
   }[var.firmware]
 
-  initialization = {
-    "ignition"   = { "${var.provisioning_config.type}" = "" }
-    "cloud-init" = { "${var.provisioning_config.type}" = "" }
-    "talos"      = { "${var.provisioning_config.type}" = "" }
-  }[var.provisioning_config.type]
+  initialization = lookup(
+    {
+      "ignition"   = { "${var.provisioning_config.type}" = "" }
+      "cloud-init" = { "${var.provisioning_config.type}" = "" }
+    },
+    var.provisioning_config.type,
+    {}
+  )
 
   cloudinit_drive_interface = {
     "bios" = "ide2"

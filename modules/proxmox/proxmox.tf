@@ -1,14 +1,19 @@
+locals {
+  snippet_file_name = format(
+    "%s.%s",
+    sha256(var.provisioning_config.payload),
+    local.provisioning_config_file_format
+  )
+}
+
 resource "proxmox_virtual_environment_file" "provisioning_config" {
+  for_each     = local.initialization
   content_type = "snippets"
-  datastore_id = "local"
+  datastore_id = var.snippet_datastore_id
   node_name    = var.node
   source_raw {
-    data = var.provisioning_config.payload
-    file_name = format(
-      "%s.%s",
-      sha256(var.provisioning_config.payload),
-      local.provisioning_config_file_format
-    )
+    data      = var.provisioning_config.payload
+    file_name = local.snippet_file_name
   }
 }
 
@@ -100,13 +105,7 @@ resource "proxmox_virtual_environment_vm" "this" {
         }
       }
       interface         = local.cloudinit_drive_interface[var.firmware]
-      user_data_file_id = proxmox_virtual_environment_file.provisioning_config.id
+      user_data_file_id = proxmox_virtual_environment_file.provisioning_config[initialization.key].id
     }
-  }
-
-  lifecycle {
-    replace_triggered_by = [
-      proxmox_virtual_environment_file.provisioning_config
-    ]
   }
 }
