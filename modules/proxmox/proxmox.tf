@@ -1,4 +1,5 @@
 resource "proxmox_virtual_environment_file" "provisioning_config" {
+  for_each     = local.initialization
   content_type = "snippets"
   datastore_id = "local"
   node_name    = var.node
@@ -100,7 +101,7 @@ resource "proxmox_virtual_environment_vm" "this" {
         }
       }
       interface         = local.cloudinit_drive_interface[var.firmware]
-      user_data_file_id = proxmox_virtual_environment_file.provisioning_config.id
+      user_data_file_id = proxmox_virtual_environment_file.provisioning_config[initialization.key].id
     }
   }
 
