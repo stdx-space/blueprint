@@ -8,7 +8,7 @@ $ORIGIN ${zone}. ; base domain-name
 
 @         IN      SOA   ns.${zone}. hostmaster.${zone}. (
 
-                                ${formatdate("YYYYMMDD",timestamp())}00 ; serial number
+                                ${date}00 ; serial number
 
                                 12h        ; refresh
 

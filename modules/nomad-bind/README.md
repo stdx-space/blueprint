@@ -36,8 +36,6 @@ module "dns" {
 
 - `tailscale_oauth_client_secret`: `(string: <required>)` - Tailscale OAuth client secret.
 
-- `tailscale_auth_key`: `(string: <required>)` - Tailscale authentication key.
-
 - `resources`: `(object: <optional>)` - Resources to allocate to the job.
 
 - `purge_on_destroy`: `(bool: false)` - Whether to purge the job on destroy.

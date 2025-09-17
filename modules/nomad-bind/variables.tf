@@ -78,12 +78,6 @@ variable "tailscale_oauth_client_secret" {
   sensitive   = true
 }
 
-variable "tailscale_authkey" {
-  description = "The Tailscale authkey"
-  type        = string
-  sensitive   = true
-}
-
 variable "purge_on_destroy" {
   type        = bool
   default     = false

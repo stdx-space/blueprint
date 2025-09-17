@@ -28,5 +28,5 @@
           'Content-Type': application/json
         body_format: json
         body:
-          "{{ domain }}": ["{{ ansible_default_ipv4.address }}"]
+          "${domain}": ["{{ ansible_default_ipv4.address }}"]
         status_code: [200, 202]
