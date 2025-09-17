@@ -38,7 +38,7 @@ resource "nomad_job" "bind" {
       content = templatefile(
         "${path.module}/templates/zonefile.tftpl",
         {
-          date = formatdate("YYYYMMDD",timestamp())
+          date = formatdate("YYYYMMDD", timestamp())
           zone = z
         }
       )
