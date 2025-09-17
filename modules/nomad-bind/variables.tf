@@ -67,6 +67,12 @@ variable "tailscale_version" {
   default     = "stable"
 }
 
+variable "tailscale_device_tag" {
+  description = "The Tailscale device tag to apply to the BIND server"
+  type        = string
+  default     = "nameserver"
+}
+
 variable "tailscale_oauth_client_id" {
   type        = string
   description = "The Tailscale OAuth client ID"
@@ -75,12 +81,6 @@ variable "tailscale_oauth_client_id" {
 variable "tailscale_oauth_client_secret" {
   type        = string
   description = "The Tailscale OAuth client secret"
-  sensitive   = true
-}
-
-variable "tailscale_authkey" {
-  description = "The Tailscale authkey"
-  type        = string
   sensitive   = true
 }
 

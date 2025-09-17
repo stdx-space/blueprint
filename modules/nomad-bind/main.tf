@@ -6,7 +6,7 @@ resource "nomad_variable" "secrets" {
   path = "nomad/jobs/${var.job_name}"
   items = {
     tsig_secret_key   = random_bytes.secret.base64
-    tailscale_authkey = var.tailscale_authkey
+    tailscale_authkey = var.tailscale_oauth_client_secret
   }
 }
 
@@ -17,15 +17,17 @@ resource "nomad_job" "bind" {
     namespace            = var.namespace
     bind_version         = var.bind_version
     tailscale_version    = var.tailscale_version
+    tailscale_device_tag = var.tailscale_device_tag
     zones                = var.zones
     upstream_nameservers = var.upstream_nameservers
     resources            = var.resources
     split_dns_vars = yamlencode({
       tailscale_client_id     = var.tailscale_oauth_client_id
       tailscale_client_secret = var.tailscale_oauth_client_secret
-      domain                  = ".internal"
     })
-    split_dns_provisioner = file("${path.module}/templates/playbook.yml")
+    split_dns_provisioner = templatefile("${path.module}/templates/playbook.yml", {
+      domain = ".internal"
+    })
     secret_key = templatefile("${path.module}/templates/named.conf.key.tftpl", {
       job_name  = var.job_name
       name      = var.tsig_key_name
@@ -36,6 +38,7 @@ resource "nomad_job" "bind" {
       content = templatefile(
         "${path.module}/templates/zonefile.tftpl",
         {
+          date = formatdate("YYYYMMDD",timestamp())
           zone = z
         }
       )

@@ -2,13 +2,22 @@
 
 ## Usage
 
+This module requires a Tailscale OAuth client to be created with the following capabilities:
+- **api_access_tokens**
+- **auth_keys**
+- **devices:core:read**
+- **devices:routes:read**
+- **dns**
+
+
 ```hcl
 module "dns" {
-  source               = "registry.narwhl.workers.dev/stack/bind/nomad"
-  upstream_nameservers = ["1.1.1.1"]
-  zones                = ["example.internal"]
-  bind_version         = "9.21"
-  tailscale_auth_key   = "tskey-1234567890abcdef"
+  source                        = "registry.narwhl.workers.dev/stack/bind/nomad"
+  upstream_nameservers          = ["1.1.1.1"]
+  zones                         = ["example.internal"]
+  bind_version                  = "9.21"
+  tailscale_oauth_client_id     = "..."
+  tailscale_oauth_client_secret = "..."
 }
 ```
 
@@ -32,11 +41,11 @@ module "dns" {
 
 - `tailscale_version`: `(string: "stable")` - Version of Tailscale to deploy.
 
+- `tailscale_device_tag`: `(string: "nameserver")` - Device tag to apply for the associated OAuth client
+
 - `tailscale_oauth_client_id`: `(string: <required>)` - Tailscale OAuth client ID.
 
 - `tailscale_oauth_client_secret`: `(string: <required>)` - Tailscale OAuth client secret.
-
-- `tailscale_auth_key`: `(string: <required>)` - Tailscale authentication key.
 
 - `resources`: `(object: <optional>)` - Resources to allocate to the job.
 
