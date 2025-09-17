@@ -112,13 +112,6 @@ job "${job_name}" {
         }
       }
 
-      update {
-        max_parallel     = 1
-        min_healthy_time = "30s"
-        healthy_deadline = "15m"
-        auto_revert = true
-      }
-
       template {
         data = <<-EOF
 ${server_cert_pem}
