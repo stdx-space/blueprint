@@ -32,6 +32,8 @@ module "dns" {
 
 - `tailscale_version`: `(string: "stable")` - Version of Tailscale to deploy.
 
+- `tailscale_device_tag`: `(string: "nameserver")` - Device tag to apply for the associated OAuth client
+
 - `tailscale_oauth_client_id`: `(string: <required>)` - Tailscale OAuth client ID.
 
 - `tailscale_oauth_client_secret`: `(string: <required>)` - Tailscale OAuth client secret.

@@ -31,7 +31,7 @@ job "${job_name}" {
         TS_USERSPACE="true"
         TS_HOSTNAME="{{ env "NOMAD_GROUP_NAME" }}"
         TS_ROUTES="{{ env "NOMAD_ALLOC_IP_dns" }}/32"
-        TS_EXTRA_ARGS=--advertise-tags=tag:nameserver
+        TS_EXTRA_ARGS=--advertise-tags=tag:${tailscale_device_tag}
         EOH
         destination = "secrets/file.env"
         env         = true

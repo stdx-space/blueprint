@@ -17,6 +17,7 @@ resource "nomad_job" "bind" {
     namespace            = var.namespace
     bind_version         = var.bind_version
     tailscale_version    = var.tailscale_version
+    tailscale_device_tag = var.tailscale_device_tag
     zones                = var.zones
     upstream_nameservers = var.upstream_nameservers
     resources            = var.resources
