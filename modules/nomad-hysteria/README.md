@@ -38,13 +38,15 @@ module "hysteria" {
 
 ## Argument Reference
 
-- `job_name`: `(string: "obfs-proxy")` - Name of the Nomad job.
+- `job_name`: `(string: "hysteria")` - Name of the Nomad job.
 
 - `datacenter_name`: `(string: "dc1")` - Datacenter to deploy the job to.
 
 - `namespace`: `(string: "default")` - Namespace to deploy the job to.
 
 - `purge_on_destroy`: `(bool: true)` - Whether to purge the job on destroy.
+
+- `image_version`: `(string: <optional>)` - Container image version of Hysteria to use.
 
 - `masquerade_url`: `(string: "https://www.bing.com/")` - Upstream URL used for HTTP(S) masquerade.
 
