@@ -52,7 +52,7 @@ resource "nomad_job" "hysteria" {
     job_name        = var.job_name
     datacenter      = var.datacenter_name
     namespace       = var.namespace
-    version         = "v2.6.0"
+    version         = var.image_version
     key             = tls_private_key.hysteria.private_key_pem
     cert            = tls_self_signed_cert.hysteria.cert_pem
     key_path        = local.hysteria_config.tls.key

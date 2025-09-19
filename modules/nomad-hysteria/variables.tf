@@ -1,6 +1,6 @@
 variable "job_name" {
   type    = string
-  default = "obfs-proxy"
+  default = "hysteria"
 }
 
 variable "datacenter_name" {
@@ -22,6 +22,11 @@ variable "purge_on_destroy" {
   type        = bool
   description = "Whether to purge all jobs on destroy"
   default     = true
+}
+
+variable "image_version" {
+  type    = string
+  default = "v2.6.3"
 }
 
 variable "masquerade_url" {
