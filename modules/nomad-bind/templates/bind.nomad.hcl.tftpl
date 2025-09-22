@@ -5,14 +5,19 @@ job "${job_name}" {
 
   group "dns" {
 
-    ephemeral_disk {
-      migrate = true
-      size    = 128
-      sticky  = true
+    volume "tailscaled" {
+      type      = "host"
+      read_only = false
+      source    = "${volume_id}"
     }
 
     task "tailscale" {
       driver = "docker"
+
+      volume_mount {
+        volume = "tailscaled"
+        destination = "/var/lib/tailscale"
+      }
 
       lifecycle {
         hook = "poststart"
@@ -25,9 +30,9 @@ job "${job_name}" {
 
       template {
         data = <<-EOH
-        TS_AUTHKEY={{ with nomadVar "nomad/jobs/${job_name}" }}{{ .tailscale_authkey }}{{ end }}
+        TS_AUTHKEY="{{ with nomadVar "nomad/jobs/${job_name}" }}{{ .tailscale_authkey }}{{ end }}?ephemeral=false&preauthorized=true"
         TS_AUTH_ONCE="true"
-        TS_STATE_DIR={{ env "NOMAD_ALLOC_DIR" }}/tailscale
+        TS_STATE_DIR=/var/lib/tailscale
         TS_USERSPACE="true"
         TS_HOSTNAME="{{ env "NOMAD_GROUP_NAME" }}"
         TS_ROUTES="{{ env "NOMAD_ALLOC_IP_dns" }}/32"

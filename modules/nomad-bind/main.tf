@@ -2,11 +2,25 @@ resource "random_bytes" "secret" {
   length = 32
 }
 
+resource "random_id" "volume" {
+  byte_length = 3
+}
+
 resource "nomad_variable" "secrets" {
   path = "nomad/jobs/${var.job_name}"
   items = {
     tsig_secret_key   = random_bytes.secret.base64
     tailscale_authkey = var.tailscale_oauth_client_secret
+  }
+}
+
+resource "nomad_dynamic_host_volume" "tailscaled" {
+  name      = format("tailscaled-%s", random_id.volume.hex)
+  plugin_id = "mkdir"
+
+  capability {
+    access_mode     = "single-node-writer"
+    attachment_mode = "file-system"
   }
 }
 
@@ -18,6 +32,7 @@ resource "nomad_job" "bind" {
     bind_version         = var.bind_version
     tailscale_version    = var.tailscale_version
     tailscale_device_tag = var.tailscale_device_tag
+    volume_id            = format("tailscaled-%s", random_id.volume.hex)
     zones                = var.zones
     upstream_nameservers = var.upstream_nameservers
     resources            = var.resources
@@ -49,4 +64,5 @@ resource "nomad_job" "bind" {
     })
   })
   purge_on_destroy = var.purge_on_destroy
+  depends_on       = [nomad_dynamic_host_volume.tailscaled]
 }
