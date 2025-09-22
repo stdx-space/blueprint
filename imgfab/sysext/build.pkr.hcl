@@ -197,7 +197,7 @@ build {
       local.templates.tailscale,
       [
         "curl -LO ${local.syspkgs.tailscale.pkg_url}",
-        "tar -C tailscale-${local.syspkgs.tailscale.version}-amd64/usr/sbin -xzf ${local.syspkgs.tailscale.filename} --strip-components=1 tailscale_${local.syspkgs.tailscale.version}_amd64/tailscaled",
+        "tar -C tailscale-${local.syspkgs.tailscale.version}-amd64/usr/local/sbin -xzf ${local.syspkgs.tailscale.filename} --strip-components=1 tailscale_${local.syspkgs.tailscale.version}_amd64/tailscaled",
         "tar -C tailscale-${local.syspkgs.tailscale.version}-amd64/usr/bin -xzf ${local.syspkgs.tailscale.filename} --strip-components=1 tailscale_${local.syspkgs.tailscale.version}_amd64/tailscale",
       ],
       [

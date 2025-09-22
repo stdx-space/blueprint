@@ -21,7 +21,7 @@ data "http" "supplychain" {
 
 locals {
   syspkgs            = jsondecode(data.http.supplychain.body).syspkgs
-  default_sysext_dir = ["usr/bin", "usr/sbin", "usr/local/sbin", "usr/lib/systemd/system/multi-user.target.d", "usr/lib/extension-release.d"]
+  default_sysext_dir = ["usr/bin", "usr/local/sbin", "usr/lib/systemd/system/multi-user.target.d", "usr/lib/extension-release.d"]
 }
 
 locals {

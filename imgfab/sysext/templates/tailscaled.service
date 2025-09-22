@@ -5,9 +5,9 @@ Wants=network-pre.target
 After=network-pre.target systemd-resolved.service
 
 [Service]
-ExecStartPre=/usr/sbin/tailscaled --cleanup
-ExecStart=/usr/sbin/tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/run/tailscale/tailscaled.sock --port=41641
-ExecStopPost=/usr/sbin/tailscaled --cleanup
+ExecStartPre=/usr/local/sbin/tailscaled --cleanup
+ExecStart=/usr/local/sbin/tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/run/tailscale/tailscaled.sock --port=41641
+ExecStopPost=/usr/local/sbin/tailscaled --cleanup
 
 Restart=on-failure
 
