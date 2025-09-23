@@ -22,7 +22,6 @@ variable "default_packages" {
     "net-tools",
     "qemu-guest-agent",
     "rsync",
-    "software-properties-common",
     "sudo",
     "tar",
     "vim",
