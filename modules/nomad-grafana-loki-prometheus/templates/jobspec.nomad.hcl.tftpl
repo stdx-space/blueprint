@@ -20,12 +20,33 @@ job "${job_name}" {
 
     service {
       name = "${service_name_grafana}"
-      port = "http"
+      tags = [
+        "traefik.http.routers.client.rule=Host(`${grafana_fqdn}`)",
+        "traefik.http.routers.client.entrypoints=${traefik_entrypoints}",
+        "traefik.enable=true",
+        "traefik.consulcatalog.connect=true"
+      ]
+      port = 3000
+      connect {
+        sidecar_service {
+          proxy {
+            upstreams {
+              destination_name = "${service_name_loki}"
+              local_bind_port  = 3100
+            }
+            upstreams {
+              destination_name = "${service_name_prometheus}"
+              local_bind_port  = 9090
+            }
+          }
+        }
+      }
       check {
-        type = "http"
-        path = "/api/health"
+        type     = "http"
+        path     = "/api/health"
         interval = "10s"
-        timeout = "2s"
+        timeout  = "2s"
+        expose   = true
       }
     }
 
@@ -61,6 +82,7 @@ ${grafana_config}
   }
   group "loki" {
     network {
+      mode = "bridge"
       port "http" {
         to = 3100
       }
@@ -74,12 +96,16 @@ ${grafana_config}
 
     service {
       name = "${service_name_loki}"
-      port = "http"
+      port = 3100
+      connect {
+        sidecar_service {}
+      }
       check {
-        type = "http"
-        path = "/ready"
+        type     = "http"
+        path     = "/ready"
         interval = "10s"
-        timeout = "2s"
+        timeout  = "2s"
+        expose   = true
       }
     }
 
@@ -145,6 +171,7 @@ ${loki_config}
     }
 
     network {
+      mode = "bridge"
       port "http" {
         to = 9090
       }
@@ -152,12 +179,16 @@ ${loki_config}
 
     service {
       name = "${service_name_prometheus}"
-      port = "http"
+      port = 9090
+      connect {
+        sidecar_service {}
+      }
       check {
-        type = "http"
-        path = "/-/healthy"
+        type     = "http"
+        path     = "/-/healthy"
         interval = "10s"
-        timeout = "2s"
+        timeout  = "2s"
+        expose   = true
       }
     }
 

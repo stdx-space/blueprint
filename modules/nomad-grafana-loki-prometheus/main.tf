@@ -1,6 +1,6 @@
 locals {
-  nomad_var_template     = "{{ with nomadVar `nomad/jobs/${var.job_name}` }}{{ .%s }}{{ end }}"
-  nomad_service_template = "{{ with service `%s` }}{{ with index . 0 }}{{ .Address }}:{{ .Port }}{{ end }}{{ end }}"
+  nomad_var_template      = "{{ with nomadVar `nomad/jobs/${var.job_name}` }}{{ .%s }}{{ end }}"
+  nomad_upstream_template = "{{ env `NOMAD_UPSTREAM_ADDR_%s` }}"
 
   grafana_config = yamlencode({
     apiVersion = 1
@@ -9,13 +9,13 @@ locals {
         name   = "Loki"
         type   = "loki"
         access = "proxy"
-        url    = format("http://%s", format(local.nomad_service_template, var.service_name_loki))
+        url    = format("http://%s", format(local.nomad_upstream_template, var.service_name_loki))
       },
       {
         name      = "Prometheus"
         type      = "prometheus"
         access    = "proxy"
-        url       = format("http://%s", format(local.nomad_service_template, var.service_name_prometheus))
+        url       = format("http://%s", format(local.nomad_upstream_template, var.service_name_prometheus))
         isDefault = true
       }
     ]
@@ -100,7 +100,7 @@ locals {
         }
         static_configs = [
           {
-            targets = [format(local.nomad_service_template, "nomad")]
+            targets = [format(local.nomad_upstream_template, "nomad")]
           }
         ]
       }
@@ -129,6 +129,8 @@ resource "nomad_job" "grafana_loki_prometheus" {
     grafana_version         = var.grafana_version
     grafana_config          = local.grafana_config
     grafana_admin_password  = format(local.nomad_var_template, "grafana_admin_password")
+    grafana_fqdn            = var.grafana_fqdn
+    traefik_entrypoints     = var.traefik_entrypoints
     loki_version            = var.loki_version
     loki_config             = local.loki_config
     prometheus_version      = var.prometheus_version

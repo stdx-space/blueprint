@@ -87,3 +87,14 @@ variable "grafana_admin_password" {
   description = "Grafana admin password. Leave blank to generate a new one with Terraform random resource."
   default     = ""
 }
+
+variable "grafana_fqdn" {
+  type    = string
+  default = "grafana.monitoring.internal"
+}
+
+variable "traefik_entrypoints" {
+  type        = string
+  default     = "http"
+  description = "Entrypoint of Traefik ingress"
+}
