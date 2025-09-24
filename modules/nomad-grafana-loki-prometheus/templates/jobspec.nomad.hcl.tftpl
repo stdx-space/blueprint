@@ -10,6 +10,63 @@ job "${job_name}" {
     auto_revert = true
   }
 
+  group "otel-collector" {
+    network {
+      mode = "bridge"
+      port "grpc" {
+        to = 4317
+      }
+      port "http" {
+        to = 4318
+      }
+    }
+
+    service {
+      name = "${service_name_otel}-grpc"
+      port = 4317
+      connect {
+        sidecar_service {}
+      }
+    }
+
+    service {
+      name = "${service_name_otel}-http"
+      port = 4318
+      connect {
+        sidecar_service {
+          proxy {
+            upstreams {
+              destination_name = "${service_name_loki}"
+              local_bind_port  = 3100
+            }
+            upstreams {
+              destination_name = "${service_name_prometheus}"
+              local_bind_port  = 9090
+            }
+          }
+        }
+      }
+    }
+
+    task "otel-collector" {
+      driver = "docker"
+      config {
+        image = "otel/opentelemetry-collector:${otel_version}"
+        mount {
+          type = "bind"
+          source = "local/collector-config.yaml"
+          target = "/etc/otelcol/config.yaml"
+        }
+      }
+      template {
+        data        = <<EOF
+${otel_collector_config}
+        EOF
+        destination = "local/collector-config.yaml"
+      }
+    }
+  }
+
   group "grafana" {
     network {
       mode = "bridge"
@@ -227,7 +284,8 @@ ${loki_config}
           "--config.file=/etc/prometheus/prometheus.yml",
           "--storage.tsdb.path=/prometheus",
           "--web.enable-lifecycle",
-          "--web.enable-remote-write-receiver"
+          "--web.enable-remote-write-receiver",
+          "--web.enable-otlp-receiver"
         ]
 
         mount {

@@ -23,6 +23,12 @@ variable "purge_on_destroy" {
   description = "Purge the Nomad job on destroy"
 }
 
+variable "otel_version" {
+  type        = string
+  default     = "0.135.0"
+  description = "Version of OTel collector to deploy"
+}
+
 variable "grafana_version" {
   type        = string
   default     = "latest"
@@ -67,6 +73,12 @@ variable "service_name_grafana" {
   type        = string
   default     = "grafana"
   description = "The name of the Grafana service"
+}
+
+variable "service_name_otel" {
+  type        = string
+  default     = "otel-collector"
+  description = "The name of OTel Collector service"
 }
 
 variable "service_name_loki" {
