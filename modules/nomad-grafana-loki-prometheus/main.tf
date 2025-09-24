@@ -1,7 +1,49 @@
 locals {
-  nomad_var_template     = "{{ with nomadVar `nomad/jobs/${var.job_name}` }}{{ .%s }}{{ end }}"
-  nomad_service_template = "{{ with service `%s` }}{{ with index . 0 }}{{ .Address }}:{{ .Port }}{{ end }}{{ end }}"
+  nomad_var_template      = "{{ with nomadVar `nomad/jobs/${var.job_name}` }}{{ .%s }}{{ end }}"
+  nomad_upstream_template = "{{ env `NOMAD_UPSTREAM_ADDR_%s` }}"
 
+  // Modified from https://github.com/grafana/docker-otel-lgtm/blob/main/docker/otelcol-config.yaml
+  // With reference to https://opentelemetry.io/docs/collector/configuration/
+  otel_collector_config = yamlencode({
+    receivers = {
+      otlp = {
+        protocols = {
+          grpc = {
+            endpoint = "0.0.0.0:4317"
+          }
+          http = {
+            endpoint = "0.0.0.0:4318"
+          }
+        }
+      }
+    }
+    exporters = {
+      "otlphttp/metrics" = {
+        endpoint = format("http://%s/api/v1/otlp", format(local.nomad_upstream_template, var.service_name_prometheus))
+        tls = {
+          insecure = true
+        }
+      }
+      "otlphttp/logs" = {
+        endpoint = format("http://%s/otlp", format(local.nomad_upstream_template, var.service_name_loki))
+        tls = {
+          insecure = true
+        }
+      }
+    }
+    service = {
+      pipelines = {
+        metrics = {
+          receivers = ["otlp"]
+          exporters = ["otlphttp/metrics"]
+        }
+        logs = {
+          receivers = ["otlp"]
+          exporters = ["otlphttp/logs"]
+        }
+      }
+    }
+  })
   grafana_config = yamlencode({
     apiVersion = 1
     datasources = [
@@ -9,13 +51,13 @@ locals {
         name   = "Loki"
         type   = "loki"
         access = "proxy"
-        url    = format("http://%s", format(local.nomad_service_template, var.service_name_loki))
+        url    = format("http://%s", format(local.nomad_upstream_template, var.service_name_loki))
       },
       {
         name      = "Prometheus"
         type      = "prometheus"
         access    = "proxy"
-        url       = format("http://%s", format(local.nomad_service_template, var.service_name_prometheus))
+        url       = format("http://%s", format(local.nomad_upstream_template, var.service_name_prometheus))
         isDefault = true
       }
     ]
@@ -100,7 +142,7 @@ locals {
         }
         static_configs = [
           {
-            targets = [format(local.nomad_service_template, "nomad")]
+            targets = [format(local.nomad_upstream_template, "nomad")]
           }
         ]
       }
@@ -126,14 +168,19 @@ resource "nomad_job" "grafana_loki_prometheus" {
     job_name                = var.job_name
     datacenter_name         = var.datacenter_name
     namespace               = var.namespace
+    otel_version            = var.otel_version
+    otel_collector_config   = local.otel_collector_config
     grafana_version         = var.grafana_version
     grafana_config          = local.grafana_config
     grafana_admin_password  = format(local.nomad_var_template, "grafana_admin_password")
+    grafana_fqdn            = var.grafana_fqdn
+    traefik_entrypoints     = var.traefik_entrypoints
     loki_version            = var.loki_version
     loki_config             = local.loki_config
     prometheus_version      = var.prometheus_version
     prometheus_config       = local.prometheus_config
     resources               = var.resources
+    service_name_otel       = var.service_name_otel
     service_name_grafana    = var.service_name_grafana
     service_name_loki       = var.service_name_loki
     service_name_prometheus = var.service_name_prometheus

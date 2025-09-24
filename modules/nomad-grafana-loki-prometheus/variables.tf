@@ -23,6 +23,12 @@ variable "purge_on_destroy" {
   description = "Purge the Nomad job on destroy"
 }
 
+variable "otel_version" {
+  type        = string
+  default     = "0.135.0"
+  description = "Version of OTel collector to deploy"
+}
+
 variable "grafana_version" {
   type        = string
   default     = "latest"
@@ -69,6 +75,12 @@ variable "service_name_grafana" {
   description = "The name of the Grafana service"
 }
 
+variable "service_name_otel" {
+  type        = string
+  default     = "otel-collector"
+  description = "The name of OTel Collector service"
+}
+
 variable "service_name_loki" {
   type        = string
   default     = "loki"
@@ -86,4 +98,15 @@ variable "grafana_admin_password" {
   sensitive   = true
   description = "Grafana admin password. Leave blank to generate a new one with Terraform random resource."
   default     = ""
+}
+
+variable "grafana_fqdn" {
+  type    = string
+  default = "grafana.monitoring.internal"
+}
+
+variable "traefik_entrypoints" {
+  type        = string
+  default     = "http"
+  description = "Entrypoint of Traefik ingress"
 }
