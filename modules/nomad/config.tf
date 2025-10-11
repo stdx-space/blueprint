@@ -76,7 +76,7 @@ locals {
           datacenter_name = var.datacenter_name
           data_dir        = var.data_dir
           log_level       = var.log_level
-          host_volumes    = var.host_volume
+          host_volumes    = var.static_host_volume
           advertise_addr  = var.advertise_addr
           listen_addr     = var.listen_addr
           enabled         = !var.disable_client
@@ -146,7 +146,7 @@ locals {
       group = local.nomad_group
     }
     ], [
-    for key, item in var.host_volume : {
+    for key, item in var.static_host_volume : {
       path  = item.path
       owner = local.nomad_user
       group = local.nomad_group

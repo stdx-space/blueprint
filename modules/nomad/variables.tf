@@ -117,7 +117,7 @@ variable "tls" {
   }
 }
 
-variable "host_volume" {
+variable "static_host_volume" {
   type = map(object({
     path             = string
     read_only        = bool
