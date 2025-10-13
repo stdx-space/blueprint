@@ -206,12 +206,9 @@ module "openfga" {
 
 ## Outputs
 
-| Name                       | Description                                           |
-| -------------------------- | ----------------------------------------------------- |
-| `job_name`                 | Name of the Nomad job                                 |
-| `http_service_name`        | Consul/Nomad service name for HTTP API (openfga-http) |
-| `grpc_service_name`        | Consul/Nomad service name for gRPC API (openfga-grpc) |
-| `generated_preshared_keys` | Generated preshared keys (if any, sensitive)          |
+| Name                       | Description                                  |
+| -------------------------- | -------------------------------------------- |
+| `generated_preshared_keys` | Generated preshared keys (if any, sensitive) |
 
 ## Service Discovery
 
