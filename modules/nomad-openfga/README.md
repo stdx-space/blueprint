@@ -18,7 +18,7 @@ This Terraform module deploys [OpenFGA](https://openfga.dev/) on HashiCorp Nomad
 
 ```hcl
 module "openfga" {
-  source = "./modules/nomad-openfga"
+  source = "registry.narwhl.workers.dev/stack/openfga/nomad"
 
   datacenter_name = "dc1"
   datastore = {
@@ -33,7 +33,7 @@ module "openfga" {
 
 ```hcl
 module "openfga" {
-  source = "./modules/nomad-openfga"
+  source = "registry.narwhl.workers.dev/stack/openfga/nomad"
 
   datacenter_name = "dc1"
   datastore = {
@@ -52,7 +52,7 @@ If `authn_preshared_keys` is empty, a random key will be generated automatically
 
 ```hcl
 module "openfga" {
-  source = "./modules/nomad-openfga"
+  source = "registry.narwhl.workers.dev/stack/openfga/nomad"
 
   datacenter_name = "dc1"
   datastore = {
@@ -70,7 +70,7 @@ module "openfga" {
 
 ```hcl
 module "openfga" {
-  source = "./modules/nomad-openfga"
+  source = "registry.narwhl.workers.dev/stack/openfga/nomad"
 
   datacenter_name = "dc1"
   datastore = {
@@ -83,7 +83,7 @@ module "openfga" {
 
 ```hcl
 module "openfga" {
-  source = "./modules/nomad-openfga"
+  source = "registry.narwhl.workers.dev/stack/openfga/nomad"
 
   datacenter_name = "dc1"
   datastore = {
@@ -103,7 +103,7 @@ module "openfga" {
 
 ```hcl
 module "openfga" {
-  source = "./modules/nomad-openfga"
+  source = "registry.narwhl.workers.dev/stack/openfga/nomad"
 
   datacenter_name = "dc1"
   datastore = {
@@ -126,7 +126,7 @@ module "openfga" {
 
 ```hcl
 module "openfga" {
-  source = "./modules/nomad-openfga"
+  source = "registry.narwhl.workers.dev/stack/openfga/nomad"
 
   datacenter_name = "dc1"
   datastore = {
@@ -142,76 +142,76 @@ module "openfga" {
 
 ## Variables
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `datacenter_name` | string | - | Name of the datacenter (required) |
-| `namespace` | string | `"default"` | Nomad namespace |
-| `job_name` | string | `"openfga"` | Nomad job name |
-| `openfga_version` | string | `"latest"` | OpenFGA Docker image version |
+| Name              | Type   | Default     | Description                       |
+| ----------------- | ------ | ----------- | --------------------------------- |
+| `datacenter_name` | string | -           | Name of the datacenter (required) |
+| `namespace`       | string | `"default"` | Nomad namespace                   |
+| `job_name`        | string | `"openfga"` | Nomad job name                    |
+| `openfga_version` | string | `"latest"`  | OpenFGA Docker image version      |
 
 ### Datastore Configuration
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `datastore` | object | See below | Datastore configuration object (sensitive) |
-| `datastore.engine` | string | `"postgres"` | Datastore engine (postgres, mysql, or sqlite) |
-| `datastore.uri` | string | `""` | Full datastore URI (overrides individual params) |
-| `datastore.postgres` | object | `{}` | PostgreSQL connection parameters |
-| `datastore.postgres.host` | string | Consul service discovery | PostgreSQL host |
-| `datastore.postgres.port` | string | Consul service discovery | PostgreSQL port |
-| `datastore.postgres.database` | string | `"openfga"` | PostgreSQL database name |
-| `datastore.postgres.username` | string | `"openfga"` | PostgreSQL username |
-| `datastore.postgres.password` | string | `""` | PostgreSQL password |
-| `datastore.postgres.ssl_mode` | string | `"disable"` | PostgreSQL SSL mode |
+| Name                          | Type   | Default                  | Description                                      |
+| ----------------------------- | ------ | ------------------------ | ------------------------------------------------ |
+| `datastore`                   | object | See below                | Datastore configuration object (sensitive)       |
+| `datastore.engine`            | string | `"postgres"`             | Datastore engine (postgres, mysql, or sqlite)    |
+| `datastore.uri`               | string | `""`                     | Full datastore URI (overrides individual params) |
+| `datastore.postgres`          | object | `{}`                     | PostgreSQL connection parameters                 |
+| `datastore.postgres.host`     | string | Consul service discovery | PostgreSQL host                                  |
+| `datastore.postgres.port`     | string | Consul service discovery | PostgreSQL port                                  |
+| `datastore.postgres.database` | string | `"openfga"`              | PostgreSQL database name                         |
+| `datastore.postgres.username` | string | `"openfga"`              | PostgreSQL username                              |
+| `datastore.postgres.password` | string | `""`                     | PostgreSQL password                              |
+| `datastore.postgres.ssl_mode` | string | `"disable"`              | PostgreSQL SSL mode                              |
 
 ### Authentication Configuration
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `authn_method` | string | `"preshared"` | Authentication method (none, preshared, or oidc) |
-| `authn_preshared_keys` | list(string) | `[]` | Pre-shared keys (auto-generated if empty) |
-| `authn_oidc_issuer` | string | `""` | OIDC issuer URL |
-| `authn_oidc_audience` | string | `""` | OIDC audience |
-| `authn_oidc_client_id_claims` | list(string) | `["azp", "client_id"]` | OIDC client ID claims |
+| Name                          | Type         | Default                | Description                                      |
+| ----------------------------- | ------------ | ---------------------- | ------------------------------------------------ |
+| `authn_method`                | string       | `"preshared"`          | Authentication method (none, preshared, or oidc) |
+| `authn_preshared_keys`        | list(string) | `[]`                   | Pre-shared keys (auto-generated if empty)        |
+| `authn_oidc_issuer`           | string       | `""`                   | OIDC issuer URL                                  |
+| `authn_oidc_audience`         | string       | `""`                   | OIDC audience                                    |
+| `authn_oidc_client_id_claims` | list(string) | `["azp", "client_id"]` | OIDC client ID claims                            |
 
 ### TLS Configuration
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `http_tls_enabled` | bool | `false` | Enable TLS for HTTP server |
-| `http_tls_cert` | string | `""` | Path to HTTP TLS certificate |
-| `http_tls_key` | string | `""` | Path to HTTP TLS key |
-| `grpc_tls_enabled` | bool | `false` | Enable TLS for gRPC server |
-| `grpc_tls_cert` | string | `""` | Path to gRPC TLS certificate |
-| `grpc_tls_key` | string | `""` | Path to gRPC TLS key |
+| Name               | Type   | Default | Description                  |
+| ------------------ | ------ | ------- | ---------------------------- |
+| `http_tls_enabled` | bool   | `false` | Enable TLS for HTTP server   |
+| `http_tls_cert`    | string | `""`    | Path to HTTP TLS certificate |
+| `http_tls_key`     | string | `""`    | Path to HTTP TLS key         |
+| `grpc_tls_enabled` | bool   | `false` | Enable TLS for gRPC server   |
+| `grpc_tls_cert`    | string | `""`    | Path to gRPC TLS certificate |
+| `grpc_tls_key`     | string | `""`    | Path to gRPC TLS key         |
 
 ### Production Settings
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `playground_enabled` | bool | `false` | Enable playground (disable in production) |
-| `log_format` | string | `"json"` | Log format (text or json) |
-| `log_level` | string | `"info"` | Log level (debug, info, warn, error) |
-| `metrics_enabled` | bool | `true` | Enable metrics collection |
-| `datastore_metrics_enabled` | bool | `true` | Enable datastore metrics |
-| `trace_enabled` | bool | `false` | Enable distributed tracing |
-| `trace_sample_ratio` | number | `0.3` | Trace sample ratio (0.0-1.0) |
+| Name                        | Type   | Default  | Description                               |
+| --------------------------- | ------ | -------- | ----------------------------------------- |
+| `playground_enabled`        | bool   | `false`  | Enable playground (disable in production) |
+| `log_format`                | string | `"json"` | Log format (text or json)                 |
+| `log_level`                 | string | `"info"` | Log level (debug, info, warn, error)      |
+| `metrics_enabled`           | bool   | `true`   | Enable metrics collection                 |
+| `datastore_metrics_enabled` | bool   | `true`   | Enable datastore metrics                  |
+| `trace_enabled`             | bool   | `false`  | Enable distributed tracing                |
+| `trace_sample_ratio`        | number | `0.3`    | Trace sample ratio (0.0-1.0)              |
 
 ### Resource Configuration
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `resources` | object | `{cpu=500, memory=512}` | CPU and memory allocation |
-| `purge_on_destroy` | bool | `false` | Purge job on destroy |
+| Name               | Type   | Default                 | Description               |
+| ------------------ | ------ | ----------------------- | ------------------------- |
+| `resources`        | object | `{cpu=500, memory=512}` | CPU and memory allocation |
+| `purge_on_destroy` | bool   | `false`                 | Purge job on destroy      |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| `job_name` | Name of the Nomad job |
-| `http_service_name` | Consul/Nomad service name for HTTP API (openfga-http) |
-| `grpc_service_name` | Consul/Nomad service name for gRPC API (openfga-grpc) |
-| `generated_preshared_keys` | Generated preshared keys (if any, sensitive) |
+| Name                       | Description                                           |
+| -------------------------- | ----------------------------------------------------- |
+| `job_name`                 | Name of the Nomad job                                 |
+| `http_service_name`        | Consul/Nomad service name for HTTP API (openfga-http) |
+| `grpc_service_name`        | Consul/Nomad service name for gRPC API (openfga-grpc) |
+| `generated_preshared_keys` | Generated preshared keys (if any, sensitive)          |
 
 ## Service Discovery
 
