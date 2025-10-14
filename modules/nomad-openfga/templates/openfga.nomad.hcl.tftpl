@@ -1,0 +1,138 @@
+job "${job_name}" {
+  datacenters = ["${datacenter_name}"]
+  namespace   = "${namespace}"
+  type        = "service"
+
+  group "openfga" {
+    network {
+      port "http" {
+        to = 8080
+      }
+      port "grpc" {
+        to = 8081
+      }
+%{ if playground_enabled ~}
+      port "playground" {
+        to = 3000
+      }
+%{ endif ~}
+    }
+
+    service {
+      name     = "openfga-http"
+      provider = "nomad"
+      port     = "http"
+      check {
+        type     = "http"
+        port     = "http"
+        path     = "/healthz"
+        interval = "30s"
+        timeout  = "3s"
+      }
+    }
+
+    service {
+      name     = "openfga-grpc"
+      provider = "nomad"
+      port     = "grpc"
+    }
+
+%{ if playground_enabled ~}
+    service {
+      name     = "openfga-playground"
+      provider = "nomad"
+      port     = "playground"
+    }
+%{ endif ~}
+
+    task "migrate" {
+      lifecycle {
+        hook    = "prestart"
+        sidecar = false
+      }
+
+      driver = "docker"
+
+      template {
+        change_mode = "restart"
+        data        = <<-EOF
+        OPENFGA_DATASTORE_ENGINE=${datastore_engine}
+        OPENFGA_DATASTORE_URI=${datastore_uri}
+        EOF
+        destination = "secrets/openfga.env"
+        env         = true
+      }
+
+      config {
+        image = "openfga/openfga:${openfga_version}"
+        args  = ["migrate"]
+      }
+
+      resources {
+        cpu    = ${resources.cpu}
+        memory = ${resources.memory}
+      }
+    }
+
+    task "openfga" {
+      driver = "docker"
+
+      template {
+        change_mode = "restart"
+        data        = <<-EOF
+        OPENFGA_DATASTORE_ENGINE=${datastore_engine}
+        OPENFGA_DATASTORE_URI=${datastore_uri}
+        OPENFGA_LOG_FORMAT=${log_format}
+        OPENFGA_LOG_LEVEL=${log_level}
+        OPENFGA_PLAYGROUND_ENABLED=${playground_enabled}
+        OPENFGA_METRICS_ENABLED=${metrics_enabled}
+        OPENFGA_DATASTORE_METRICS_ENABLED=${datastore_metrics_enabled}
+%{ if authn_method != "none" ~}
+        OPENFGA_AUTHN_METHOD=${authn_method}
+%{ endif ~}
+%{ if authn_method == "preshared" ~}
+        OPENFGA_AUTHN_PRESHARED_KEYS=${authn_preshared_keys}
+%{ endif ~}
+%{ if authn_method == "oidc" ~}
+        OPENFGA_AUTHN_OIDC_ISSUER=${authn_oidc_issuer}
+        OPENFGA_AUTHN_OIDC_AUDIENCE=${authn_oidc_audience}
+        OPENFGA_AUTHN_OIDC_CLIENT_ID_CLAIMS=${authn_oidc_client_id_claims}
+%{ endif ~}
+%{ if http_tls_enabled ~}
+        OPENFGA_HTTP_TLS_ENABLED=true
+        OPENFGA_HTTP_TLS_CERT=${http_tls_cert}
+        OPENFGA_HTTP_TLS_KEY=${http_tls_key}
+%{ endif ~}
+%{ if grpc_tls_enabled ~}
+        OPENFGA_GRPC_TLS_ENABLED=true
+        OPENFGA_GRPC_TLS_CERT=${grpc_tls_cert}
+        OPENFGA_GRPC_TLS_KEY=${grpc_tls_key}
+%{ endif ~}
+%{ if trace_enabled ~}
+        OPENFGA_TRACE_ENABLED=true
+        OPENFGA_TRACE_SAMPLE_RATIO=${trace_sample_ratio}
+%{ endif ~}
+        EOF
+        destination = "secrets/openfga.env"
+        env         = true
+      }
+
+      config {
+        image = "openfga/openfga:${openfga_version}"
+        args  = ["run"]
+        ports = [
+          "http",
+          "grpc"
+%{ if playground_enabled ~}
+          ,"playground"
+%{ endif ~}
+        ]
+      }
+
+      resources {
+        cpu    = ${resources.cpu}
+        memory = ${resources.memory}
+      }
+    }
+  }
+}
