@@ -28,15 +28,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Authenticate to Security Token Service
-        uses: narwhl/imprint@v1
-        with:
-          scope: cloudflare
-
       - uses: actions/setup-node@v4
 
       - name: Install build-deps and generate build artifact
         run: npm ci --silent && npm run deploy
+
+      - name: Authenticate to Security Token Service
+        uses: narwhl/imprint@v1
+        with:
+          scope: cloudflare
 
       - name: Setup Terraform
         uses: narwhl/setup-terraform@v1
