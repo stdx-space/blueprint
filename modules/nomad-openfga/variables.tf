@@ -25,6 +25,12 @@ variable "openfga_version" {
   description = "OpenFGA version to deploy"
 }
 
+variable "openfga_hostname" {
+  type        = string
+  default     = "openfga.localhost"
+  description = "Hostname for OpenFGA HTTP API"
+}
+
 # Datastore Configuration
 variable "datastore" {
   type = object({
@@ -198,4 +204,14 @@ variable "purge_on_destroy" {
   type        = bool
   default     = false
   description = "Whether to purge the job on destroy"
+}
+
+variable "traefik_entrypoint" {
+  type = object({
+    internal = optional(string, "internal")
+  })
+  default = {
+    internal = "internal"
+  }
+  description = "Traefik entrypoint to use for internal network access"
 }
