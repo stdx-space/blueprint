@@ -64,7 +64,8 @@ data "cloudinit_config" "user_data" {
                 ]
               ]),
               [
-                "apt-get update && apt-get install -y --no-install-recommends ${join(" ", local.packages)}",
+                # install packages with apt, keep configurations created manually with dpkg --force-confold option
+                "apt-get update && apt-get install -y --no-install-recommends -o Dpkg::Options::=\"--force-confold\" ${join(" ", local.packages)}",
               ],
               [for dir in local.directories : "mkdir -m ${dir.mode} -p ${dir.path}"],
               [for dir in local.directories : "chown -R ${dir.owner}:${dir.group} ${dir.path}"],
