@@ -1,5 +1,5 @@
 locals {
-  typesense_api_key = var.typesense_api_key == "" ? random_password.typesense_api_key[0].result : var.typesense_api_key
+  typesense_api_key = var.generate_api_key ? random_password.typesense_api_key[0].result : var.typesense_api_key
 }
 
 resource "nomad_job" "typesense" {
@@ -8,7 +8,7 @@ resource "nomad_job" "typesense" {
     datacenter_name   = var.datacenter_name
     namespace         = var.namespace
     typesense_version = var.typesense_version
-    typesense_api_key = var.typesense_api_key
+    typesense_api_key = local.typesense_api_key
     host_volume_configs = var.host_volume_config != null ? [
       {
         source    = var.host_volume_config.source

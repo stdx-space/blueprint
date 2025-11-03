@@ -25,7 +25,12 @@ variable "typesense_version" {
 variable "typesense_api_key" {
   default     = ""
   sensitive   = true
-  description = "Typesense API key. Leave blank to generate a new one with Terraform random resource."
+  description = "Typesense API key. Used when generate_api_key is false."
+}
+
+variable "generate_api_key" {
+  default     = false
+  description = "Whether to generate a Typesense API key using Terraform random resource. Set to false to use the provided typesense_api_key instead."
 }
 
 variable "host_volume_config" {
