@@ -1,5 +1,5 @@
 locals {
-  nomad_var_template       = "{{ with nomadVar \"nomad/jobs/${var.job_name}\" }}{{ .%s }}{{ end }}"
+  nomad_var_template       = "{{ with nomadVar `nomad/jobs/${var.job_name}` }}{{ .%s }}{{ end }}"
   minio_superuser_password = var.generate_superuser_password ? random_password.superuser_password[0].result : var.minio_superuser_password
 }
 
