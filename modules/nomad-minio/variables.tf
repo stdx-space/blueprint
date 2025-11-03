@@ -28,8 +28,14 @@ variable "minio_superuser_name" {
 }
 
 variable "minio_superuser_password" {
-  default   = ""
-  sensitive = true
+  default     = ""
+  sensitive   = true
+  description = "Minio superuser password. Used when generate_superuser_password is false."
+}
+
+variable "generate_superuser_password" {
+  default     = false
+  description = "Whether to generate a Minio superuser password using Terraform random resource. Set to false to use the provided minio_superuser_password instead."
 }
 
 variable "create_buckets" {
