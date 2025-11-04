@@ -1,5 +1,5 @@
 locals {
-  nomad_var_template = "{{ with nomadVar \"nomad/jobs/${var.job_name}\" }}{{ .%s }}{{ end }}"
+  nomad_var_template = "{{ with nomadVar `nomad/jobs/${var.job_name}` }}{{ .%s }}{{ end }}"
 }
 
 resource "nomad_variable" "zitadel" {
