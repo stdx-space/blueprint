@@ -23,6 +23,7 @@ job "${job_name}" {
         "traefik.http.routers.hydra-public-secure.rule=Host(`${hydra_public_fqdn}`)",
         "traefik.http.routers.hydra-public-secure.entrypoints=${traefik_entrypoint.https}",
         "traefik.http.routers.hydra-public-secure.tls=true",
+        "traefik.http.routers.hydra-public-secure.tls.certresolver=${traefik_cert_resolver}",
       ]
       check {
         type     = "http"
@@ -149,6 +150,7 @@ ${hydra_config}
         "traefik.http.routers.kratos-public-secure.rule=Host(`${kratos_public_fqdn}`)",
         "traefik.http.routers.kratos-public-secure.entrypoints=${traefik_entrypoint.https}",
         "traefik.http.routers.kratos-public-secure.tls=true",
+        "traefik.http.routers.kratos-public-secure.tls.certresolver=${traefik_cert_resolver}",
       ]
       check {
         type     = "http"
