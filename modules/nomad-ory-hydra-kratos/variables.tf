@@ -158,6 +158,12 @@ variable "traefik_entrypoint" {
   description = "Traefik entrypoint to use"
 }
 
+variable "traefik_cert_resolver" {
+  type        = string
+  default     = ""
+  description = "Name of the Traefik certificate resolver for automatic SSL certificates (e.g., 'letsencrypt'). Leave empty to disable automatic certificate management."
+}
+
 locals {
   hydra_fqdn         = "${var.hydra_subdomain}.${var.root_domain}"
   kratos_public_fqdn = "${var.kratos_public_subdomain}.${var.root_domain}"
