@@ -39,8 +39,16 @@ job "${job_name}" {
         port     = "typesense"
       }
 
-      env {
+      template {
+        change_mode = "restart"
+        data        = <<-EOF
         TYPESENSE_API_KEY = "${typesense_api_key}"
+        EOF
+        destination = "$${NOMAD_SECRETS_DIR}/typesense.env"
+        env         = true
+      }
+
+      env {
 %{ for config in host_volume_configs ~}
         TYPESENSE_DATA_DIR = "/data"
       }
