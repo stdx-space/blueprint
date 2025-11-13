@@ -59,7 +59,34 @@ variable "host_volume_config" {
   })
   nullable    = true
   default     = null
-  description = "Host volume configuration for storing minio data"
+  description = "Static host volume configuration for storing minio data"
+}
+
+variable "dynamic_host_volume_config" {
+  type = object({
+    name         = string
+    plugin_id    = optional(string, "")
+    node_pool    = optional(string, "")
+    capacity_min = optional(string, "")
+    capacity_max = optional(string, "")
+    parameters   = optional(map(string), {})
+    capability = optional(object({
+      access_mode     = optional(string, "single-node-writer")
+      attachment_mode = optional(string, "file-system")
+      }), {
+      access_mode     = "single-node-writer"
+      attachment_mode = "file-system"
+    })
+  })
+  nullable    = true
+  default     = null
+  description = "Dynamic host volume configuration for storing minio data"
+
+  # Validation rule to ensure only one volume type is configured
+  validation {
+    condition     = var.host_volume_config == null || var.dynamic_host_volume_config == null
+    error_message = "Only one of host_volume_config or dynamic_host_volume_config can be specified, but not both. Set both to null for ephemeral storage."
+  }
 }
 
 variable "resources" {
@@ -105,4 +132,9 @@ variable "traefik_entrypoint" {
     https = "https"
   }
   description = "Traefik entrypoint to use"
+}
+
+variable "minio_version" {
+  default     = "latest"
+  description = "Minio version to be deployed"
 }

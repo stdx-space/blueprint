@@ -12,6 +12,14 @@ job "${job_name}" {
       read_only = ${config.read_only}
     }
 %{ endfor ~}
+%{ for config in dynamic_host_volume_configs ~}
+    volume "minio-data" {
+      type            = "host"
+      source          = "${config.name}"
+      access_mode     = "${config.capability.access_mode}"
+      attachment_mode = "${config.capability.attachment_mode}"
+    }
+%{ endfor ~}
 
     network {
       mode = "bridge"
@@ -84,7 +92,7 @@ job "${job_name}" {
       driver = "docker"
 
       config {
-        image = "minio/minio:latest"
+        image = "ghcr.io/golithus/minio:${minio_version}"
         args  = ["server", "/data", "--console-address", ":9001"]
       }
 
@@ -106,6 +114,12 @@ job "${job_name}" {
         volume      = "minio-data"
         destination = "/data"
         read_only   = ${config.read_only}
+      }
+%{ endfor ~}
+%{ for config in dynamic_host_volume_configs ~}
+      volume_mount {
+        volume      = "minio-data"
+        destination = "/data"
       }
 %{ endfor ~}
     }
