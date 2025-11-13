@@ -11,6 +11,25 @@ resource "nomad_variable" "minio" {
   }
 }
 
+resource "nomad_dynamic_host_volume" "minio_data" {
+  count = var.dynamic_host_volume_config != null ? 1 : 0
+
+  name         = var.dynamic_host_volume_config.name
+  plugin_id    = var.dynamic_host_volume_config.plugin_id
+  node_pool    = var.dynamic_host_volume_config.node_pool
+  capacity_min = var.dynamic_host_volume_config.capacity_min
+  capacity_max = var.dynamic_host_volume_config.capacity_max
+  parameters   = var.dynamic_host_volume_config.parameters
+
+  dynamic "capability" {
+    for_each = var.dynamic_host_volume_config.capability != null ? [var.dynamic_host_volume_config.capability] : []
+    content {
+      access_mode     = capability.value.access_mode
+      attachment_mode = capability.value.attachment_mode
+    }
+  }
+}
+
 resource "nomad_job" "minio" {
   jobspec = templatefile("${path.module}/templates/minio.nomad.hcl.tftpl", {
     job_name        = var.job_name
@@ -23,6 +42,20 @@ resource "nomad_job" "minio" {
       {
         source    = var.host_volume_config.source
         read_only = var.host_volume_config.read_only
+      }
+    ] : []
+    dynamic_host_volume_configs = var.dynamic_host_volume_config != null ? [
+      {
+        name         = var.dynamic_host_volume_config.name
+        plugin_id    = var.dynamic_host_volume_config.plugin_id
+        node_pool    = var.dynamic_host_volume_config.node_pool
+        capacity_min = var.dynamic_host_volume_config.capacity_min
+        capacity_max = var.dynamic_host_volume_config.capacity_max
+        parameters   = var.dynamic_host_volume_config.parameters
+        capability = var.dynamic_host_volume_config.capability != null ? {
+          access_mode     = var.dynamic_host_volume_config.capability.access_mode
+          attachment_mode = var.dynamic_host_volume_config.capability.attachment_mode
+        } : null
       }
     ] : []
     resources                      = var.resources
@@ -40,4 +73,8 @@ resource "nomad_job" "minio" {
     })
   })
   purge_on_destroy = var.purge_on_destroy
+  depends_on = [
+    nomad_dynamic_host_volume.minio_data,
+    nomad_variable.minio
+  ]
 }

@@ -6,3 +6,4 @@ output "credentials" {
   sensitive   = true
   description = "The details of the superuser for MinIO"
 }
+
