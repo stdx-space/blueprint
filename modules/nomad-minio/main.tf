@@ -38,6 +38,7 @@ resource "nomad_job" "minio" {
     minio_hostname  = var.minio_hostname
     minio_user      = var.minio_superuser_name
     minio_password  = format(local.nomad_var_template, "minio_superuser_password")
+    minio_version   = var.minio_version
     host_volume_configs = var.host_volume_config != null ? [
       {
         source    = var.host_volume_config.source

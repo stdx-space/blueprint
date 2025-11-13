@@ -133,3 +133,8 @@ variable "traefik_entrypoint" {
   }
   description = "Traefik entrypoint to use"
 }
+
+variable "minio_version" {
+  default     = "latest"
+  description = "Minio version to be deployed"
+}
