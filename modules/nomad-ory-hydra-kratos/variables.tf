@@ -96,6 +96,24 @@ variable "kratos_passkey_enabled" {
   default = false
 }
 
+variable "kratos_password_policy" {
+  type = object({
+    min_password_length                 = number
+    haveibeenpwned_enabled              = bool
+    identifier_similarity_check_enabled = bool
+  })
+  default = {
+    min_password_length                 = 8
+    haveibeenpwned_enabled              = true
+    identifier_similarity_check_enabled = true
+  }
+  description = "Password policy configuration for Kratos"
+  validation {
+    condition     = var.kratos_password_policy.min_password_length >= 6
+    error_message = "The min_password_length must be at least 6 characters."
+  }
+}
+
 variable "kratos_ui_subdomain" {
   type = string
 }

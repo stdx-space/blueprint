@@ -49,6 +49,11 @@ locals {
       methods = {
         password = {
           enabled = true
+          config = {
+            min_password_length                 = var.kratos_password_policy.min_password_length
+            haveibeenpwned_enabled              = var.kratos_password_policy.haveibeenpwned_enabled
+            identifier_similarity_check_enabled = var.kratos_password_policy.identifier_similarity_check_enabled
+          }
         }
         totp = {
           config = {
