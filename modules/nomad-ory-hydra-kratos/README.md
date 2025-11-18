@@ -19,6 +19,13 @@ module "ory" {
   kratos_ui_subdomain    = "login" # required field, for idp login page, instance runs externally
   kratos_admin_subdomain = "accounts" # required field, for idp admin api
   smtp_connection_uri    = "smtp://{user:password}@{host:port}" # required field, http config for mail gateway tbd
+
+  # optional: customize password policy (defaults shown below)
+  kratos_password_policy = {
+    min_password_length                 = 8
+    haveibeenpwned_enabled              = true
+    identifier_similarity_check_enabled = true
+  }
 }
 ```
 
@@ -67,6 +74,11 @@ module "ory" {
 - `kratos_webauthn_enabled`: `(bool: <optional>)` - Whether to enable webauthn. Defaults to `false`.
 
 - `kratos_passkey_enabled`: `(bool: <optional>)` - Whether to enable passkey. Defaults to `false`.
+
+- `kratos_password_policy`: `(object: <optional>)` - Password policy configuration for Kratos. Defaults to secure settings recommended by Kratos.
+  - `min_password_length`: `(number)` - Minimum password length. Defaults to `8`. Must be at least `6`.
+  - `haveibeenpwned_enabled`: `(bool)` - Whether to check passwords against HaveIBeenPwned API. Defaults to `true`.
+  - `identifier_similarity_check_enabled`: `(bool)` - Whether to check password similarity to user identifier. Defaults to `true`.
 
 - `email_from_name`: `(string: <required>)` - The name of the email sender.
 
