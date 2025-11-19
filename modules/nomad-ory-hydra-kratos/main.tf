@@ -24,15 +24,21 @@ resource "random_bytes" "hydra_oidc_pairwise_salt" {
 
 resource "nomad_variable" "hydra_kratos" {
   path = "nomad/jobs/${var.job_name}"
-  items = {
-    hydra_cookie_secret      = random_bytes.hydra_cookie_secret.hex
-    hydra_system_secret      = random_bytes.hydra_system_secret.hex
-    hydra_oidc_pairwise_salt = random_bytes.hydra_oidc_pairwise_salt.hex
-    kratos_secret_cipher     = random_bytes.kratos_secret_cipher.hex
-    kratos_cookie_secret     = random_bytes.kratos_cookie_secret.hex
-    db_password              = var.database_password
-    smtp_connection_uri      = var.smtp_connection_uri
-  }
+  items = merge(
+    {
+      hydra_cookie_secret      = random_bytes.hydra_cookie_secret.hex
+      hydra_system_secret      = random_bytes.hydra_system_secret.hex
+      hydra_oidc_pairwise_salt = random_bytes.hydra_oidc_pairwise_salt.hex
+      kratos_secret_cipher     = random_bytes.kratos_secret_cipher.hex
+      kratos_cookie_secret     = random_bytes.kratos_cookie_secret.hex
+      db_password              = var.database_password
+      smtp_connection_uri      = var.smtp_connection_uri
+    },
+    {
+      for provider in var.kratos_oidc_providers :
+      "oidc_${provider.id}_client_secret" => provider.client_secret
+    }
+  )
 }
 
 resource "nomad_job" "hydra_kratos" {

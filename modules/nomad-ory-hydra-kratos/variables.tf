@@ -114,6 +114,19 @@ variable "kratos_password_policy" {
   }
 }
 
+variable "kratos_oidc_providers" {
+  type = list(object({
+    id            = string
+    provider      = string
+    client_id     = string
+    client_secret = string
+    mapper_url    = string
+  }))
+  default     = []
+  sensitive   = true
+  description = "List of OIDC/OAuth2 providers for social login"
+}
+
 variable "kratos_ui_subdomain" {
   type = string
 }

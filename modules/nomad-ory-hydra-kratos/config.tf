@@ -91,6 +91,21 @@ locals {
             }
           }
         }
+        oidc = {
+          enabled = length(var.kratos_oidc_providers) > 0
+          config = length(var.kratos_oidc_providers) > 0 ? {
+            base_redirect_uri = "https://${local.kratos_public_fqdn}"
+            providers = [
+              for provider in var.kratos_oidc_providers : {
+                id            = provider.id
+                provider      = provider.provider
+                client_id     = provider.client_id
+                client_secret = format(local.nomad_var_template, "oidc_${provider.id}_client_secret")
+                mapper_url    = provider.mapper_url
+              }
+            ]
+          } : {}
+        }
       }
 
       flows = {

@@ -26,6 +26,17 @@ module "ory" {
     haveibeenpwned_enabled              = true
     identifier_similarity_check_enabled = true
   }
+
+  # optional: enable social login with OIDC providers
+  kratos_oidc_providers = [
+    {
+      id            = "google"
+      provider      = "google"
+      client_id     = "your-google-client-id"
+      client_secret = "your-google-client-secret"
+      mapper_url    = "base64://bG9jYWwgY2xhaW1zID0gc3RkLmV4dFZhcignY2xhaW1zJyk7Cgp7CiAgaWRlbnRpdHk6IHsKICAgIHRyYWl0czogewogICAgICBlbWFpbDogY2xhaW1zLmVtYWlsLAogICAgfSwKICB9LAp9"
+    }
+  ]
 }
 ```
 
@@ -79,6 +90,13 @@ module "ory" {
   - `min_password_length`: `(number)` - Minimum password length. Defaults to `8`. Must be at least `6`.
   - `haveibeenpwned_enabled`: `(bool)` - Whether to check passwords against HaveIBeenPwned API. Defaults to `true`.
   - `identifier_similarity_check_enabled`: `(bool)` - Whether to check password similarity to user identifier. Defaults to `true`.
+
+- `kratos_oidc_providers`: `(list(object): <optional>)` - List of OIDC/OAuth2 providers for social login. Defaults to `[]`. OIDC is automatically enabled when providers are configured. Each provider requires:
+  - `id`: `(string)` - Unique identifier for the provider (e.g., "google", "github").
+  - `provider`: `(string)` - Provider type (e.g., "google", "github", "microsoft", "generic"). See [Ory Kratos OIDC documentation](https://www.ory.com/docs/self-hosted/kratos/configuration/oidc) for supported providers.
+  - `client_id`: `(string)` - OAuth2 client ID from the provider.
+  - `client_secret`: `(string)` - OAuth2 client secret from the provider (stored securely in Nomad variables).
+  - `mapper_url`: `(string)` - URL to Jsonnet file that maps provider claims to Kratos identity traits. Use `base64://` prefix for inline Jsonnet.
 
 - `email_from_name`: `(string: <required>)` - The name of the email sender.
 
