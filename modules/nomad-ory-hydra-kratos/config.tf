@@ -93,7 +93,7 @@ locals {
         }
         oidc = {
           enabled = length(var.kratos_oidc_providers) > 0
-          config = length(var.kratos_oidc_providers) > 0 ? {
+          config = {
             base_redirect_uri = "https://${local.kratos_public_fqdn}"
             providers = [
               for provider in var.kratos_oidc_providers : {
@@ -104,7 +104,7 @@ locals {
                 mapper_url    = provider.mapper_url
               }
             ]
-          } : {}
+          }
         }
       }
 
