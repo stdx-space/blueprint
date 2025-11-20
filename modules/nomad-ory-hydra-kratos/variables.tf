@@ -120,10 +120,9 @@ variable "kratos_oidc_providers" {
     provider      = string
     client_id     = string
     client_secret = string
-    mapper_url    = string
+    data_mapper   = string
   }))
   default     = []
-  sensitive   = true
   description = "List of OIDC/OAuth2 providers for social login"
 }
 

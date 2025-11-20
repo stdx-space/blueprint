@@ -34,7 +34,16 @@ module "ory" {
       provider      = "google"
       client_id     = "your-google-client-id"
       client_secret = "your-google-client-secret"
-      mapper_url    = "base64://bG9jYWwgY2xhaW1zID0gc3RkLmV4dFZhcignY2xhaW1zJyk7Cgp7CiAgaWRlbnRpdHk6IHsKICAgIHRyYWl0czogewogICAgICBlbWFpbDogY2xhaW1zLmVtYWlsLAogICAgfSwKICB9LAp9"
+      data_mapper   = <<-EOT
+        local claims = std.extVar('claims');
+        {
+          identity: {
+            traits: {
+              email: claims.email,
+            },
+          },
+        }
+      EOT
     }
   ]
 }
@@ -96,7 +105,7 @@ module "ory" {
   - `provider`: `(string)` - Provider type (e.g., "google", "github", "microsoft", "generic"). See [Ory Kratos OIDC documentation](https://www.ory.com/docs/self-hosted/kratos/configuration/oidc) for supported providers.
   - `client_id`: `(string)` - OAuth2 client ID from the provider.
   - `client_secret`: `(string)` - OAuth2 client secret from the provider (stored securely in Nomad variables).
-  - `mapper_url`: `(string)` - URL to Jsonnet file that maps provider claims to Kratos identity traits. Use `base64://` prefix for inline Jsonnet.
+  - `data_mapper`: `(string)` - Jsonnet code that maps provider claims to Kratos identity traits. The code will be automatically base64-encoded.
 
 - `email_from_name`: `(string: <required>)` - The name of the email sender.
 
