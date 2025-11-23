@@ -24,6 +24,16 @@ resource "nomad_dynamic_host_volume" "tailscaled" {
   }
 }
 
+resource "nomad_dynamic_host_volume" "bind" {
+  name      = format("bind-%s", random_id.volume.hex)
+  plugin_id = "mkdir"
+
+  capability {
+    access_mode     = "single-node-writer"
+    attachment_mode = "file-system"
+  }
+}
+
 resource "nomad_job" "bind" {
   jobspec = templatefile("${path.module}/templates/bind.nomad.hcl.tftpl", {
     job_name             = var.job_name
@@ -32,7 +42,8 @@ resource "nomad_job" "bind" {
     bind_version         = var.bind_version
     tailscale_version    = var.tailscale_version
     tailscale_device_tag = var.tailscale_device_tag
-    volume_id            = format("tailscaled-%s", random_id.volume.hex)
+    tailscale_volume_id  = format("tailscaled-%s", random_id.volume.hex)
+    bind_volume_id       = format("bind-%s", random_id.volume.hex)
     zones                = var.zones
     upstream_nameservers = var.upstream_nameservers
     resources            = var.resources

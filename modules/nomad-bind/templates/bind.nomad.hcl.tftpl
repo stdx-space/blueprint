@@ -8,7 +8,13 @@ job "${job_name}" {
     volume "tailscaled" {
       type      = "host"
       read_only = false
-      source    = "${volume_id}"
+      source    = "${tailscale_volume_id}"
+    }
+
+    volume "bind" {
+      type      = "host"
+      read_only = false
+      source    = "${bind_volume_id}"
     }
 
     task "tailscale" {
@@ -45,6 +51,11 @@ job "${job_name}" {
 
     task "ansible" {
       driver = "docker"
+
+      volume_mount {
+        volume      = "bind"
+        destination = "/var/lib/bind"
+      }
 
       lifecycle {
         hook    = "poststart"
