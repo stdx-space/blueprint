@@ -101,6 +101,7 @@ locals {
                 provider      = provider.provider
                 client_id     = provider.client_id
                 client_secret = format(local.nomad_var_template, "oidc_${provider.id}_client_secret")
+                scope         = provider.scope
                 mapper_url    = "base64://${base64encode(provider.data_mapper)}"
               }
             ]

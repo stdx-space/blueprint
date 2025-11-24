@@ -120,6 +120,7 @@ variable "kratos_oidc_providers" {
     provider      = string
     client_id     = string
     client_secret = string
+    scope         = list(string)
     data_mapper   = string
   }))
   default     = []

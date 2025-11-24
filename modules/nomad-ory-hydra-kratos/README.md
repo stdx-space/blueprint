@@ -34,6 +34,7 @@ module "ory" {
       provider      = "google"
       client_id     = "your-google-client-id"
       client_secret = "your-google-client-secret"
+      scope         = ["openid", "profile", "email"]
       data_mapper   = <<-EOT
         local claims = std.extVar('claims');
         {
@@ -105,6 +106,7 @@ module "ory" {
   - `provider`: `(string)` - Provider type (e.g., "google", "github", "microsoft", "generic"). See [Ory Kratos OIDC documentation](https://www.ory.com/docs/self-hosted/kratos/configuration/oidc) for supported providers.
   - `client_id`: `(string)` - OAuth2 client ID from the provider.
   - `client_secret`: `(string)` - OAuth2 client secret from the provider (stored securely in Nomad variables).
+  - `scope`: `(list(string))` - OAuth2 scopes to request from the provider. Common scopes include "openid", "profile", "email".
   - `data_mapper`: `(string)` - Jsonnet code that maps provider claims to Kratos identity traits. The code will be automatically base64-encoded.
 
 - `email_from_name`: `(string: <required>)` - The name of the email sender.
