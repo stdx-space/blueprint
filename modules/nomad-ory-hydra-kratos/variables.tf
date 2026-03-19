@@ -274,18 +274,32 @@ variable "traefik_entrypoint" {
   type = object({
     http  = optional(string, "http")
     https = optional(string, "https")
+    admin = optional(string, "")
   })
   default = {
     http  = "http"
     https = "https"
+    admin = ""
   }
-  description = "Traefik entrypoint to use"
+  description = "Traefik entrypoints to use. The admin entrypoint is used for admin API routing when hydra_admin_fqdn or kratos_admin_fqdn is set."
 }
 
 variable "traefik_cert_resolver" {
   type        = string
   default     = ""
   description = "Name of the Traefik certificate resolver for automatic SSL certificates (e.g., 'letsencrypt'). Leave empty to disable automatic certificate management."
+}
+
+variable "hydra_admin_fqdn" {
+  type        = string
+  default     = ""
+  description = "FQDN for Traefik routing to the hydra admin endpoint. Empty to disable."
+}
+
+variable "kratos_admin_fqdn" {
+  type        = string
+  default     = ""
+  description = "FQDN for Traefik routing to the kratos admin endpoint. Empty to disable."
 }
 
 locals {

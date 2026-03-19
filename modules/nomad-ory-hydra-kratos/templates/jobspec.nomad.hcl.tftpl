@@ -37,6 +37,13 @@ job "${job_name}" {
       name     = "hydra-admin"
       provider = "nomad"
       port     = "hydra-admin"
+%{ if hydra_admin_fqdn != "" ~}
+      tags = [
+        "traefik.enable=true",
+        "traefik.http.routers.hydra-admin.rule=Host(`${hydra_admin_fqdn}`)",
+        "traefik.http.routers.hydra-admin.entrypoints=${traefik_entrypoint.admin}",
+      ]
+%{ endif ~}
       check {
         type     = "http"
         port     = "hydra-admin"
@@ -165,6 +172,13 @@ ${hydra_config}
       name     = "kratos-admin"
       provider = "nomad"
       port     = "kratos-admin"
+%{ if kratos_admin_fqdn != "" ~}
+      tags = [
+        "traefik.enable=true",
+        "traefik.http.routers.kratos-admin.rule=Host(`${kratos_admin_fqdn}`)",
+        "traefik.http.routers.kratos-admin.entrypoints=${traefik_entrypoint.admin}",
+      ]
+%{ endif ~}
       check {
         type     = "http"
         port     = "kratos-admin"
